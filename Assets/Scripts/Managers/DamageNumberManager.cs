@@ -7,7 +7,6 @@ public class DamageNumberManager : MonoBehaviour
     public static DamageNumberManager instance;
 
     public DamageNumber DamageNumberPrefab;
-    public Transform DamageNumberParent;
 
     void Awake()
     {

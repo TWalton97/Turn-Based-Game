@@ -32,6 +32,8 @@ public class EventManager : MonoBehaviour
     public TextMeshProUGUI EventNodeDescription;
     public List<EventSelection> EventNodeOptions;
 
+    public EventDefinition CurrentEvent;
+
     void Awake()
     {
         if (instance == null)
@@ -46,16 +48,17 @@ public class EventManager : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             EventDefinition selectedEvent = Events[Random.Range(0, Events.Count)];
-            EventSelections[i].EventSelectionImage.sprite = selectedEvent.startNode.image;
+            EventSelections[i].EventSelectionImage.sprite = selectedEvent.GetNode(selectedEvent.startNodeID).image;
             EventSelections[i].EventSelectionButtonText.text = selectedEvent.eventID;
 
-            EventNode capturedNode = selectedEvent.startNode;
+            EventNode capturedNode = selectedEvent.GetNode(selectedEvent.startNodeID);
 
             EventSelections[i].EventSelectionButton.onClick.RemoveAllListeners();
 
             EventSelections[i].EventSelectionButton.onClick.AddListener(() =>
             {
                 LoadEventNode(capturedNode);
+                CurrentEvent = selectedEvent;
             });
         }
     }
@@ -86,8 +89,9 @@ public class EventManager : MonoBehaviour
                 foreach (EventEffect effect in choice.effects)
                     effect.Execute();
 
-                if (choice.nextNode != null)
-                    LoadEventNode(choice.nextNode);
+                EventNode nextNode = CurrentEvent.GetNode(choice.nextNodeID);
+                if (nextNode != null)
+                    LoadEventNode(nextNode);
             });
         }
     }

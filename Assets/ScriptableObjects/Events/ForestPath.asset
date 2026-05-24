@@ -13,31 +13,28 @@ MonoBehaviour:
   m_Name: ForestPath
   m_EditorClassIdentifier: 
   eventID: Forest Path
-  startNode:
+  startNodeID: Intro
+  nodes:
+  - nodeID: Intro
     image: {fileID: 21300000, guid: e649845532c436b46b6ca965d70f13fc, type: 3}
     description: You find a path into the forest with many small footprints leading
       down it. The footprints look like they are fresh. Do you want to follow the
       footprints or continue on your path?
     choices:
-    - buttonText: Follow the Footprints
+    - buttonText: Follow the Path
       effects: []
-      nextNode:
-        image: {fileID: 21300000, guid: e649845532c436b46b6ca965d70f13fc, type: 3}
-        description: You follow the path for a while, but eventually the footprints
-          suddenly stop. When you look around, you realize you've been caught in
-          a goblin ambush. You have no choice but to fight!
-        choices:
-        - buttonText: Fight
-          effects:
-          - {fileID: 11400000, guid: 066b729cb34a1214cb8f22005d1d0bd4, type: 2}
-          nextNode:
-            image: {fileID: 0}
-            description: 
-            choices: []
+      nextNodeID: Follow
     - buttonText: Leave
       effects:
       - {fileID: 11400000, guid: c8b3ca48467ff3e44b0718e28e434b38, type: 2}
-      nextNode:
-        image: {fileID: 0}
-        description: 
-        choices: []
+      nextNodeID: 
+  - nodeID: Follow
+    image: {fileID: 21300000, guid: e649845532c436b46b6ca965d70f13fc, type: 3}
+    description: You follow the path for a while, but eventually the footprints suddenly
+      stop. When you look around, you realize you've been caught in a goblin ambush.
+      You have no choice but to fight!
+    choices:
+    - buttonText: Fight
+      effects:
+      - {fileID: 11400000, guid: 066b729cb34a1214cb8f22005d1d0bd4, type: 2}
+      nextNodeID: 

@@ -5,5 +5,5 @@ public class EventChoice
 {
     public string buttonText;
     public List<EventEffect> effects;
-    public EventNode nextNode;
+    public string nextNodeID;
 }
