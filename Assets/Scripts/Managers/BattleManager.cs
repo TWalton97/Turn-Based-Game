@@ -42,6 +42,15 @@ public class BattleManager : MonoBehaviour
             EnemyUnits.Remove(controller);
     }
 
+    public void RemoveAllEnemies()
+    {
+        foreach (UnitController controller in EnemyUnits)
+        {
+            AllUnits.Remove(controller);
+        }
+        EnemyUnits.Clear();
+    }
+
     public BattleSlot ReturnEmptyBattleSlotOfType(Team team)
     {
         for (int i = 0; i < BattleSlots.Count; i++)

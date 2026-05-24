@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7367418481594108555}
   - component: {fileID: 5333646278970840875}
   m_Layer: 0
-  m_Name: Goblin
+  m_Name: BanditHealer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bbc1aab0a15ea8a4eae319e325dfb2e4, type: 2}
+  - {fileID: 2100000, guid: 4e50060e9e468de4abe5069e7135c8a2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -99,15 +99,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActiveTurn: 0
-  UnitName: Goblin
-  MaxHealth: 20
-  CurrentHealth: 20
+  UnitName: Bandit
+  MaxHealth: 26
+  CurrentHealth: 26
   MaxMana: 5
   CurrentMana: 0
   IsAlive: 1
   UnitTeam: 1
   Abilities:
   - {fileID: 11400000, guid: eb8bd91b475dd36428876f22491df0d6, type: 2}
+  - {fileID: 11400000, guid: 311393ff5c877e747a97a7fb800a3218, type: 2}
 --- !u!114 &7367418481594108555
 MonoBehaviour:
   m_ObjectHideFlags: 0

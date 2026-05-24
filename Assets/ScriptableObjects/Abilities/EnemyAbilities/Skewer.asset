@@ -14,12 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityName: Skewer
   AbilityDescription: 
-  ManaCost: 3
+  ManaCost: 2
   TeamTargeting: 0
   TargetType: 0
+  Cooldown: 0
   MovesToTarget: 1
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   DamageType: 1
   DamageAmount: 6
+  NumberOfHits: 1
+  DurationBetweenHits: 0

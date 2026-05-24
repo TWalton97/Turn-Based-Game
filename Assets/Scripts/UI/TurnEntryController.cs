@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TurnEntryController : MonoBehaviour
+public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private UnitController TrackedUnit;
 
@@ -40,5 +41,21 @@ public class TurnEntryController : MonoBehaviour
     public void ToggleArrow(bool value)
     {
         ActiveEntryArrow.SetActive(value);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (TrackedUnit == null)
+            return;
+
+        TrackedUnit.EnableHighlight();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (TrackedUnit == null)
+            return;
+
+        TrackedUnit.DisableHighlight();
     }
 }

@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class AbilityButtonController : MonoBehaviour
+public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public CombatMenuController combatMenuController;
     public BaseAbility Ability;
@@ -33,5 +34,15 @@ public class AbilityButtonController : MonoBehaviour
             return;
 
         combatMenuController.ActivateTargetSelectionPanel(Ability);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        TooltipManager.instance.EnableTooltipAtPosition(new TooltipData(Ability.AbilityName, Ability.ManaCost.ToString() + " Mana", Ability.AbilityDescription, "Cooldown: " + Ability.Cooldown), eventData.position + new Vector2(150, 0));
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        TooltipManager.instance.DisableTooltip();
     }
 }

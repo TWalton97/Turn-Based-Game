@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,12 +14,25 @@ public class ProgressionManager : MonoBehaviour
 
     public static Action OnRoomLoaded;
 
-    public RoomData DEBUG_RoomDataToLoad;
+    public List<RoomData> RoomData;
+    private List<RoomData> RemainingRoomData = new();
 
     public void Awake()
     {
         if (instance == null)
             instance = this;
+    }
+
+    private void Start()
+    {
+        RemainingRoomData = RoomData;
+        LoadNextRoom();
+        TurnManager.OnBattleEnded += LoadNextRoom;
+    }
+
+    private void OnDestroy()
+    {
+        TurnManager.OnBattleEnded -= LoadNextRoom;
     }
 
     public void LoadRoom(RoomData roomData)
@@ -57,16 +69,29 @@ public class ProgressionManager : MonoBehaviour
 
         foreach (UnitController controller in BattleManager.instance.EnemyUnits)
         {
-            BattleManager.instance.UnregisterUnit(controller);
+            TurnManager.instance.RemoveUnitFromTurnEntries(controller);
             Destroy(controller.gameObject);
         }
 
+        foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+        {
+            TurnManager.instance.RemoveUnitFromTurnEntries(controller);
+        }
+
+        BattleManager.instance.RemoveAllEnemies();
         CurrentRoomData = null;
     }
 
-    [ContextMenu("Load Room")]
-    public void LoadDebugRoomData()
+    public void LoadNextRoom()
     {
-        LoadRoom(DEBUG_RoomDataToLoad);
+        if (RemainingRoomData.Count == 0)
+        {
+            Debug.Log("No more rooms remaining!");
+            return;
+        }
+
+        RoomData roomDataToLoad = RemainingRoomData[0];
+        LoadRoom(roomDataToLoad);
+        RemainingRoomData.RemoveAt(0);
     }
 }

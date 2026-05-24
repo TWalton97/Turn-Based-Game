@@ -5,9 +5,6 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    //Extra script added to UnitControllers that we want to be controlled by AI
-    //All this has to do is choose a random action and random target when it becomes this unit's turn
-
     public UnitController unitController;
     public UnitController target;
     public List<UnitController> unitControllers = new();
@@ -16,10 +13,6 @@ public class EnemyController : MonoBehaviour
     {
         unitController = GetComponent<UnitController>();
     }
-
-    //Find valid abilities based on specific factors
-    //Do I have enough mana + is there a valid target?
-    //Pick an option from the list of abilities, weighted towards higher mana, etc...
 
     public void PickAction()
     {
@@ -38,9 +31,7 @@ public class EnemyController : MonoBehaviour
         target = validTargets[Random.Range(0, validTargets.Count)];
         unitControllers = ReturnTargetControllers(chosenAbility);
         unitController.UpdateMana(chosenAbility.ManaCost);
-        Debug.Log("Using ability " + chosenAbility.AbilityName);
         unitController.TryUseAbility(chosenAbility, target);
-        //StartCoroutine(PlayAttackAnimation(chosenAbility));
     }
 
     private List<BaseAbility> ReturnListOfValidAbilities()
@@ -102,36 +93,6 @@ public class EnemyController : MonoBehaviour
         }
 
         return validAbilities[0];
-    }
-    private IEnumerator PlayAttackAnimation(BaseAbility ability)
-    {
-        Vector3 startPos = unitController.transform.position;
-        Vector3 targetPos = target.transform.position + (target.transform.forward * 2f);
-        float elapsedTime = 0f;
-
-        while (elapsedTime < 0.2f)
-        {
-            elapsedTime += Time.deltaTime;
-            unitController.transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime / 0.2f);
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.8f);
-        foreach (UnitController controller in unitControllers)
-            controller.UpdateHealth(ability.DamageAmount);
-
-        elapsedTime = 0f;
-        while (elapsedTime < 0.2f)
-        {
-            elapsedTime += Time.deltaTime;
-            unitController.transform.position = Vector3.Lerp(targetPos, startPos, elapsedTime / 0.2f);
-            yield return null;
-        }
-
-        unitController.transform.position = startPos;
-        unitController.IsActiveTurn = false;
-        TurnManager.OnActionPhaseCompleted?.Invoke(unitController);
-        yield return null;
     }
 
     private List<UnitController> ReturnTargetControllers(BaseAbility ability)

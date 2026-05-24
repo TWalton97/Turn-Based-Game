@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private CombatMenuController combatMenuController;
     public TextMeshProUGUI UnitName;
+    public Image HealthBarFill;
     private BaseAbility ability;
     private UnitController target;
 
@@ -22,6 +24,7 @@ public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPoin
     public void EnableButton(UnitController unit, BaseAbility ability)
     {
         UnitName.text = unit.UnitName;
+        HealthBarFill.fillAmount = (float)unit.CurrentHealth / unit.MaxHealth;
         this.ability = ability;
         this.target = unit;
         unitControllers = ReturnTargetControllers();
@@ -125,6 +128,5 @@ public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPoin
         {
             controller.DisableHighlight();
         }
-
     }
 }

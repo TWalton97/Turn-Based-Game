@@ -11,6 +11,7 @@ public class BaseAbility : ScriptableObject
     public int ManaCost;
     public Team TeamTargeting;
     public TargetType TargetType;
+    public int Cooldown;
 
     public bool MovesToTarget;
     public bool UsesProjectile;
@@ -19,6 +20,8 @@ public class BaseAbility : ScriptableObject
 
     public DamageType DamageType;
     public int DamageAmount;
+    public int NumberOfHits;
+    public float DurationBetweenHits;
 }
 
 public enum Team

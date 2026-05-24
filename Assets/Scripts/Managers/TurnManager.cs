@@ -53,8 +53,19 @@ public class TurnManager : MonoBehaviour
         ProgressionManager.OnRoomLoaded -= GenerateTurnOrder;
     }
 
+    public void RemoveUnitFromTurnEntries(UnitController controller)
+    {
+        if (UnitControllerTurnOrder.Contains(controller))
+        {
+            turnOrderPanelController.RemoveTurnEntry(controller);
+            UnitControllerTurnOrder.Remove(controller);
+        }
+    }
+
     private void GenerateTurnOrder()
     {
+        initiativeList.Clear();
+        
         foreach (var unit in BattleManager.instance.FriendlyUnits)
         {
             initiativeList.Add(new InitiativeEntry
@@ -80,6 +91,7 @@ public class TurnManager : MonoBehaviour
         {
             turnOrderPanelController.CreateTurnEntry(initiativeList[i].unit, initiativeList[i].roll);
         }
+        CurrentTurnIndex = -1;
         MoveToNextTurn();
     }
 

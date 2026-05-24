@@ -17,9 +17,12 @@ MonoBehaviour:
   ManaCost: 0
   TeamTargeting: 0
   TargetType: 0
+  Cooldown: 0
   MovesToTarget: 1
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   DamageType: 1
   DamageAmount: 3
+  NumberOfHits: 1
+  DurationBetweenHits: 0

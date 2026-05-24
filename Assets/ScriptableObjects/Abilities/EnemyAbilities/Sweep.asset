@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: Cleave
+  m_Name: Sweep
   m_EditorClassIdentifier: 
-  AbilityName: Cleave
-  AbilityDescription: Swings your sword in a wide arc, damaging all enemies for 9
-    physical damage
+  AbilityName: Sweep
+  AbilityDescription: 
   ManaCost: 3
-  TeamTargeting: 1
+  TeamTargeting: 0
   TargetType: 1
   Cooldown: 0
   MovesToTarget: 1
@@ -24,6 +23,6 @@ MonoBehaviour:
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   DamageType: 1
-  DamageAmount: 9
+  DamageAmount: 6
   NumberOfHits: 1
   DurationBetweenHits: 0

@@ -11,6 +11,9 @@ public class TurnOrderPanelController : MonoBehaviour
 
     public void CreateTurnEntry(UnitController controller, int initiativeValue)
     {
+        if (turnEntries.ContainsKey(controller))
+            return;
+
         TurnEntryController turnEntry = Instantiate(turnEntryControllerPrefab, turnOrderEntryParent);
         turnEntry.AssignTrackedUnit(controller, initiativeValue);
         turnEntries.Add(controller, turnEntry);
@@ -34,6 +37,7 @@ public class TurnOrderPanelController : MonoBehaviour
         if (turnEntries.ContainsKey(controller))
         {
             Destroy(turnEntries[controller].gameObject);
+            turnEntries.Remove(controller);
         }
     }
 }

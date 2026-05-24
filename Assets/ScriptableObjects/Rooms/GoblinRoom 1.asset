@@ -10,11 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a5795b47bda4844b8bac808cc56ae86, type: 3}
-  m_Name: GoblinRoom
+  m_Name: GoblinRoom 1
   m_EditorClassIdentifier: 
   RoomBackground: {fileID: 1342900617445200421, guid: 36a4675a39ad99d41a5b2a89389f2db1, type: 3}
   Enemies:
   - {fileID: 1859624672593206805, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
-  - {fileID: 1859624672593206805, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
-  - {fileID: 1859624672593206805, guid: 28d82611dd0c4864aa344343053dfe45, type: 3}
-  - {fileID: 1859624672593206805, guid: bb02c65ce3a81b14f92f9372b2dfe557, type: 3}

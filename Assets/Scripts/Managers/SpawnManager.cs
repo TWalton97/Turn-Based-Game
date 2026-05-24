@@ -8,10 +8,19 @@ public class SpawnManager : MonoBehaviour
 
     public static SpawnManager instance;
 
+    public UnitController DEBUG_PlayerHealer;
+    public UnitController DEBUG_PlayerWarrior;
+
     private void Awake()
     {
         if (instance == null)
             instance = this;
+    }
+
+    void Start()
+    {
+        SpawnUnit(DEBUG_PlayerHealer);
+        SpawnUnit(DEBUG_PlayerWarrior);
     }
 
     public void SpawnUnit(UnitController unit)

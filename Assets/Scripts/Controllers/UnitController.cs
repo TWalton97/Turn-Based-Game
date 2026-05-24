@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UnitController : MonoBehaviour, IPointerClickHandler
+public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public bool IsActiveTurn = false;
 
@@ -73,6 +73,7 @@ public class UnitController : MonoBehaviour, IPointerClickHandler
         if (!IsAlive) return;
 
         CurrentHealth = Mathf.Clamp(CurrentHealth - damage, 0, MaxHealth);
+        DamageNumberManager.instance.SpawnDamageNumberAtPosition(damage, transform.position);
         OnHealthValueChanged?.Invoke();
         if (CurrentHealth == 0)
             Die();
@@ -91,6 +92,7 @@ public class UnitController : MonoBehaviour, IPointerClickHandler
         Debug.Log(gameObject.name + " has died");
         OnDie?.Invoke();
         gameObject.SetActive(false);
+        TurnManager.instance.RemoveUnitFromTurnEntries(this);
         IsAlive = false;
     }
 
@@ -111,7 +113,11 @@ public class UnitController : MonoBehaviour, IPointerClickHandler
         //Play animation goes here
         yield return new WaitForSeconds(0.5f);
 
-        ApplyEffect(ability, selectedTarget);
+        for (int i = 0; i < ability.NumberOfHits; i++)
+        {
+            ApplyEffect(ability, selectedTarget);
+            yield return new WaitForSeconds(ability.DurationBetweenHits);
+        }
 
         yield return new WaitForSeconds(0.5f);
 
@@ -202,7 +208,16 @@ public class UnitController : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log(gameObject.name + " has been clicked on");
         UIManager.instance.AssignContextMenu(this);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        EnableHighlight();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        DisableHighlight();
     }
 }
