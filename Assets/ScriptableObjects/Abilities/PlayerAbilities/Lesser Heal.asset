@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Lesser Heal
   m_EditorClassIdentifier: 
   AbilityName: Lesser Heal
-  AbilityDescription: Heals a friendly unit for 6 health
+  AbilityDescription: Heals a friendly unit for 5 health
   ManaCost: 0
   TeamTargeting: 0
   TargetType: 0
   DamageType: 4
-  DamageAmount: -8
+  DamageAmount: -5

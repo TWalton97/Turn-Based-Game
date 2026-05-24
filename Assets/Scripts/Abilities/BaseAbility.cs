@@ -7,9 +7,16 @@ public class BaseAbility : ScriptableObject
 {
     public string AbilityName;
     [TextArea] public string AbilityDescription;
+
     public int ManaCost;
     public Team TeamTargeting;
     public TargetType TargetType;
+
+    public bool MovesToTarget;
+    public bool UsesProjectile;
+    public Animation Animation;
+    public GameObject VFX;
+
     public DamageType DamageType;
     public int DamageAmount;
 }

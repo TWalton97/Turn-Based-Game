@@ -29,7 +29,7 @@ public class EnemyController : MonoBehaviour
         {
             Debug.Log("No valid abilities found, ending turn");
             unitController.IsActiveTurn = false;
-            BattleManager.OnTurnEnded?.Invoke();
+            TurnManager.OnActionPhaseCompleted?.Invoke(unitController);
             return;
         }
 
@@ -39,7 +39,8 @@ public class EnemyController : MonoBehaviour
         unitControllers = ReturnTargetControllers(chosenAbility);
         unitController.UpdateMana(chosenAbility.ManaCost);
         Debug.Log("Using ability " + chosenAbility.AbilityName);
-        StartCoroutine(PlayAttackAnimation(chosenAbility));
+        unitController.TryUseAbility(chosenAbility, target);
+        //StartCoroutine(PlayAttackAnimation(chosenAbility));
     }
 
     private List<BaseAbility> ReturnListOfValidAbilities()
@@ -104,14 +105,14 @@ public class EnemyController : MonoBehaviour
     }
     private IEnumerator PlayAttackAnimation(BaseAbility ability)
     {
-        Vector3 startPos = unitController.characterModel.transform.position;
-        Vector3 targetPos = target.characterModel.transform.position + (target.characterModel.transform.forward * 2f);
+        Vector3 startPos = unitController.transform.position;
+        Vector3 targetPos = target.transform.position + (target.transform.forward * 2f);
         float elapsedTime = 0f;
 
         while (elapsedTime < 0.2f)
         {
             elapsedTime += Time.deltaTime;
-            unitController.characterModel.transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime / 0.2f);
+            unitController.transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime / 0.2f);
             yield return null;
         }
 
@@ -123,13 +124,13 @@ public class EnemyController : MonoBehaviour
         while (elapsedTime < 0.2f)
         {
             elapsedTime += Time.deltaTime;
-            unitController.characterModel.transform.position = Vector3.Lerp(targetPos, startPos, elapsedTime / 0.2f);
+            unitController.transform.position = Vector3.Lerp(targetPos, startPos, elapsedTime / 0.2f);
             yield return null;
         }
 
-        unitController.characterModel.transform.position = startPos;
+        unitController.transform.position = startPos;
         unitController.IsActiveTurn = false;
-        BattleManager.OnTurnEnded?.Invoke();
+        TurnManager.OnActionPhaseCompleted?.Invoke(unitController);
         yield return null;
     }
 

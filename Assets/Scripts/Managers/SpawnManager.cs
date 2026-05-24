@@ -8,19 +8,17 @@ public class SpawnManager : MonoBehaviour
 
     public static SpawnManager instance;
 
-    public UnitController GoblinPrefab;
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+    }
 
     public void SpawnUnit(UnitController unit)
     {
         BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(unit.UnitTeam);
-        UnitController controller = Instantiate(GoblinPrefab, slot.UnitHolder);
+        UnitController controller = Instantiate(unit, slot.UnitHolder);
         BattleManager.instance.RegisterUnit(controller);
         slot.BindUnitToSlot(controller);
-    }
-
-    [ContextMenu("Spawn Goblin")]
-    public void SpawnGoblin()
-    {
-        SpawnUnit(GoblinPrefab);
     }
 }

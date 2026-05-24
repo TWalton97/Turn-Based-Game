@@ -36,22 +36,24 @@ public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPoin
     public void ActivateButton()
     {
         Debug.Log("Using ability " + ability.AbilityName);
-        combatMenuController.CurrentUnitController.UpdateMana(ability.ManaCost);
-        StartCoroutine(PlayAttackAnimation());
+        combatMenuController.CurrentUnitController.TryUseAbility(ability, target);
+        // combatMenuController.CurrentUnitController.IsActiveTurn = false;
+        // combatMenuController.CurrentUnitController.UpdateMana(ability.ManaCost);
+        // StartCoroutine(PlayAttackAnimation());
 
         combatMenuController.CloseAllMenus();
     }
 
     private IEnumerator PlayAttackAnimation()
     {
-        Vector3 startPos = combatMenuController.CurrentUnitController.characterModel.transform.position;
-        Vector3 targetPos = target.characterModel.transform.position + (target.characterModel.transform.forward * 2f);
+        Vector3 startPos = combatMenuController.CurrentUnitController.transform.position;
+        Vector3 targetPos = target.transform.position + (target.transform.forward * 2f);
         float elapsedTime = 0f;
 
         while (elapsedTime < 0.2f)
         {
             elapsedTime += Time.deltaTime;
-            combatMenuController.CurrentUnitController.characterModel.transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime / 0.2f);
+            combatMenuController.CurrentUnitController.transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime / 0.2f);
             yield return null;
         }
 
@@ -63,13 +65,13 @@ public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPoin
         while (elapsedTime < 0.2f)
         {
             elapsedTime += Time.deltaTime;
-            combatMenuController.CurrentUnitController.characterModel.transform.position = Vector3.Lerp(targetPos, startPos, elapsedTime / 0.2f);
+            combatMenuController.CurrentUnitController.transform.position = Vector3.Lerp(targetPos, startPos, elapsedTime / 0.2f);
             yield return null;
         }
 
-        combatMenuController.CurrentUnitController.characterModel.transform.position = startPos;
+        combatMenuController.CurrentUnitController.transform.position = startPos;
         combatMenuController.CurrentUnitController.IsActiveTurn = false;
-        BattleManager.OnTurnEnded?.Invoke();
+        TurnManager.OnActionPhaseCompleted?.Invoke(combatMenuController.CurrentUnitController);
         yield return null;
     }
 

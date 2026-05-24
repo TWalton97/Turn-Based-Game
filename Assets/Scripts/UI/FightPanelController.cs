@@ -16,11 +16,14 @@ public class FightPanelController : PanelController
         }
     }
 
-    public void SetupAbilityButtons(List<BaseAbility> abilities)
+    public void SetupAbilityButtons(UnitController controller)
     {
-        for (int i = 0; i < abilities.Count; i++)
+        if (controller.enemyController != null)
+            return;
+        
+        for (int i = 0; i < controller.Abilities.Count; i++)
         {
-            abilityButtonControllers[i].EnableButton(abilities[i]);
+            abilityButtonControllers[i].EnableButton(controller.Abilities[i]);
         }
     }
 }

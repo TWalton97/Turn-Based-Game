@@ -12,10 +12,9 @@ GameObject:
   - component: {fileID: 7443746200370343240}
   - component: {fileID: 1403220106497143675}
   - component: {fileID: 1859624672593206805}
-  - component: {fileID: 7367418481594108555}
-  - component: {fileID: 5333646278970840875}
+  - component: {fileID: 90961607817683323}
   m_Layer: 0
-  m_Name: Goblin
+  m_Name: Player_Warrior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bbc1aab0a15ea8a4eae319e325dfb2e4, type: 2}
+  - {fileID: 2100000, guid: 4e9d5f2b8175e1349a792f72cd6df2d7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -99,31 +98,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActiveTurn: 0
-  UnitName: Goblin
-  MaxHealth: 20
-  CurrentHealth: 20
+  UnitName: Warrior
+  MaxHealth: 32
+  CurrentHealth: 32
   MaxMana: 5
-  CurrentMana: 1
+  CurrentMana: 0
   IsAlive: 1
-  UnitTeam: 1
+  UnitTeam: 0
   Abilities:
-  - {fileID: 11400000, guid: eb8bd91b475dd36428876f22491df0d6, type: 2}
---- !u!114 &7367418481594108555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2381207045323696021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd7c55b8d3996642be0ee4a40edfed8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitController: {fileID: 0}
-  target: {fileID: 0}
-  unitControllers: []
---- !u!136 &5333646278970840875
+  - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+  - {fileID: 11400000, guid: 354640637653c7f4696242a7a985f961, type: 2}
+  - {fileID: 11400000, guid: d8cbd032d0e5b724481a33fca3f8e9db, type: 2}
+--- !u!136 &90961607817683323
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -10,6 +10,8 @@ public class TurnManager : MonoBehaviour
     //It also calls to specific units when their turn starts
     public static TurnManager instance;
 
+    public TurnOrderPanelController turnOrderPanelController;
+
     public List<UnitController> UnitControllerTurnOrder;
     public int CurrentTurnIndex;
 
@@ -21,24 +23,34 @@ public class TurnManager : MonoBehaviour
 
     private List<InitiativeEntry> initiativeList = new();
 
+    public static Action<UnitController> OnRefreshUI;
+    public static Action<UnitController> OnActionPhaseCompleted;
+
     public static Action OnTurnEnded;
+    public static Action OnBattleEnded;
+
+
+    //TODO: move this to a UI manager
+    public CombatMenuController CombatMenuController;
 
     private void Awake()
     {
         if (instance == null)
             instance = this;
-
-        OnTurnEnded += MoveToNextTurn;
-    }
-
-    void OnDestroy()
-    {
-        OnTurnEnded -= MoveToNextTurn;
     }
 
     private void Start()
     {
-        GenerateTurnOrder();
+        OnActionPhaseCompleted += ProcessEndOfTurnEffects;
+        OnTurnEnded += MoveToNextTurn;
+        ProgressionManager.OnRoomLoaded += GenerateTurnOrder;
+    }
+
+    void OnDestroy()
+    {
+        OnActionPhaseCompleted -= ProcessEndOfTurnEffects;
+        OnTurnEnded -= MoveToNextTurn;
+        ProgressionManager.OnRoomLoaded -= GenerateTurnOrder;
     }
 
     private void GenerateTurnOrder()
@@ -63,13 +75,21 @@ public class TurnManager : MonoBehaviour
 
         initiativeList = initiativeList.OrderByDescending(x => x.roll).ToList();
         UnitControllerTurnOrder = initiativeList.Select(x => x.unit).ToList();
+
+        for (int i = 0; i < initiativeList.Count; i++)
+        {
+            turnOrderPanelController.CreateTurnEntry(initiativeList[i].unit, initiativeList[i].roll);
+        }
         MoveToNextTurn();
     }
 
     private void MoveToNextTurn()
     {
         if (IsBattleOver())
+        {
+            OnBattleEnded?.Invoke();
             return;
+        }
 
         int attempts = 0;
 
@@ -91,7 +111,20 @@ public class TurnManager : MonoBehaviour
         UnitController currentUnit =
             UnitControllerTurnOrder[CurrentTurnIndex];
 
-        currentUnit.OnTurnStarted?.Invoke();
+        CombatMenuController.CurrentUnitController = currentUnit;
+
+        turnOrderPanelController.SetActiveTurnEntry(currentUnit);
+
+        currentUnit.RegenerateResources();
+        OnRefreshUI?.Invoke(currentUnit);
+        currentUnit.ProcessStatusEffects();
+        currentUnit.BeginActionPhase();
+    }
+
+    private void ProcessEndOfTurnEffects(UnitController controller)
+    {
+        controller.ProcessEndTurnEffects();
+        OnTurnEnded?.Invoke();
     }
 
     private bool IsBattleOver()
@@ -106,13 +139,11 @@ public class TurnManager : MonoBehaviour
             return true;
         }
 
-
         if (allEnemiesDead)
         {
             Debug.Log("All enemies dead");
             return true;
         }
-
 
         return false;
     }

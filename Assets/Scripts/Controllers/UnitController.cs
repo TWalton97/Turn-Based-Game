@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class UnitController : MonoBehaviour
+public class UnitController : MonoBehaviour, IPointerClickHandler
 {
     public bool IsActiveTurn = false;
 
@@ -22,56 +24,56 @@ public class UnitController : MonoBehaviour
     public List<BaseAbility> Abilities;
 
     private MeshRenderer meshRenderer;
-    private WorldSpaceUnitUI worldSpaceUI;
-    public GameObject characterModel;
 
-    public Action OnTurnStarted;
+    public Action OnManaValueChanged;
+    public Action OnHealthValueChanged;
+    public Action OnDie;
+
+    private List<UnitController> unitControllers = new();
 
     public EnemyController enemyController { get; private set; }
+    private Vector3 startPos;
 
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
-        worldSpaceUI = GetComponentInChildren<WorldSpaceUnitUI>();
         enemyController = GetComponent<EnemyController>();
-        OnTurnStarted += StartTurn;
     }
 
-    private void OnDestroy()
+    public void RegenerateResources()
     {
-        OnTurnStarted -= StartTurn;
+        //TODO: determine how many resources to restore
+        UpdateMana(-1);
     }
 
-    private void Start()
+    public void ProcessStatusEffects()
     {
-        CurrentHealth = MaxHealth;
-        worldSpaceUI.UnitName.text = UnitName;
-        worldSpaceUI.HealthBarText.text = CurrentHealth + "/" + MaxHealth;
-        worldSpaceUI.HealthBarFill.fillAmount = (float)CurrentHealth / MaxHealth;
-        worldSpaceUI.ManaBarText.text = CurrentMana + "/" + MaxMana;
-        worldSpaceUI.ManaBarFill.fillAmount = (float)CurrentMana / MaxMana;
+        //TODO: status effects will go here
     }
 
-    private void StartTurn()
+    public void BeginActionPhase()
     {
         IsActiveTurn = true;
-        UpdateMana(-1);
-
-        //This is where we can trigger status effects
-
+        //If there is an enemy controller, let it decide
+        //Otherwise we want to display the UI
         if (enemyController == null)
             return;
 
         enemyController.PickAction();
     }
 
+    public void ProcessEndTurnEffects()
+    {
+        //TODO: end of turn effects will go here
+    }
+
+
     public void UpdateHealth(int damage)
     {
         if (!IsAlive) return;
 
         CurrentHealth = Mathf.Clamp(CurrentHealth - damage, 0, MaxHealth);
-        worldSpaceUI.HealthBarFill.fillAmount = (float)CurrentHealth / (float)MaxHealth;
-        worldSpaceUI.HealthBarText.text = CurrentHealth + "/" + MaxHealth;
+        OnHealthValueChanged?.Invoke();
         if (CurrentHealth == 0)
             Die();
     }
@@ -81,15 +83,111 @@ public class UnitController : MonoBehaviour
         if (!IsAlive) return;
 
         CurrentMana = Mathf.Clamp(CurrentMana - amount, 0, MaxMana);
-        worldSpaceUI.ManaBarFill.fillAmount = (float)CurrentMana / (float)MaxMana;
-        worldSpaceUI.ManaBarText.text = CurrentMana + "/" + MaxMana;
+        OnManaValueChanged?.Invoke();
     }
 
     private void Die()
     {
         Debug.Log(gameObject.name + " has died");
+        OnDie?.Invoke();
         gameObject.SetActive(false);
         IsAlive = false;
+    }
+
+    public void TryUseAbility(BaseAbility ability, UnitController selectedTarget)
+    {
+        IsActiveTurn = false;
+        UpdateMana(ability.ManaCost);
+        unitControllers = ReturnTargetControllers(ability, selectedTarget);
+        StartCoroutine(ExecuteAbility(ability, selectedTarget));
+    }
+
+    private IEnumerator ExecuteAbility(BaseAbility ability, UnitController selectedTarget)
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        yield return MoveToTargetIfNeeded(ability, selectedTarget);
+
+        //Play animation goes here
+        yield return new WaitForSeconds(0.5f);
+
+        ApplyEffect(ability, selectedTarget);
+
+        yield return new WaitForSeconds(0.5f);
+
+        yield return MoveToOriginalPositionIfNeeded(ability, selectedTarget);
+
+        yield return new WaitForSeconds(0.5f);
+
+        TurnManager.OnActionPhaseCompleted?.Invoke(this);
+    }
+
+    private IEnumerator MoveToTargetIfNeeded(BaseAbility ability, UnitController selectedTarget)
+    {
+        if (!ability.MovesToTarget)
+            yield break;
+
+        startPos = transform.position;
+        Vector3 endPos = selectedTarget.transform.position + selectedTarget.transform.forward * 2f;
+        yield return MoveTo(endPos, 0.4f);
+    }
+
+    private IEnumerator MoveToOriginalPositionIfNeeded(BaseAbility ability, UnitController selectedTarget)
+    {
+        if (!ability.MovesToTarget)
+            yield break;
+
+        Vector3 endPos = startPos;
+        yield return MoveTo(endPos, 0.4f);
+    }
+
+    private IEnumerator MoveTo(Vector3 position, float duration)
+    {
+        Vector3 startPos = transform.position;
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, position, elapsedTime / duration);
+            yield return null;
+        }
+        yield break;
+    }
+
+    public void ApplyEffect(BaseAbility ability, UnitController selectedTarget)
+    {
+        foreach (UnitController controller in unitControllers)
+            controller.UpdateHealth(ability.DamageAmount);
+    }
+
+    private List<UnitController> ReturnTargetControllers(BaseAbility ability, UnitController target)
+    {
+        unitControllers.Clear();
+
+        if (ability.TargetType == TargetType.SingleUnit)
+        {
+            unitControllers.Add(target);
+        }
+        else
+        {
+            switch (ability.TeamTargeting)
+            {
+                case Team.Enemy:
+                    foreach (UnitController controller in BattleManager.instance.EnemyUnits)
+                    {
+                        unitControllers.Add(controller);
+                    }
+                    break;
+
+                case Team.Ally:
+                    foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+                    {
+                        unitControllers.Add(controller);
+                    }
+                    break;
+            }
+        }
+        return unitControllers;
     }
 
     public void EnableHighlight()
@@ -100,5 +198,11 @@ public class UnitController : MonoBehaviour
     public void DisableHighlight()
     {
         meshRenderer.material.DisableKeyword("_EMISSION");
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log(gameObject.name + " has been clicked on");
+        UIManager.instance.AssignContextMenu(this);
     }
 }
