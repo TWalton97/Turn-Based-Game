@@ -24,6 +24,7 @@ public class TargetSelectionPanelController : PanelController
     public void SetupTargetButtons(BaseAbility ability)
     {
         DisableButtons();
+        
         int i = 0;
         switch (ability.TeamTargeting)
         {

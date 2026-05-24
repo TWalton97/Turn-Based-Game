@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc0e7eaae7e0944793a8eab17e157e1, type: 3}
+  m_Name: ForestPath
+  m_EditorClassIdentifier: 
+  eventID: Forest Path
+  startNode:
+    image: {fileID: 21300000, guid: e649845532c436b46b6ca965d70f13fc, type: 3}
+    description: You find a path into the forest with many small footprints leading
+      down it. The footprints look like they are fresh. Do you want to follow the
+      footprints or continue on your path?
+    choices:
+    - buttonText: Follow the Footprints
+      effects: []
+      nextNode:
+        image: {fileID: 21300000, guid: e649845532c436b46b6ca965d70f13fc, type: 3}
+        description: You follow the path for a while, but eventually the footprints
+          suddenly stop. When you look around, you realize you've been caught in
+          a goblin ambush. You have no choice but to fight!
+        choices:
+        - buttonText: Fight
+          effects:
+          - {fileID: 11400000, guid: 066b729cb34a1214cb8f22005d1d0bd4, type: 2}
+          nextNode:
+            image: {fileID: 0}
+            description: 
+            choices: []
+    - buttonText: Leave
+      effects:
+      - {fileID: 11400000, guid: c8b3ca48467ff3e44b0718e28e434b38, type: 2}
+      nextNode:
+        image: {fileID: 0}
+        description: 
+        choices: []

@@ -20,7 +20,12 @@ public class FightPanelController : PanelController
     {
         if (controller.enemyController != null)
             return;
-        
+
+        foreach (AbilityButtonController abilityButtonController in abilityButtonControllers)
+        {
+            abilityButtonController.DisableButton();
+        }
+
         for (int i = 0; i < controller.Abilities.Count; i++)
         {
             abilityButtonControllers[i].EnableButton(controller.Abilities[i]);

@@ -27,6 +27,9 @@ public class UIManager : MonoBehaviour
     public Image ContextMenuManaBarFill;
     public TextMeshProUGUI ContextMenuManaBarText;
 
+    public GameObject CombatUI;
+    public GameObject EventUI;
+
     private void Awake()
     {
         if (instance == null)
@@ -74,5 +77,17 @@ public class UIManager : MonoBehaviour
 
         ContextMenuManaBarFill.fillAmount = (float)currentlySelectedUnit.CurrentMana / currentlySelectedUnit.MaxMana;
         ContextMenuManaBarText.text = currentlySelectedUnit.CurrentMana + "/" + currentlySelectedUnit.MaxMana;
+    }
+
+    public void EnableCombatUI()
+    {
+        CombatUI.SetActive(true);
+        EventUI.SetActive(false);
+    }
+
+    public void EnableEventUI()
+    {
+        EventUI.SetActive(true);
+        CombatUI.SetActive(false);
     }
 }

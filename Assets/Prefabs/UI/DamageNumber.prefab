@@ -221,7 +221,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5528142739086942046}
-  - component: {fileID: 5528142739086942034}
   - component: {fileID: 5528142739086942033}
   m_Layer: 7
   m_Name: DamageNumber
@@ -251,14 +250,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &5528142739086942034
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5528142739086942047}
-  m_CullTransparentMesh: 1
 --- !u!114 &5528142739086942033
 MonoBehaviour:
   m_ObjectHideFlags: 0

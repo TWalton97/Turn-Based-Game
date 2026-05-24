@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class ProgressionManager : MonoBehaviour
 {
     //Progression manager handles moving from scene to scene
     //This includes loading in the rooms, event menus, or camps
+    //Combat -> Camp -> Event -> Camp
 
     public static ProgressionManager instance;
 
@@ -16,6 +18,26 @@ public class ProgressionManager : MonoBehaviour
 
     public List<RoomData> RoomData;
     private List<RoomData> RemainingRoomData = new();
+
+    public int RoomIndex = -1;
+    public TextMeshProUGUI RoomCountText;
+
+    public enum RoomType
+    {
+        Camp,
+        Combat,
+        Event,
+    }
+
+    public List<RoomType> RoomOrder = new List<RoomType>
+    {
+        RoomType.Combat,
+        RoomType.Camp,
+        RoomType.Event,
+        RoomType.Camp,
+    };
+
+    public int CurrentRoomIndex = 1;
 
     public void Awake()
     {
@@ -35,10 +57,21 @@ public class ProgressionManager : MonoBehaviour
         TurnManager.OnBattleEnded -= LoadNextRoom;
     }
 
-    public void LoadRoom(RoomData roomData)
+    public void LoadEvent()
     {
         if (CurrentRoomData != null)
-            UnloadRoom();
+            UnloadCombatRoom();
+
+        UIManager.instance.EnableEventUI();
+        EventManager.instance.PopulateEventOptions();
+    }
+
+    public void LoadCombatRoom(RoomData roomData)
+    {
+        if (CurrentRoomData != null)
+            UnloadCombatRoom();
+
+        UIManager.instance.EnableCombatUI();
 
         switch (roomData)
         {
@@ -49,20 +82,13 @@ public class ProgressionManager : MonoBehaviour
                     SpawnManager.instance.SpawnUnit(controller);
                 }
                 break;
-
-            case EventRoom eventRoom:
-                CurrentlyLoadedBackground = Instantiate(eventRoom.RoomMenu);
-                break;
-
-            default:
-                break;
         }
 
         CurrentRoomData = roomData;
         OnRoomLoaded?.Invoke();
     }
 
-    public void UnloadRoom()
+    public void UnloadCombatRoom()
     {
         if (CurrentlyLoadedBackground != null)
             Destroy(CurrentlyLoadedBackground);
@@ -90,8 +116,26 @@ public class ProgressionManager : MonoBehaviour
             return;
         }
 
-        RoomData roomDataToLoad = RemainingRoomData[0];
-        LoadRoom(roomDataToLoad);
-        RemainingRoomData.RemoveAt(0);
+        //When this gets called, we check our current index, then decide what to load based on index
+        RoomIndex = (RoomIndex + 1) % RoomOrder.Count;
+        RoomType nextRoomType = RoomOrder[RoomIndex];
+
+        switch (nextRoomType)
+        {
+            case RoomType.Camp:
+                LoadEvent();
+                break;
+            case RoomType.Combat:
+                RoomData roomDataToLoad = RemainingRoomData[0];
+                LoadCombatRoom(roomDataToLoad);
+                RemainingRoomData.RemoveAt(0);
+                break;
+            case RoomType.Event:
+                LoadEvent();
+                break;
+        }
+
+        CurrentRoomIndex++;
+        RoomCountText.text = "Forest (" + CurrentRoomIndex.ToString() + "/8)";
     }
 }

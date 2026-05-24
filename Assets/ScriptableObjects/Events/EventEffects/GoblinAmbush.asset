@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b02c8c7aa7b2e4e4a97eaa7cbc3409f6, type: 3}
+  m_Name: GoblinAmbush
+  m_EditorClassIdentifier: 
+  roomData: {fileID: 11400000, guid: d65f4a9b87d6e1a4495ba0e1f491c26a, type: 2}

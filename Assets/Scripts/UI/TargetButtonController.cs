@@ -47,37 +47,6 @@ public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPoin
         combatMenuController.CloseAllMenus();
     }
 
-    private IEnumerator PlayAttackAnimation()
-    {
-        Vector3 startPos = combatMenuController.CurrentUnitController.transform.position;
-        Vector3 targetPos = target.transform.position + (target.transform.forward * 2f);
-        float elapsedTime = 0f;
-
-        while (elapsedTime < 0.2f)
-        {
-            elapsedTime += Time.deltaTime;
-            combatMenuController.CurrentUnitController.transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime / 0.2f);
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.8f);
-        foreach (UnitController controller in unitControllers)
-            controller.UpdateHealth(ability.DamageAmount);
-
-        elapsedTime = 0f;
-        while (elapsedTime < 0.2f)
-        {
-            elapsedTime += Time.deltaTime;
-            combatMenuController.CurrentUnitController.transform.position = Vector3.Lerp(targetPos, startPos, elapsedTime / 0.2f);
-            yield return null;
-        }
-
-        combatMenuController.CurrentUnitController.transform.position = startPos;
-        combatMenuController.CurrentUnitController.IsActiveTurn = false;
-        TurnManager.OnActionPhaseCompleted?.Invoke(combatMenuController.CurrentUnitController);
-        yield return null;
-    }
-
     private List<UnitController> ReturnTargetControllers()
     {
         unitControllers.Clear();
