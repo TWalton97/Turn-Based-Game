@@ -19,7 +19,6 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
-        SpawnUnit(DEBUG_PlayerHealer);
         SpawnUnit(DEBUG_PlayerWarrior);
     }
 

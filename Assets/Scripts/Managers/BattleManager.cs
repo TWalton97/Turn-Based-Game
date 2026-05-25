@@ -62,4 +62,18 @@ public class BattleManager : MonoBehaviour
         return null;
     }
 
+    public void DistributeExpToPlayers(int amount)
+    {
+        foreach (UnitController controller in FriendlyUnits)
+        {
+            if (controller.IsAlive)
+            {
+                if (controller.TryGetComponent(out PlayerDataController dataController))
+                {
+                    dataController.AddExp(amount);
+                }
+            }
+        }
+    }
+
 }

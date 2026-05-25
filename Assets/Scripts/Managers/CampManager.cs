@@ -11,7 +11,7 @@ public class CampManager : MonoBehaviour
     public static CampManager instance;
 
     public UnitController TrackedUnitController;
-    private PlayerDataController playerDataController;
+    public PlayerDataController playerDataController;
 
     //Ability List
     public CampAbilityEntry AbilityEntry;
@@ -23,6 +23,7 @@ public class CampManager : MonoBehaviour
     public TextMeshProUGUI DetailsStats;
 
     public TextMeshProUGUI PlayerStatsPanel;
+    public TextMeshProUGUI InvestPointsButton;
 
     void Awake()
     {
@@ -95,5 +96,7 @@ public class CampManager : MonoBehaviour
         sb.AppendLine($"Outgoing Healing: {playerStats.OutgoingHealing}%");
 
         PlayerStatsPanel.text = sb.ToString();
+
+        InvestPointsButton.text = $"Invest Points ({playerStats.AvailableStatPoints})";
     }
 }

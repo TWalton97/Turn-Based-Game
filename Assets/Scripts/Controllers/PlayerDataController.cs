@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -53,6 +54,18 @@ public class PlayerDataController : MonoBehaviour
         PlayerStats.IncomingHealing = ClassPresetSO.IncomingHealing;
         PlayerStats.OutgoingHealing = ClassPresetSO.OutgoingHealing;
     }
+
+    public void AddExp(int amount)
+    {
+        PlayerStats.CurrentExp += amount;
+        if (PlayerStats.CurrentExp >= ExperienceValues.ExpToNextLevel[PlayerStats.Level])
+        {
+            PlayerStats.CurrentExp -= ExperienceValues.ExpToNextLevel[PlayerStats.Level];
+            PlayerStats.Level += 1;
+            PlayerStats.AvailableStatPoints += 3;
+            AddExp(0);
+        }
+    }
 }
 
 [System.Serializable]
@@ -86,4 +99,12 @@ public class PlayerStats
     public int LuckyDrop;
     public float IncomingHealing;
     public float OutgoingHealing;
+}
+
+public static class ExperienceValues
+{
+    public static List<int> ExpToNextLevel = new()
+    {
+        0, 15, 25, 45, 70, 100,
+    };
 }

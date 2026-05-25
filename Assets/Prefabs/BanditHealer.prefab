@@ -125,6 +125,7 @@ MonoBehaviour:
   unitController: {fileID: 0}
   target: {fileID: 0}
   unitControllers: []
+  ExpValue: 15
 --- !u!136 &5333646278970840875
 CapsuleCollider:
   m_ObjectHideFlags: 0

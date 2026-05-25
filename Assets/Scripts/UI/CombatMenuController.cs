@@ -23,7 +23,7 @@ public class CombatMenuController : MonoBehaviour
     public TextMeshProUGUI ManaBarText;
     public Image ManaBarFill;
 
-    private void Start()
+    private void Awake()
     {
         TurnManager.OnRefreshUI += FightPanel.SetupAbilityButtons;
         TurnManager.OnRefreshUI += SetupUI;
@@ -64,7 +64,7 @@ public class CombatMenuController : MonoBehaviour
     {
         if (!CurrentUnitController.IsActiveTurn)
             return;
-            
+
         FightPanel.ActivatePanel();
         TargetSelectionPanel.SetupTargetButtons(ability);
         TargetSelectionPanel.ActivatePanel();

@@ -8,10 +8,23 @@ public class EnemyController : MonoBehaviour
     public UnitController unitController;
     public UnitController target;
     public List<UnitController> unitControllers = new();
+    public int ExpValue = 10;
 
     private void Awake()
     {
         unitController = GetComponent<UnitController>();
+        unitController.OnDie += OnDeathEvents;
+    }
+
+    private void OnDestroy()
+    {
+        unitController.OnDie -= OnDeathEvents;
+    }
+    
+    private void OnDeathEvents()
+    {
+        BattleManager.instance.DistributeExpToPlayers(ExpValue);
+        //Can also distribute drops here?
     }
 
     public void PickAction()
