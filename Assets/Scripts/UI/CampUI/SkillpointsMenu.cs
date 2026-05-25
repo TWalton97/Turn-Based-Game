@@ -27,6 +27,7 @@ public class SkillpointsMenu : MonoBehaviour
 
     public void ConfirmChanges()
     {
+        UnitController controller = CampManager.instance.TrackedUnitController;
         PlayerStats playerStats = CampManager.instance.playerDataController.PlayerStats;
         playerStats.AvailableStatPoints = AvailableSkillpoints;
         for (int i = 0; i < SkillpointSwitches.Length - 1; i++)
@@ -34,29 +35,31 @@ public class SkillpointsMenu : MonoBehaviour
             switch (SkillpointSwitches[i].Attribute)
             {
                 case Attribute.STR:
-                    playerStats.Strength += SkillpointSwitches[i].CurrentlyInvestedPoints;
+                    controller.UnitStats.Strength += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
                 case Attribute.DEX:
-                    playerStats.Dexterity += SkillpointSwitches[i].CurrentlyInvestedPoints;
+                    controller.UnitStats.Dexterity += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
                 case Attribute.CON:
-                    playerStats.Constitution += SkillpointSwitches[i].CurrentlyInvestedPoints;
+                    controller.UnitStats.Constitution += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
                 case Attribute.INT:
-                    playerStats.Intelligence += SkillpointSwitches[i].CurrentlyInvestedPoints;
+                    controller.UnitStats.Intelligence += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
                 case Attribute.FTH:
-                    playerStats.Faith += SkillpointSwitches[i].CurrentlyInvestedPoints;
+                    controller.UnitStats.Faith += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
                 case Attribute.CHA:
-                    playerStats.Charisma += SkillpointSwitches[i].CurrentlyInvestedPoints;
+                    controller.UnitStats.Charisma += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
                 case Attribute.LCK:
-                    playerStats.Luck += SkillpointSwitches[i].CurrentlyInvestedPoints;
+                    controller.UnitStats.Luck += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
             }
             SkillpointSwitches[i].Reset();
         }
+        controller.RecalculateCombatStats();
+        CampManager.instance.PopulatePlayerStatsPanel();
         investPointsButtonController.UpdateText(playerStats.AvailableStatPoints);
     }
 }

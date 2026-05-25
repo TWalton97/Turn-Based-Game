@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Playables;
 using UnityEngine.UI;
 
 public class CampManager : MonoBehaviour
@@ -17,11 +16,16 @@ public class CampManager : MonoBehaviour
     public CampAbilityEntry AbilityEntry;
     public Transform AbilityEntriesParent;
 
+    //Item List
+    public CampItemEntry CampItemEntry;
+    public Transform ItemEntriesParent;
+
     //Details Panel
     public TextMeshProUGUI DetailsTitle;
     public TextMeshProUGUI DetailsInfo;
     public TextMeshProUGUI DetailsStats;
 
+    //Stats Panel
     public TextMeshProUGUI PlayerStatsPanel;
     public TextMeshProUGUI InvestPointsButton;
 
@@ -43,11 +47,17 @@ public class CampManager : MonoBehaviour
 
 
         PopulateAbilityList();
-        PopulatePlayerStatsPanel(unitController, playerDataController.PlayerStats);
+        PopulateItemList();
+        PopulatePlayerStatsPanel();
     }
 
     private void PopulateAbilityList()
     {
+        foreach (Transform child in AbilityEntriesParent)
+        {
+            Destroy(child.gameObject);
+        }
+
         for (int i = 0; i < TrackedUnitController.Abilities.Count; i++)
         {
             BaseAbility ability = TrackedUnitController.Abilities[i];
@@ -60,6 +70,26 @@ public class CampManager : MonoBehaviour
         }
     }
 
+    private void PopulateItemList()
+    {
+        foreach (Transform child in ItemEntriesParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        for (int i = 0; i < playerDataController.InventoryItems.Count; i++)
+        {
+            CampItemEntry itemEntry = Instantiate(CampItemEntry, ItemEntriesParent);
+            itemEntry.AssignItem(playerDataController.InventoryItems[i].Item);
+            itemEntry.InspectButton.onClick.AddListener(() =>
+            {
+                PopulateDetailsPanel(itemEntry.Item.ItemName,
+                itemEntry.Item.ItemInformation,
+                itemEntry.Item.Description);
+            });
+        }
+    }
+
     public void PopulateDetailsPanel(string title, string info, string stats)
     {
         DetailsTitle.text = title;
@@ -67,33 +97,35 @@ public class CampManager : MonoBehaviour
         DetailsStats.text = stats;
     }
 
-    public void PopulatePlayerStatsPanel(UnitController controller, PlayerStats playerStats)
+    public void PopulatePlayerStatsPanel()
     {
+        UnitController controller = TrackedUnitController;
+        PlayerStats playerStats = playerDataController.PlayerStats;
         StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"HP: {controller.CurrentHealth}/{controller.MaxHealth}");
         sb.AppendLine($"Energy: {controller.MaxMana}");
         sb.AppendLine($"Level: {playerStats.Level} ({playerStats.CurrentExp}/{30})");
         sb.AppendLine();
-        sb.AppendLine($"STR: {playerStats.Strength}");
-        sb.AppendLine($"DEX: {playerStats.Dexterity}");
-        sb.AppendLine($"CON: {playerStats.Constitution}");
-        sb.AppendLine($"INT: {playerStats.Intelligence}");
-        sb.AppendLine($"FTH: {playerStats.Faith}");
-        sb.AppendLine($"LCK: {playerStats.Luck}");
+        sb.AppendLine($"STR: {controller.UnitStats.Strength}");
+        sb.AppendLine($"DEX: {controller.UnitStats.Dexterity}");
+        sb.AppendLine($"CON: {controller.UnitStats.Constitution}");
+        sb.AppendLine($"INT: {controller.UnitStats.Intelligence}");
+        sb.AppendLine($"FTH: {controller.UnitStats.Faith}");
+        sb.AppendLine($"LCK: {controller.UnitStats.Luck}");
 
-        sb.AppendLine($"Initiative: {playerStats.InitiativeMin} - {playerStats.InitiativeMax}");
-        sb.AppendLine($"Crit Chance: {playerStats.CritChance}%");
-        sb.AppendLine($"Crit Damage: {playerStats.CritDamage}%");
-        sb.AppendLine($"Block Chance: {playerStats.BlockChance}%");
-        sb.AppendLine($"Block Damage Reduction: {playerStats.BlockDamageReduction}%");
-        sb.AppendLine($"Dodge Chance: {playerStats.DodgeChance}%");
-        sb.AppendLine($"Aggro: {playerStats.Aggro}%");
-        sb.AppendLine($"Lifesteal: {playerStats.Lifesteal}%");
-        sb.AppendLine($"Energy Gain: {playerStats.EnergyGain}%");
-        sb.AppendLine($"Lucky Drop: {playerStats.LuckyDrop}%");
-        sb.AppendLine($"Incoming Healing: {playerStats.IncomingHealing}%");
-        sb.AppendLine($"Outgoing Healing: {playerStats.OutgoingHealing}%");
+        sb.AppendLine($"Initiative: {controller.CombatStats.InitiativeMin} - {controller.CombatStats.InitiativeMax}");
+        sb.AppendLine($"Crit Chance: {controller.CombatStats.CritChance}%");
+        sb.AppendLine($"Crit Damage: {controller.CombatStats.CritDamage}%");
+        sb.AppendLine($"Block Chance: {controller.CombatStats.BlockChance}%");
+        sb.AppendLine($"Block Damage Reduction: {controller.CombatStats.BlockDamageReduction}%");
+        sb.AppendLine($"Dodge Chance: {controller.CombatStats.DodgeChance}%");
+        sb.AppendLine($"Aggro: {controller.CombatStats.Aggro}%");
+        sb.AppendLine($"Lifesteal: {controller.CombatStats.Lifesteal}%");
+        sb.AppendLine($"Energy Gain: {controller.CombatStats.EnergyGain}%");
+        sb.AppendLine($"Lucky Drop: {controller.CombatStats.LuckyDrop}%");
+        sb.AppendLine($"Incoming Healing: {controller.CombatStats.IncomingHealing}%");
+        sb.AppendLine($"Outgoing Healing: {controller.CombatStats.OutgoingHealing}%");
 
         PlayerStatsPanel.text = sb.ToString();
 

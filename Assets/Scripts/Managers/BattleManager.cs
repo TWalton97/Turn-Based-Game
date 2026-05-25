@@ -76,4 +76,18 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    public void DistributeItemsToPlayer(ItemSO item)
+    {
+        foreach (UnitController controller in FriendlyUnits)
+        {
+            if (controller.IsAlive)
+            {
+                if (controller.TryGetComponent(out PlayerDataController dataController))
+                {
+                    dataController.AddItemToInventory(item);
+                }
+            }
+        }
+    }
+
 }

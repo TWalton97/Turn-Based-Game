@@ -22,16 +22,3 @@ MonoBehaviour:
   Faith: 0
   Charisma: 0
   Luck: 0
-  InitiativeMin: 3
-  InitiativeMax: 6
-  CritChance: 10
-  CritDamage: 120
-  BlockChance: 25
-  BlockDamageReduction: 50
-  DodgeChance: 0
-  Aggro: 100
-  Lifesteal: 0
-  EnergyGain: 0
-  LuckyDrop: 0
-  IncomingHealing: 100
-  OutgoingHealing: 100

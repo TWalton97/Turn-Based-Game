@@ -10,6 +10,9 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
 
     public string UnitName;
 
+    public UnitStats UnitStats;
+    public CombatStats CombatStats;
+
     public ClassStatPresetSO UnitData;
     public int MaxHealth = 30;
     public int CurrentHealth;
@@ -40,6 +43,7 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
         enemyController = GetComponent<EnemyController>();
 
         ApplyClassPresetStats();
+        RecalculateCombatStats();
     }
 
     private void ApplyClassPresetStats()
@@ -48,6 +52,14 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
         CurrentHealth = MaxHealth;
 
         MaxMana = UnitData.MaxMana;
+
+        UnitStats.Strength = UnitData.Strength;
+        UnitStats.Dexterity = UnitData.Dexterity;
+        UnitStats.Constitution = UnitData.Constitution;
+        UnitStats.Intelligence = UnitData.Intelligence;
+        UnitStats.Faith = UnitData.Faith;
+        UnitStats.Charisma = UnitData.Charisma;
+        UnitStats.Luck = UnitData.Luck;
     }
 
     public void RegenerateResources()
@@ -77,16 +89,22 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
         //TODO: end of turn effects will go here
     }
 
-
-    public void UpdateHealth(int damage)
+    public void UpdateHealth(DamageResult damageResult)
     {
         if (!IsAlive) return;
 
-        CurrentHealth = Mathf.Clamp(CurrentHealth - damage, 0, MaxHealth);
-        DamageNumberManager.instance.SpawnDamageNumberAtPosition(damage, transform.position);
-        OnHealthValueChanged?.Invoke();
-        if (CurrentHealth == 0)
-            Die();
+        if (damageResult.Dodged)
+        {
+            DamageNumberManager.instance.SpawnDodgedTextAtPosition(transform.position);
+        }
+        else
+        {
+            DamageNumberManager.instance.SpawnDamageNumberAtPosition(damageResult, transform.position);
+            CurrentHealth -= Mathf.FloorToInt(damageResult.Damage);
+            OnHealthValueChanged?.Invoke();
+            if (CurrentHealth <= 0)
+                Die();
+        }
     }
 
     public void UpdateMana(int amount)
@@ -173,7 +191,10 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
     public void ApplyEffect(BaseAbility ability, UnitController selectedTarget)
     {
         foreach (UnitController controller in unitControllers)
-            controller.UpdateHealth(ability.DamageAmount);
+        {
+            DamageResult damageResult = CombatResolver.CalculateDamage(this, ability, selectedTarget);
+            controller.UpdateHealth(damageResult);
+        }
     }
 
     private List<UnitController> ReturnTargetControllers(BaseAbility ability, UnitController target)
@@ -230,4 +251,57 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
     {
         DisableHighlight();
     }
+
+    public void RecalculateCombatStats()
+    {
+        CombatStats.InitiativeMin = 1 + (UnitStats.Dexterity * 0.2f);
+        CombatStats.InitiativeMax = 6 + (UnitStats.Dexterity * 0.3f);
+
+        CombatStats.CritChance = 10.0f + (0.5f * UnitStats.Luck) + (0.2f * UnitStats.Dexterity);
+        CombatStats.CritDamage = 50.0f + UnitStats.Luck + (0.5f * UnitStats.Dexterity);
+
+        CombatStats.BlockChance = 10.0f + (0.5f * UnitStats.Constitution) + (0.2f * UnitStats.Strength);
+        CombatStats.BlockDamageReduction = 50.0f + (0.2f * UnitStats.Constitution);
+
+        CombatStats.DodgeChance = 10.0f + (0.5f * UnitStats.Luck) + (0.2f * UnitStats.Dexterity);
+
+        CombatStats.Aggro = 100.0f + UnitStats.Constitution - UnitStats.Charisma;
+
+        CombatStats.EnergyGain = 0.5f * UnitStats.Intelligence;
+
+        CombatStats.LuckyDrop = 0.5f * UnitStats.Luck;
+
+        CombatStats.OutgoingHealing = 100.0f + 0.5f * UnitStats.Faith;
+        CombatStats.IncomingHealing = 100.0f + 0.5f * UnitStats.Faith;
+    }
+}
+
+[Serializable]
+public class UnitStats
+{
+    public int Strength;
+    public int Dexterity;
+    public int Constitution;
+    public int Intelligence;
+    public int Faith;
+    public int Charisma;
+    public int Luck;
+}
+
+[Serializable]
+public class CombatStats
+{
+    public float InitiativeMin;
+    public float InitiativeMax;
+    public float CritChance;
+    public float CritDamage;
+    public float BlockChance;
+    public float BlockDamageReduction;
+    public float DodgeChance;
+    public float Aggro;
+    public float Lifesteal;
+    public float EnergyGain;
+    public float LuckyDrop;
+    public float IncomingHealing;
+    public float OutgoingHealing;
 }

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -12,10 +10,15 @@ public class DamageNumber : MonoBehaviour
     public float lifeTime = 1.5f;
     public float fadeSpeed = 2f;
 
-    public void SetText(float value)
+    public void SetText(float value, bool isCrit)
     {
         transform.position += Random.insideUnitSphere * 0.3f;
-        DamageText.text = Mathf.Abs(value).ToString();
+        string text = Mathf.Abs(value).ToString();
+        if (isCrit)
+            text += "!";
+
+        DamageText.text = text;
+
         if (value > 0)
         {
             DamageText.color = Color.red;
@@ -28,6 +31,14 @@ public class DamageNumber : MonoBehaviour
         {
             DamageText.color = Color.green;
         }
+
+        Initialize();
+    }
+
+    public void SetDodgeText()
+    {
+        transform.position += Random.insideUnitSphere * 0.3f;
+        DamageText.text = "Dodged";
 
         Initialize();
     }

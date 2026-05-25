@@ -100,6 +100,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActiveTurn: 0
   UnitName: Bandit
+  UnitStats:
+    Strength: 0
+    Dexterity: 0
+    Constitution: 0
+    Intelligence: 0
+    Faith: 0
+    Charisma: 0
+    Luck: 0
+  CombatStats:
+    InitiativeMin: 0
+    InitiativeMax: 0
+    CritChance: 0
+    CritDamage: 0
+    BlockChance: 0
+    BlockDamageReduction: 0
+    DodgeChance: 0
+    Aggro: 0
+    Lifesteal: 0
+    EnergyGain: 0
+    LuckyDrop: 0
+    IncomingHealing: 0
+    OutgoingHealing: 0
   UnitData: {fileID: 11400000, guid: 622cfe8c60dcd1245afa85b00913ea0a, type: 2}
   MaxHealth: 26
   CurrentHealth: 26
@@ -108,9 +130,8 @@ MonoBehaviour:
   IsAlive: 1
   UnitTeam: 1
   Abilities:
-  - {fileID: 11400000, guid: eb8bd91b475dd36428876f22491df0d6, type: 2}
-  - {fileID: 11400000, guid: 211c34f08b503ca4abfac681148409dd, type: 2}
-  - {fileID: 11400000, guid: 7b8f5dbc49a329642a0cf9b187329902, type: 2}
+  - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+  - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
 --- !u!114 &7367418481594108555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,6 +148,9 @@ MonoBehaviour:
   target: {fileID: 0}
   unitControllers: []
   ExpValue: 15
+  AvailableDrops:
+  - {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
+  - {fileID: 11400000, guid: bb1727926cde36b4590a7f7b7b6b4add, type: 2}
 --- !u!136 &5333646278970840875
 CapsuleCollider:
   m_ObjectHideFlags: 0

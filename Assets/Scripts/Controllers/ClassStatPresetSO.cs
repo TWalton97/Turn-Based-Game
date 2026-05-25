@@ -16,19 +16,4 @@ public class ClassStatPresetSO : ScriptableObject
     public int Faith;
     public int Charisma;
     public int Luck;
-
-    //Combat stats
-    public int InitiativeMin = 3;
-    public int InitiativeMax = 6;
-    public float CritChance;
-    public float CritDamage = 100;
-    public float BlockChance;
-    public float BlockDamageReduction = 50;
-    public int DodgeChance;
-    public float Aggro;
-    public float Lifesteal;
-    public float EnergyGain;
-    public int LuckyDrop;
-    public float IncomingHealing = 100;
-    public float OutgoingHealing = 100;
 }

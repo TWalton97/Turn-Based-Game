@@ -10,19 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: Cure Wounds
+  m_Name: BrutalSlash
   m_EditorClassIdentifier: 
-  AbilityName: Cure Wounds
-  AbilityDescription: 
+  AbilityName: Brutal Slash
+  AbilityDescription: Deals 4 + Strength as damage to a single target
   ManaCost: 1
-  TeamTargeting: 0
-  TargetType: 2
+  TeamTargeting: 1
+  TargetType: 0
   Cooldown: 0
   MovesToTarget: 1
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
-  DamageType: 4
-  DamageAmount: 7
+  DamageType: 0
+  DamageAmount: 4
   NumberOfHits: 1
   DurationBetweenHits: 0
+  StrengthScaling: 1
+  DexterityScaling: 0
+  IntelligenceScaling: 0

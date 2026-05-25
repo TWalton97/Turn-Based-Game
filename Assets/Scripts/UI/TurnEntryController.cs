@@ -20,7 +20,7 @@ public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointer
         TrackedUnit.OnHealthValueChanged -= UpdateHealthBar;
     }
 
-    public void AssignTrackedUnit(UnitController controller, int initiativeValue)
+    public void AssignTrackedUnit(UnitController controller, float initiativeValue)
     {
         TrackedUnit = controller;
 

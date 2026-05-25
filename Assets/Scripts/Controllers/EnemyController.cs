@@ -9,6 +9,7 @@ public class EnemyController : MonoBehaviour
     public UnitController target;
     public List<UnitController> unitControllers = new();
     public int ExpValue = 10;
+    public List<ItemSO> AvailableDrops;
 
     private void Awake()
     {
@@ -20,10 +21,11 @@ public class EnemyController : MonoBehaviour
     {
         unitController.OnDie -= OnDeathEvents;
     }
-    
+
     private void OnDeathEvents()
     {
         BattleManager.instance.DistributeExpToPlayers(ExpValue);
+        BattleManager.instance.DistributeItemsToPlayer(AvailableDrops[Random.Range(0, AvailableDrops.Count)]);
         //Can also distribute drops here?
     }
 
@@ -69,8 +71,8 @@ public class EnemyController : MonoBehaviour
     {
         List<UnitController> targets =
         ability.TeamTargeting == Team.Enemy
-        ? BattleManager.instance.EnemyUnits
-        : BattleManager.instance.FriendlyUnits;
+        ? BattleManager.instance.FriendlyUnits
+        : BattleManager.instance.EnemyUnits;
 
         targets = targets
         .Where(t => t.IsAlive)

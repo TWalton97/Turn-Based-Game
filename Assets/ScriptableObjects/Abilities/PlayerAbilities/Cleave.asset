@@ -15,7 +15,7 @@ MonoBehaviour:
   AbilityName: Cleave
   AbilityDescription: Swings your sword in a wide arc, damaging all enemies for 9
     physical damage
-  ManaCost: 3
+  ManaCost: 0
   TeamTargeting: 1
   TargetType: 1
   Cooldown: 0
@@ -24,6 +24,6 @@ MonoBehaviour:
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   DamageType: 1
-  DamageAmount: 9
+  DamageAmount: 99
   NumberOfHits: 1
   DurationBetweenHits: 0

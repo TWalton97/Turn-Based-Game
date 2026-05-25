@@ -18,7 +18,7 @@ public class TurnManager : MonoBehaviour
     public struct InitiativeEntry
     {
         public UnitController unit;
-        public int roll;
+        public float roll;
     }
 
     private List<InitiativeEntry> initiativeList = new();
@@ -65,13 +65,13 @@ public class TurnManager : MonoBehaviour
     private void GenerateTurnOrder()
     {
         initiativeList.Clear();
-        
+
         foreach (var unit in BattleManager.instance.FriendlyUnits)
         {
             initiativeList.Add(new InitiativeEntry
             {
                 unit = unit,
-                roll = UnityEngine.Random.Range(1, 21)
+                roll = Mathf.Round(UnityEngine.Random.Range(unit.CombatStats.InitiativeMin, unit.CombatStats.InitiativeMax) * 10f) / 10f
             });
         }
 
@@ -80,7 +80,7 @@ public class TurnManager : MonoBehaviour
             initiativeList.Add(new InitiativeEntry
             {
                 unit = unit,
-                roll = UnityEngine.Random.Range(1, 21)
+                roll = Mathf.Round(UnityEngine.Random.Range(unit.CombatStats.InitiativeMin, unit.CombatStats.InitiativeMax) * 10f) / 10f
             });
         }
 

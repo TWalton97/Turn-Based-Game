@@ -9,7 +9,7 @@ public class TurnOrderPanelController : MonoBehaviour
 
     public Dictionary<UnitController, TurnEntryController> turnEntries = new();
 
-    public void CreateTurnEntry(UnitController controller, int initiativeValue)
+    public void CreateTurnEntry(UnitController controller, float initiativeValue)
     {
         if (turnEntries.ContainsKey(controller))
             return;

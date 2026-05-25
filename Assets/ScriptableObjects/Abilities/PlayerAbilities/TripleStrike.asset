@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityName: Trple Strike
   AbilityDescription: Strikes at a single enemy 3 times, dealing 3 damage per hit
-  ManaCost: 0
+  ManaCost: 2
   TeamTargeting: 1
   TargetType: 0
   Cooldown: 0
@@ -26,3 +26,6 @@ MonoBehaviour:
   DamageAmount: 3
   NumberOfHits: 3
   DurationBetweenHits: 0.15
+  StrengthScaling: 0
+  DexterityScaling: 0
+  IntelligenceScaling: 0

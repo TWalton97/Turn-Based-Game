@@ -22,6 +22,10 @@ public class BaseAbility : ScriptableObject
     public int DamageAmount;
     public int NumberOfHits;
     public float DurationBetweenHits;
+
+    public float StrengthScaling = 0f;
+    public float DexterityScaling = 0f;
+    public float IntelligenceScaling = 0f;
 }
 
 public enum Team
