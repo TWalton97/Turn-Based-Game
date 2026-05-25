@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,11 +10,12 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
 
     public string UnitName;
 
+    public ClassStatPresetSO UnitData;
     public int MaxHealth = 30;
     public int CurrentHealth;
 
     public int MaxMana = 5;
-    public int CurrentMana = 1;
+    public int CurrentMana = 0;
 
     public bool IsAlive = true;
 
@@ -38,6 +38,16 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
         enemyController = GetComponent<EnemyController>();
+
+        ApplyClassPresetStats();
+    }
+
+    private void ApplyClassPresetStats()
+    {
+        MaxHealth = UnitData.MaxHealth;
+        CurrentHealth = MaxHealth;
+
+        MaxMana = UnitData.MaxMana;
     }
 
     public void RegenerateResources()

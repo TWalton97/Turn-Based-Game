@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1403220106497143675}
   - component: {fileID: 1859624672593206805}
   - component: {fileID: 90961607817683323}
+  - component: {fileID: 1794804008494616754}
   m_Layer: 0
   m_Name: Player_Warrior
   m_TagString: Untagged
@@ -99,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActiveTurn: 0
   UnitName: Warrior
+  UnitData: {fileID: 11400000, guid: dc23714d03f23a5478d97a3e6724cdd7, type: 2}
   MaxHealth: 32
   CurrentHealth: 32
   MaxMana: 5
@@ -124,3 +126,16 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1794804008494616754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381207045323696021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fc77f6e09970ca4787702359c03cedf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ClassPresetSO: {fileID: 0}

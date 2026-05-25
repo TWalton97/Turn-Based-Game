@@ -100,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActiveTurn: 0
   UnitName: Bandit
+  UnitData: {fileID: 11400000, guid: 622cfe8c60dcd1245afa85b00913ea0a, type: 2}
   MaxHealth: 26
   CurrentHealth: 26
   MaxMana: 5

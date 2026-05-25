@@ -71,6 +71,7 @@ public class ProgressionManager : MonoBehaviour
         if (CurrentRoomData != null)
             UnloadCombatRoom();
 
+        CampManager.instance.PopulateCampUI(BattleManager.instance.FriendlyUnits[0]);
         UIManager.instance.EnableCampUI();
     }
 

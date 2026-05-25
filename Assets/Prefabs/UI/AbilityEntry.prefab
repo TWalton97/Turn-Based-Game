@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7657550796078204796}
   - component: {fileID: 2947849935244267385}
   - component: {fileID: 1518497293329498862}
+  - component: {fileID: 5768175703977055556}
   m_Layer: 0
   m_Name: AbilityEntry
   m_TagString: Untagged
@@ -149,6 +150,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &5768175703977055556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592362545374435996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0f580d2303723847a7825087f666adb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Ability: {fileID: 0}
+  AbilityName: {fileID: 5177906911024541647}
 --- !u!1 &6483869863287686113
 GameObject:
   m_ObjectHideFlags: 0
