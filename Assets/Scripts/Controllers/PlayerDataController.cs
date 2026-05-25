@@ -15,6 +15,7 @@ public class PlayerDataController : MonoBehaviour
     private UnitController UnitController;
     public PlayerStats PlayerStats;
     public List<InventoryEntry> InventoryItems;
+    public List<EquipmentItemSO> EquippedItems;
 
     void Awake()
     {

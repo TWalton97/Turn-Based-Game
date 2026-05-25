@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8712116162163242255}
   - component: {fileID: 486149448531364685}
   - component: {fileID: 5075372136023640158}
+  - component: {fileID: -2912902368566059829}
   m_Layer: 0
   m_Name: EquippedGearEntry
   m_TagString: Untagged
@@ -122,6 +123,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-2912902368566059829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002947287104163854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d60e6ba29752284409b30466d1a86d8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EquipmentName: {fileID: 856050053659286047}
+  button: {fileID: 5075372136023640158}
+  EquipmentSlot: 0
+  EquippedItem: {fileID: 0}
 --- !u!1 &5289668231210019833
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,7 +232,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20.3
+  m_fontSize: 12
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1

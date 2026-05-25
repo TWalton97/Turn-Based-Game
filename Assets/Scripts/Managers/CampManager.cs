@@ -15,10 +15,12 @@ public class CampManager : MonoBehaviour
     //Ability List
     public CampAbilityEntry AbilityEntry;
     public Transform AbilityEntriesParent;
+    public List<CampAbilityEntry> CampAbilityEntries;
 
     //Item List
     public CampItemEntry CampItemEntry;
     public Transform ItemEntriesParent;
+    public List<CampItemEntry> CampItemEntries;
 
     //Details Panel
     public TextMeshProUGUI DetailsTitle;
@@ -29,6 +31,8 @@ public class CampManager : MonoBehaviour
     public TextMeshProUGUI PlayerStatsPanel;
     public TextMeshProUGUI InvestPointsButton;
 
+    //Equipped Gear
+    public List<EquippedGearSlot> EquippedGearSlots;
     void Awake()
     {
         if (instance == null)
@@ -57,11 +61,13 @@ public class CampManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+        CampAbilityEntries.Clear();
 
         for (int i = 0; i < TrackedUnitController.Abilities.Count; i++)
         {
             BaseAbility ability = TrackedUnitController.Abilities[i];
             CampAbilityEntry entry = Instantiate(AbilityEntry, AbilityEntriesParent);
+            CampAbilityEntries.Add(entry);
             entry.AssignAbilityToButton(ability);
             entry.GetComponent<Button>().onClick.AddListener(() =>
             {
@@ -70,23 +76,28 @@ public class CampManager : MonoBehaviour
         }
     }
 
-    private void PopulateItemList()
+    public void PopulateItemList()
     {
         foreach (Transform child in ItemEntriesParent)
         {
             Destroy(child.gameObject);
         }
+        CampItemEntries.Clear();
 
         for (int i = 0; i < playerDataController.InventoryItems.Count; i++)
         {
-            CampItemEntry itemEntry = Instantiate(CampItemEntry, ItemEntriesParent);
-            itemEntry.AssignItem(playerDataController.InventoryItems[i].Item);
-            itemEntry.InspectButton.onClick.AddListener(() =>
+            if (!playerDataController.EquippedItems.Contains(playerDataController.InventoryItems[i].Item as EquipmentItemSO))
             {
-                PopulateDetailsPanel(itemEntry.Item.ItemName,
-                itemEntry.Item.ItemInformation,
-                itemEntry.Item.Description);
-            });
+                CampItemEntry itemEntry = Instantiate(CampItemEntry, ItemEntriesParent);
+                CampItemEntries.Add(itemEntry);
+                itemEntry.AssignItem(playerDataController.InventoryItems[i].Item);
+                itemEntry.InspectButton.onClick.AddListener(() =>
+                {
+                    PopulateDetailsPanel(itemEntry.Item.ItemName,
+                    itemEntry.Item.ItemInformation,
+                    itemEntry.Item.Description);
+                });
+            }
         }
     }
 
@@ -130,5 +141,17 @@ public class CampManager : MonoBehaviour
         PlayerStatsPanel.text = sb.ToString();
 
         InvestPointsButton.text = $"Invest Points ({playerStats.AvailableStatPoints})";
+    }
+
+    public void TryEquipItem(CampItemEntry entry, EquipmentItemSO item)
+    {
+        foreach (EquippedGearSlot slot in EquippedGearSlots)
+        {
+            if (slot.EquipmentSlot == item.EquipmentSlot)
+            {
+                slot.EquipItemToSlot(item);
+                PopulatePlayerStatsPanel();
+            }
+        }
     }
 }

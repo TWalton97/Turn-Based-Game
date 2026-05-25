@@ -37,10 +37,23 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
     public EnemyController enemyController { get; private set; }
     private Vector3 startPos;
 
+    public Dictionary<Attribute, Action<float>> statSetters;
+
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
         enemyController = GetComponent<EnemyController>();
+
+        statSetters = new Dictionary<Attribute, Action<float>>
+        {
+            { Attribute.STR, v => UnitStats.Strength += (int)v },
+            { Attribute.DEX, v => UnitStats.Dexterity += (int)v },
+            { Attribute.CON, v => UnitStats.Constitution += (int)v },
+            { Attribute.INT, v => UnitStats.Intelligence += (int)v },
+            { Attribute.FTH, v => UnitStats.Faith += (int)v },
+            { Attribute.CHA, v => UnitStats.Charisma += (int)v },
+            { Attribute.LCK, v => UnitStats.Luck += (int)v },
+        };
 
         ApplyClassPresetStats();
         RecalculateCombatStats();
@@ -87,6 +100,11 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
     public void ProcessEndTurnEffects()
     {
         //TODO: end of turn effects will go here
+    }
+
+    public void UpdateHealth(int amount)
+    {
+        CurrentHealth = Mathf.Clamp(CurrentHealth + amount, 0, MaxHealth);
     }
 
     public void UpdateHealth(DamageResult damageResult)
