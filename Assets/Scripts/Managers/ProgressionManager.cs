@@ -66,6 +66,14 @@ public class ProgressionManager : MonoBehaviour
         EventManager.instance.PopulateEventOptions();
     }
 
+    public void LoadCamp()
+    {
+        if (CurrentRoomData != null)
+            UnloadCombatRoom();
+
+        UIManager.instance.EnableCampUI();
+    }
+
     public void LoadCombatRoom(RoomData roomData)
     {
         if (CurrentRoomData != null)
@@ -123,7 +131,7 @@ public class ProgressionManager : MonoBehaviour
         switch (nextRoomType)
         {
             case RoomType.Camp:
-                LoadEvent();
+                LoadCamp();
                 break;
             case RoomType.Combat:
                 RoomData roomDataToLoad = RemainingRoomData[0];

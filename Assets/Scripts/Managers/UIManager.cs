@@ -29,6 +29,7 @@ public class UIManager : MonoBehaviour
 
     public GameObject CombatUI;
     public GameObject EventUI;
+    public GameObject CampUI;
 
     private void Awake()
     {
@@ -83,11 +84,20 @@ public class UIManager : MonoBehaviour
     {
         CombatUI.SetActive(true);
         EventUI.SetActive(false);
+        CampUI.SetActive(false);
     }
 
     public void EnableEventUI()
     {
-        EventUI.SetActive(true);
         CombatUI.SetActive(false);
+        EventUI.SetActive(true);
+        CampUI.SetActive(false);
+    }
+
+    public void EnableCampUI()
+    {
+        CombatUI.SetActive(false);
+        EventUI.SetActive(false);
+        CampUI.SetActive(true);
     }
 }
