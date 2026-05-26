@@ -16,12 +16,22 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     private PlayerDataController playerDataController;
 
+    public Color CanCraftColor;
+    public Color CannotCraftColor;
+
     public void AssignRecipe(RecipeSO recipe)
     {
         Recipe = recipe;
         RecipeNameText.text = recipe.CraftingOutput.ItemName;
 
         playerDataController = CampManager.instance.TrackedUnitController.GetComponent<PlayerDataController>();
+        CheckIfCraftingAvailable();
+        playerDataController.OnInventoryUpdated += CheckIfCraftingAvailable;
+    }
+
+    void OnDestroy()
+    {
+        playerDataController.OnInventoryUpdated -= CheckIfCraftingAvailable;
     }
 
     public void CheckIfRecipeUnlocked()
@@ -33,6 +43,19 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         else
         {
             gameObject.SetActive(true);
+        }
+    }
+
+    public void CheckIfCraftingAvailable()
+    {
+        TextMeshProUGUI craftButtonText = CraftButton.GetComponentInChildren<TextMeshProUGUI>();
+        if (playerDataController.HasItemsForRecipe(Recipe))
+        {
+            craftButtonText.color = CanCraftColor;
+        }
+        else
+        {
+            craftButtonText.color = CannotCraftColor;
         }
     }
 
@@ -48,7 +71,7 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void InspectItem()
     {
         //Populate the details panel with this item's details
-        CampManager.instance.PopulateDetailsPanel(Recipe.CraftingOutput.ItemName, Recipe.CraftingOutput.Description, Recipe.CraftingOutput.ItemInformation);
+        CampManager.instance.PopulateDetailsPanel(Recipe.CraftingOutput.ItemName, Recipe.CraftingOutput.ItemInformation, Recipe.CraftingOutput.Description);
     }
 
     public string BuildRecipeString(List<InventoryEntry> recipeItems)

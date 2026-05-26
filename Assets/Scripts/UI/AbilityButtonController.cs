@@ -8,6 +8,7 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
 {
     public CombatMenuController combatMenuController;
     public BaseAbility Ability;
+    public ICombatActionSource CombatAction;
     public TextMeshProUGUI AbilityName;
 
     private void Awake()
@@ -28,10 +29,18 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
         gameObject.SetActive(false);
     }
 
-    public void ActivateButton()
+    public virtual void ActivateButton()
     {
-        if (combatMenuController.CurrentUnitController.CurrentMana < Ability.ManaCost)
+        UnitController controller = TurnManager.instance.UnitControllerTurnOrder[TurnManager.instance.CurrentTurnIndex];
+        if (!Ability.CanUse(controller))
             return;
+
+        if (Ability.TargetType == TargetType.Self)
+        {
+            controller.TryUseAbility(Ability, controller);
+            combatMenuController.ItemPanel.ActivatePanel();
+            return;
+        }
 
         combatMenuController.ActivateTargetSelectionPanel(Ability);
     }

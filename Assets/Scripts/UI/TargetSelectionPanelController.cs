@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TargetSelectionPanelController : PanelController
+public class TargetSelectionPanelController : FightPanelController
 {
     public TargetButtonController[] targetButtonControllers;
 
@@ -24,7 +24,7 @@ public class TargetSelectionPanelController : PanelController
     public void SetupTargetButtons(BaseAbility ability)
     {
         DisableButtons();
-        
+
         int i = 0;
         switch (ability.TeamTargeting)
         {

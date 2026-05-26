@@ -66,6 +66,23 @@ public class PlayerDataController : MonoBehaviour
         OnInventoryUpdated?.Invoke();
     }
 
+    public void RemoveItemFromInventory(ItemSO item)
+    {
+        InventoryEntry existingEntry = InventoryItems.Find(entry => entry.Item == item);
+
+        if (existingEntry != null)
+        {
+            existingEntry.Quantity -= 1;
+        }
+
+        if (existingEntry.Quantity <= 0)
+        {
+            InventoryItems.Remove(existingEntry);
+        }
+
+        OnInventoryUpdated?.Invoke();
+    }
+
     public InventoryEntry FindInventoryEntryByItem(ItemSO item)
     {
         InventoryEntry entry = InventoryItems.Find(x => x.Item == item);

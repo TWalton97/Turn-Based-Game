@@ -150,7 +150,7 @@ MonoBehaviour:
   ExpValue: 15
   AvailableDrops:
   - {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
-  - {fileID: 11400000, guid: aed30b48ffb735048afa18b8efa5e228, type: 2}
+  - {fileID: 11400000, guid: e9bca2c93664ab944b5ded30e8c5485e, type: 2}
 --- !u!136 &5333646278970840875
 CapsuleCollider:
   m_ObjectHideFlags: 0

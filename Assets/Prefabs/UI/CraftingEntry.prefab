@@ -99,7 +99,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -367,6 +367,8 @@ MonoBehaviour:
   RecipeNameText: {fileID: 7034406155175985604}
   CraftButton: {fileID: 8161674485353626339}
   InspectButton: {fileID: 2225431564185517714}
+  CanCraftColor: {r: 0.029764682, g: 0.8207547, b: 0, a: 1}
+  CannotCraftColor: {r: 0.9811321, g: 0, b: 0, a: 1}
 --- !u!1 &5565919730238350083
 GameObject:
   m_ObjectHideFlags: 0
@@ -736,7 +738,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535

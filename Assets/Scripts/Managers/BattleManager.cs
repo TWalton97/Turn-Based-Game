@@ -84,7 +84,10 @@ public class BattleManager : MonoBehaviour
             {
                 if (controller.TryGetComponent(out PlayerDataController dataController))
                 {
-                    dataController.AddItemToInventory(item);
+                    for (int i = 0; i < UnityEngine.Random.Range(1, 3); i++)
+                    {
+                        dataController.AddItemToInventory(item);
+                    }
                 }
             }
         }

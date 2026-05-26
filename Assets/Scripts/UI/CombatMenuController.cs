@@ -8,7 +8,7 @@ public class CombatMenuController : MonoBehaviour
     public UnitController TargetUnitController;
 
     public FightPanelController FightPanel;
-    public PanelController ItemPanel;
+    public ItemPanelController ItemPanel;
     public TargetSelectionPanelController TargetSelectionPanel;
 
     public TextMeshProUGUI UnitName;
@@ -26,13 +26,15 @@ public class CombatMenuController : MonoBehaviour
     private void Awake()
     {
         TurnManager.OnRefreshUI += FightPanel.SetupAbilityButtons;
+        TurnManager.OnRefreshUI += ItemPanel.SetupAbilityButtons;
         TurnManager.OnRefreshUI += SetupUI;
     }
 
     private void OnDestroy()
     {
-        TurnManager.OnRefreshUI += FightPanel.SetupAbilityButtons;
-        TurnManager.OnRefreshUI += SetupUI;
+        TurnManager.OnRefreshUI -= FightPanel.SetupAbilityButtons;
+        TurnManager.OnRefreshUI -= ItemPanel.SetupAbilityButtons;
+        TurnManager.OnRefreshUI -= SetupUI;
     }
 
     public void ActivateFightPanel()

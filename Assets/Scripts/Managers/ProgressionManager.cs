@@ -39,6 +39,9 @@ public class ProgressionManager : MonoBehaviour
 
     public int CurrentRoomIndex = 1;
 
+    public List<UnitController> AvailableEnemies;
+    public GameObject Background;
+
     public void Awake()
     {
         if (instance == null)
@@ -82,16 +85,22 @@ public class ProgressionManager : MonoBehaviour
 
         UIManager.instance.EnableCombatUI();
 
-        switch (roomData)
+        CurrentlyLoadedBackground = Instantiate(Background);
+        for (int i = 0; i < 2; i++)
         {
-            case CombatRoom combatRoom:
-                CurrentlyLoadedBackground = Instantiate(combatRoom.RoomBackground);
-                foreach (UnitController controller in combatRoom.Enemies)
-                {
-                    SpawnManager.instance.SpawnUnit(controller);
-                }
-                break;
+            SpawnManager.instance.SpawnUnit(AvailableEnemies[UnityEngine.Random.Range(0, AvailableEnemies.Count)]);
         }
+
+        // switch (roomData)
+        // {
+        //     case CombatRoom combatRoom:
+        //         CurrentlyLoadedBackground = Instantiate(combatRoom.RoomBackground);
+        //         foreach (UnitController controller in combatRoom.Enemies)
+        //         {
+        //             SpawnManager.instance.SpawnUnit(controller);
+        //         }
+        //         break;
+        // }
 
         CurrentRoomData = roomData;
         OnRoomLoaded?.Invoke();
@@ -119,6 +128,11 @@ public class ProgressionManager : MonoBehaviour
 
     public void LoadNextRoom()
     {
+        foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+        {
+            controller.UpdateHealth(15);
+        }
+
         if (RemainingRoomData.Count == 0)
         {
             Debug.Log("No more rooms remaining!");

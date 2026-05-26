@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Abilities", menuName = "Abilities")]
-public class BaseAbility : ScriptableObject
+public class BaseAbility : ScriptableObject, ICombatActionSource
 {
     public string AbilityName;
     [TextArea] public string AbilityDescription;
@@ -26,6 +26,16 @@ public class BaseAbility : ScriptableObject
     public float StrengthScaling = 0f;
     public float DexterityScaling = 0f;
     public float IntelligenceScaling = 0f;
+
+    public bool CanUse(UnitController controller)
+    {
+        return controller.CurrentHealth >= ManaCost;
+    }
+
+    public void ConsumeCost(UnitController controller)
+    {
+        controller.UpdateMana(-ManaCost);
+    }
 }
 
 public enum Team

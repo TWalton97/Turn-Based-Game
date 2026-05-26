@@ -118,7 +118,7 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
         else
         {
             DamageNumberManager.instance.SpawnDamageNumberAtPosition(damageResult, transform.position);
-            CurrentHealth -= Mathf.FloorToInt(damageResult.Damage);
+            CurrentHealth = (int)Mathf.Clamp(CurrentHealth - damageResult.Damage, 0, MaxHealth);
             OnHealthValueChanged?.Invoke();
             if (CurrentHealth <= 0)
                 Die();
@@ -145,7 +145,8 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
     public void TryUseAbility(BaseAbility ability, UnitController selectedTarget)
     {
         IsActiveTurn = false;
-        UpdateMana(ability.ManaCost);
+        ability.ConsumeCost(this);
+        //UpdateMana(ability.ManaCost);
         unitControllers = ReturnTargetControllers(ability, selectedTarget);
         StartCoroutine(ExecuteAbility(ability, selectedTarget));
     }

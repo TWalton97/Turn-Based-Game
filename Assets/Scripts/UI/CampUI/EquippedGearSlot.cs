@@ -46,6 +46,7 @@ public class EquippedGearSlot : MonoBehaviour
         }
 
         controller.GetComponent<PlayerDataController>().EquippedItems.Add(item);
+        controller.RecalculateCombatStats();
 
         CampManager.instance.PopulatePlayerStatsPanel();
         CampManager.instance.PopulateItemList();
@@ -67,6 +68,7 @@ public class EquippedGearSlot : MonoBehaviour
         }
 
         controller.GetComponent<PlayerDataController>().EquippedItems.Remove(EquippedItem);
+        controller.RecalculateCombatStats();
 
         EquippedItem = null;
         EquipmentName.text = startingName;
