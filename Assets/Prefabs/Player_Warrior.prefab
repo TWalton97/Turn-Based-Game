@@ -167,3 +167,4 @@ MonoBehaviour:
     AvailableStatPoints: 6
     Gold: 0
   InventoryItems: []
+  EquippedItems: []

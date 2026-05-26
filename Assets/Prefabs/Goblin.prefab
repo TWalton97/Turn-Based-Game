@@ -148,8 +148,9 @@ MonoBehaviour:
   unitControllers: []
   ExpValue: 10
   AvailableDrops:
-  - {fileID: 11400000, guid: 63021b8abf23ce444877984219675ca3, type: 2}
+  - {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
   - {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
+  - {fileID: 11400000, guid: 63021b8abf23ce444877984219675ca3, type: 2}
 --- !u!136 &5333646278970840875
 CapsuleCollider:
   m_ObjectHideFlags: 0

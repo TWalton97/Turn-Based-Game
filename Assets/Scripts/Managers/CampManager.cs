@@ -33,6 +33,15 @@ public class CampManager : MonoBehaviour
 
     //Equipped Gear
     public List<EquippedGearSlot> EquippedGearSlots;
+
+    //Crafting
+    public List<ItemSO> CollectedItems; //Every time an item is collected, we add it here
+    public List<RecipeSO> AllRecipes;
+    public Transform CraftingEntriesParent;
+    public CraftingEntry CraftingEntryPrefab;
+    private List<CraftingEntry> createdCraftingEntries = new();
+    private bool recipeEntriesCreated = false;
+
     void Awake()
     {
         if (instance == null)
@@ -49,10 +58,18 @@ public class CampManager : MonoBehaviour
         TrackedUnitController = unitController;
         playerDataController = unitController.GetComponent<PlayerDataController>();
 
-
         PopulateAbilityList();
         PopulateItemList();
         PopulatePlayerStatsPanel();
+        PopulateCraftingMenu();
+
+        playerDataController.OnInventoryUpdated += PopulateItemList;
+    }
+
+    void OnDestroy()
+    {
+        if (playerDataController != null)
+            playerDataController.OnInventoryUpdated -= PopulateItemList;
     }
 
     private void PopulateAbilityList()
@@ -86,16 +103,18 @@ public class CampManager : MonoBehaviour
 
         for (int i = 0; i < playerDataController.InventoryItems.Count; i++)
         {
-            if (!playerDataController.EquippedItems.Contains(playerDataController.InventoryItems[i].Item as EquipmentItemSO))
+            if (!playerDataController.IsItemEquipped(playerDataController.InventoryItems[i].id))
             {
                 CampItemEntry itemEntry = Instantiate(CampItemEntry, ItemEntriesParent);
                 CampItemEntries.Add(itemEntry);
-                itemEntry.AssignItem(playerDataController.InventoryItems[i].Item);
+                itemEntry.AssignItem(playerDataController.InventoryItems[i]);
+                if (!CollectedItems.Contains(playerDataController.InventoryItems[i].Item))
+                    CollectedItems.Add(playerDataController.InventoryItems[i].Item);
                 itemEntry.InspectButton.onClick.AddListener(() =>
                 {
-                    PopulateDetailsPanel(itemEntry.Item.ItemName,
-                    itemEntry.Item.ItemInformation,
-                    itemEntry.Item.Description);
+                    PopulateDetailsPanel(itemEntry.InventoryEntry.Item.ItemName,
+                    itemEntry.InventoryEntry.Item.ItemInformation,
+                    itemEntry.InventoryEntry.Item.Description);
                 });
             }
         }
@@ -106,6 +125,25 @@ public class CampManager : MonoBehaviour
         DetailsTitle.text = title;
         DetailsInfo.text = info;
         DetailsStats.text = stats;
+    }
+
+    public void PopulateCraftingMenu()
+    {
+        if (!recipeEntriesCreated)
+        {
+            foreach (RecipeSO recipe in AllRecipes)
+            {
+                CraftingEntry entry = Instantiate(CraftingEntryPrefab, CraftingEntriesParent);
+                entry.AssignRecipe(recipe);
+                createdCraftingEntries.Add(entry);
+            }
+            recipeEntriesCreated = true;
+        }
+
+        foreach (CraftingEntry entry in createdCraftingEntries)
+        {
+            entry.CheckIfRecipeUnlocked();
+        }
     }
 
     public void PopulatePlayerStatsPanel()
@@ -143,13 +181,14 @@ public class CampManager : MonoBehaviour
         InvestPointsButton.text = $"Invest Points ({playerStats.AvailableStatPoints})";
     }
 
-    public void TryEquipItem(CampItemEntry entry, EquipmentItemSO item)
+    public void TryEquipItem(CampItemEntry entry)
     {
         foreach (EquippedGearSlot slot in EquippedGearSlots)
         {
-            if (slot.EquipmentSlot == item.EquipmentSlot)
+            EquipmentItemSO equipmentItemSO = entry.InventoryEntry.Item as EquipmentItemSO;
+            if (slot.EquipmentSlot == equipmentItemSO.EquipmentSlot)
             {
-                slot.EquipItemToSlot(item);
+                slot.EquipItemToSlot(entry.InventoryEntry);
                 PopulatePlayerStatsPanel();
             }
         }

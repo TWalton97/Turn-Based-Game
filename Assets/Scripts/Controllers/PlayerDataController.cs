@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class PlayerDataController : MonoBehaviour
 {
@@ -11,11 +12,13 @@ public class PlayerDataController : MonoBehaviour
     //Level and exp
     //Stat points
     //Gold
-    
+
     private UnitController UnitController;
     public PlayerStats PlayerStats;
     public List<InventoryEntry> InventoryItems;
-    public List<EquipmentItemSO> EquippedItems;
+    public List<InventoryEntry> EquippedItems;
+
+    public Action OnInventoryUpdated;
 
     void Awake()
     {
@@ -56,20 +59,73 @@ public class PlayerDataController : MonoBehaviour
             InventoryItems.Add(new InventoryEntry
             {
                 Item = item,
-                Quantity = 1
+                Quantity = 1,
+                id = Guid.NewGuid().ToString()
             });
+        }
+        OnInventoryUpdated?.Invoke();
+    }
+
+    public InventoryEntry FindInventoryEntryByItem(ItemSO item)
+    {
+        InventoryEntry entry = InventoryItems.Find(x => x.Item == item);
+        return entry;
+    }
+
+    public InventoryEntry FindInventoryEntryByID(string id)
+    {
+        InventoryEntry entry = InventoryItems.Find(x => x.id == id);
+        return null;
+    }
+
+    public bool IsItemEquipped(string id)
+    {
+        InventoryEntry entry = EquippedItems.Find(x => x.id == id);
+        return entry != null;
+    }
+
+    public bool HasItemsForRecipe(RecipeSO recipe)
+    {
+        foreach (InventoryEntry entry in recipe.CraftingIngredients)
+        {
+            InventoryEntry existingEntry = InventoryItems.Find(e => e.Item == entry.Item);
+
+            if (existingEntry == null || existingEntry.Quantity < entry.Quantity)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void TryRemoveItemsForRecipe(RecipeSO recipe)
+    {
+        foreach (InventoryEntry entry in recipe.CraftingIngredients)
+        {
+            InventoryEntry existingEntry = InventoryItems.Find(e => e.Item == entry.Item);
+
+            if (existingEntry != null && existingEntry.Quantity >= entry.Quantity)
+            {
+                existingEntry.Quantity -= entry.Quantity;
+                if (existingEntry.Quantity == 0)
+                    InventoryItems.Remove(existingEntry);
+
+                OnInventoryUpdated?.Invoke();
+            }
         }
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class InventoryEntry
 {
     public ItemSO Item;
     public int Quantity;
+
+    public string id;
 }
 
-[System.Serializable]
+[Serializable]
 public class PlayerStats
 {
     public int Level;

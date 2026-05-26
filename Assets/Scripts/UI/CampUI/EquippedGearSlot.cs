@@ -12,20 +12,32 @@ public class EquippedGearSlot : MonoBehaviour
     public Button button;
 
     public EquipmentSlot EquipmentSlot;
-    public EquipmentItemSO EquippedItem;
+    public InventoryEntry EquippedItem;
+
+    public bool ItemEquipped = false;
+
 
     void Awake()
     {
         startingName = EquipmentName.text;
+        button.onClick.AddListener(() =>
+        {
+            Unequip();
+        });
     }
 
-    public void EquipItemToSlot(EquipmentItemSO item)
+    public void EquipItemToSlot(InventoryEntry item)
     {
+        if (ItemEquipped)
+            Unequip(false);
+
         EquippedItem = item;
-        EquipmentName.text = item.ItemName;
+        EquipmentName.text = item.Item.ItemName;
+        ItemEquipped = true;
 
         UnitController controller = CampManager.instance.TrackedUnitController;
-        foreach (var mod in item.statModifiers)
+        EquipmentItemSO equipmentItemSO = item.Item as EquipmentItemSO;
+        foreach (var mod in equipmentItemSO.statModifiers)
         {
             if (controller.statSetters.TryGetValue(mod.attribute, out var apply))
             {
@@ -35,19 +47,18 @@ public class EquippedGearSlot : MonoBehaviour
 
         controller.GetComponent<PlayerDataController>().EquippedItems.Add(item);
 
-        button.onClick.AddListener(() =>
-        {
-            Unequip();
-        });
+        CampManager.instance.PopulatePlayerStatsPanel();
+        CampManager.instance.PopulateItemList();
     }
 
-    public void Unequip()
+    public void Unequip(bool refreshUI = true)
     {
-        if (EquippedItem == null)
+        if (!ItemEquipped)
             return;
 
         UnitController controller = CampManager.instance.TrackedUnitController;
-        foreach (var mod in EquippedItem.statModifiers)
+        EquipmentItemSO equipmentItemSO = EquippedItem.Item as EquipmentItemSO;
+        foreach (var mod in equipmentItemSO.statModifiers)
         {
             if (controller.statSetters.TryGetValue(mod.attribute, out var apply))
             {
@@ -56,11 +67,15 @@ public class EquippedGearSlot : MonoBehaviour
         }
 
         controller.GetComponent<PlayerDataController>().EquippedItems.Remove(EquippedItem);
-        
-        CampManager.instance.PopulatePlayerStatsPanel();
-        CampManager.instance.PopulateItemList();
 
         EquippedItem = null;
         EquipmentName.text = startingName;
+        ItemEquipped = false;
+
+        if (refreshUI)
+        {
+            CampManager.instance.PopulatePlayerStatsPanel();
+            CampManager.instance.PopulateItemList();
+        }
     }
 }

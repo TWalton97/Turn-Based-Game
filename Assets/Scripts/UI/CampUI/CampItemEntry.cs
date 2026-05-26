@@ -6,22 +6,26 @@ using UnityEngine.UI;
 
 public class CampItemEntry : MonoBehaviour
 {
-    public ItemSO Item;
+    public InventoryEntry InventoryEntry;
     public TextMeshProUGUI ItemName;
 
     public Button MainButton;
     public Button InspectButton;
 
-    public void AssignItem(ItemSO item)
+    public void AssignItem(InventoryEntry inventoryEntry)
     {
-        Item = item;
-        ItemName.text = Item.ItemName;
-        if (Item is EquipmentItemSO equipmentItemSO)
+        InventoryEntry = inventoryEntry;
+        ItemName.text = InventoryEntry.Item.ItemName;
+        if (inventoryEntry.Item.Stackable)
+        {
+            ItemName.text = InventoryEntry.Item.ItemName + "(x" + inventoryEntry.Quantity + ")";
+        }
+        if (InventoryEntry.Item is EquipmentItemSO equipmentItemSO)
         {
             MainButton.enabled = true;
             MainButton.onClick.AddListener(() =>
             {
-                CampManager.instance.TryEquipItem(this, equipmentItemSO);
+                CampManager.instance.TryEquipItem(this);
                 CampManager.instance.CampItemEntries.Remove(this);
                 Destroy(gameObject);
             });
