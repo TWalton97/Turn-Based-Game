@@ -18,7 +18,7 @@ public class FightPanelController : PanelController
 
     public void SetupAbilityButtons(UnitController controller)
     {
-        if (controller.enemyController != null)
+        if (controller.enemyController != null || !controller.IsOwner)
             return;
 
         foreach (AbilityButtonController abilityButtonController in abilityButtonControllers)

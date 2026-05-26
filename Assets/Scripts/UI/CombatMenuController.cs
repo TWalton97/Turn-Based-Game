@@ -42,6 +42,13 @@ public class CombatMenuController : MonoBehaviour
         if (!CurrentUnitController.IsActiveTurn)
             return;
 
+        if (!CurrentUnitController.IsOwner)
+        {
+            Debug.Log($"Not the owner of the current turn's unit, not enabling UI");
+            return;
+        }
+
+
         if (ItemPanel.IsPanelOpened)
             ItemPanel.ActivatePanel();
 
@@ -86,7 +93,7 @@ public class CombatMenuController : MonoBehaviour
 
     public void SetupUI(UnitController controller)
     {
-        if (controller.enemyController != null)
+        if (controller.enemyController != null || !controller.IsOwner)
         {
             gameObject.SetActive(false);
             return;

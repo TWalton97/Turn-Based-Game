@@ -18,7 +18,7 @@ public class ItemPanelController : PanelController
 
     public void SetupAbilityButtons(UnitController controller)
     {
-        if (controller.enemyController != null)
+        if (controller.enemyController != null || !controller.IsOwner)
             return;
 
         PlayerDataController dataController = controller.GetComponent<PlayerDataController>();

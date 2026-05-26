@@ -1,66 +1,187 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EventManager : MonoBehaviour
+public class EventManager : NetworkBehaviour
 {
-    //Stores a list of all possible events
-    //Whenever a function gets called, it will pull 3 possible events and display them
-    //Once an event is chosen, either the event manager displays the new menus or the progression manager loads a combat sequence
-    //Chosen events are also removed from the list of possible events
-
     public static EventManager instance;
 
+    [Header("All Events")]
     public List<EventDefinition> Events;
 
-    //Event selection
+    [Header("UI - Selection")]
     public GameObject EventSelectionMenu;
+
     [System.Serializable]
-    public class EventSelection
+    public class EventSelectionUI
     {
         public Image EventSelectionImage;
         public Button EventSelectionButton;
         public TextMeshProUGUI EventSelectionButtonText;
     }
-    public List<EventSelection> EventSelections = new();
 
-    //Event nodes
+    public List<EventSelectionUI> EventSelections = new();
+
+    [Header("UI - Event Node")]
     public GameObject StoryEventMenu;
     public Image EventNodeImage;
     public TextMeshProUGUI EventNodeName;
     public TextMeshProUGUI EventNodeDescription;
-    public List<EventSelection> EventNodeOptions;
 
+    public List<EventSelectionUI> EventNodeOptions;
+
+    [Header("Runtime State")]
     public EventDefinition CurrentEvent;
 
-    void Awake()
+    private readonly Dictionary<ulong, string> PlayerVotes = new();
+    private readonly List<EventDefinition> currentEventOptions = new();
+
+    private void Awake()
     {
-        if (instance == null)
-            instance = this;
+        if (instance == null) instance = this;
     }
 
+    #region EVENT GENERATION
+
     public void PopulateEventOptions()
+    {
+        if (!IsServer)
+            return;
+
+        GenerateEventOptions();
+    }
+
+    private void GenerateEventOptions()
+    {
+        if (Events.Count < 3)
+        {
+            Debug.LogError("Not enough events to generate options.");
+            return;
+        }
+
+        int a = Random.Range(0, Events.Count);
+        int b = Random.Range(0, Events.Count);
+        int c = Random.Range(0, Events.Count);
+
+        ShowEventOptionsClientRpc(a, b, c);
+    }
+
+    [ClientRpc]
+    private void ShowEventOptionsClientRpc(int a, int b, int c)
+    {
+        SetupSelectionMenu(a, b, c);
+    }
+
+    private void SetupSelectionMenu(int a, int b, int c)
     {
         EventSelectionMenu.SetActive(true);
         StoryEventMenu.SetActive(false);
 
-        for (int i = 0; i < 3; i++)
+        SetupOptionUI(0, Events[a]);
+        SetupOptionUI(1, Events[b]);
+        SetupOptionUI(2, Events[c]);
+    }
+
+    #endregion
+
+    #region UI SETUP
+
+    private void SetupOptionUI(int uiIndex, EventDefinition eventDef)
+    {
+        var ui = EventSelections[uiIndex];
+        var startNode = eventDef.GetNode(eventDef.startNodeID);
+
+        ui.EventSelectionImage.sprite = startNode.image;
+        ui.EventSelectionButtonText.text = eventDef.eventID;
+
+        ui.EventSelectionButton.onClick.RemoveAllListeners();
+
+        string eventID = eventDef.eventID; // IMPORTANT: stable identifier
+
+        ui.EventSelectionButton.onClick.AddListener(() =>
         {
-            EventDefinition selectedEvent = Events[Random.Range(0, Events.Count)];
-            EventSelections[i].EventSelectionImage.sprite = selectedEvent.GetNode(selectedEvent.startNodeID).image;
-            EventSelections[i].EventSelectionButtonText.text = selectedEvent.eventID;
+            SubmitVoteServerRpc(eventID);
+        });
+    }
 
-            EventNode capturedNode = selectedEvent.GetNode(selectedEvent.startNodeID);
+    #endregion
 
-            EventSelections[i].EventSelectionButton.onClick.RemoveAllListeners();
+    #region VOTING
 
-            EventSelections[i].EventSelectionButton.onClick.AddListener(() =>
-            {
-                LoadEventNode(capturedNode);
-                CurrentEvent = selectedEvent;
-            });
+    [ServerRpc(RequireOwnership = false)]
+    public void SubmitVoteServerRpc(string eventID, ServerRpcParams rpcParams = default)
+    {
+        Debug.Log($"Submitting vote to server");
+
+        ulong senderId = rpcParams.Receive.SenderClientId;
+
+        PlayerVotes[senderId] = eventID;
+
+        CheckVotes();
+    }
+
+    private void CheckVotes()
+    {
+        Dictionary<string, int> voteCounts = new();
+
+        foreach (var vote in PlayerVotes.Values)
+        {
+            if (!voteCounts.ContainsKey(vote))
+                voteCounts[vote] = 0;
+
+            voteCounts[vote]++;
         }
+
+        foreach (var pair in voteCounts)
+        {
+            if (pair.Value >= NetworkManager.Singleton.ConnectedClientsIds.Count)
+            {
+                ResolveWinningVote(pair.Key);
+                return;
+            }
+        }
+    }
+
+    private void ResolveWinningVote(string winningEventID)
+    {
+        EventDefinition winningEvent =
+            Events.Find(e => e.eventID == winningEventID);
+
+        if (winningEvent == null)
+        {
+            Debug.LogError($"Winning event not found: {winningEventID}");
+            return;
+        }
+
+        CurrentEvent = winningEvent;
+
+        PlayerVotes.Clear();
+
+        LoadEventNodeClientRpc(winningEventID);
+    }
+
+    #endregion
+
+    #region EVENT LOADING
+
+    [ClientRpc]
+    private void LoadEventNodeClientRpc(string eventID)
+    {
+        EventDefinition eventDef =
+            Events.Find(e => e.eventID == eventID);
+
+        if (eventDef == null)
+        {
+            Debug.LogError($"Client could not find event: {eventID}");
+            return;
+        }
+
+        CurrentEvent = eventDef;
+
+        EventNode startNode = eventDef.GetNode(eventDef.startNodeID);
+        LoadEventNode(startNode);
     }
 
     public void LoadEventNode(EventNode node)
@@ -72,27 +193,31 @@ public class EventManager : MonoBehaviour
         EventNodeName.text = "Event";
         EventNodeDescription.text = node.description;
 
-        foreach (EventSelection eventSelection in EventNodeOptions)
-        {
-            eventSelection.EventSelectionButton.gameObject.SetActive(false);
-        }
+        foreach (var option in EventNodeOptions)
+            option.EventSelectionButton.gameObject.SetActive(false);
 
         for (int i = 0; i < node.choices.Count; i++)
         {
-            EventChoice choice = node.choices[i];
+            var choice = node.choices[i];
+            var ui = EventNodeOptions[i];
 
-            EventNodeOptions[i].EventSelectionButton.gameObject.SetActive(true);
-            EventNodeOptions[i].EventSelectionButtonText.text = node.choices[i].buttonText;
-            EventNodeOptions[i].EventSelectionButton.onClick.RemoveAllListeners();
-            EventNodeOptions[i].EventSelectionButton.onClick.AddListener(() =>
+            ui.EventSelectionButton.gameObject.SetActive(true);
+            ui.EventSelectionButtonText.text = choice.buttonText;
+
+            ui.EventSelectionButton.onClick.RemoveAllListeners();
+
+            ui.EventSelectionButton.onClick.AddListener(() =>
             {
-                foreach (EventEffect effect in choice.effects)
+                foreach (var effect in choice.effects)
                     effect.Execute();
 
                 EventNode nextNode = CurrentEvent.GetNode(choice.nextNodeID);
+
                 if (nextNode != null)
                     LoadEventNode(nextNode);
             });
         }
     }
+
+    #endregion
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -17,9 +18,40 @@ public class SpawnManager : MonoBehaviour
             instance = this;
     }
 
-    void Start()
+    public void BindNetworkEvents()
     {
-        SpawnUnit(DEBUG_PlayerWarrior);
+        NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
+    }
+
+    void OnDisable()
+    {
+        if (NetworkManager.Singleton == null)
+            return;
+
+        NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
+    }
+
+    private void HandleClientConnected(ulong clientId)
+    {
+        SpawnUnitForPlayer(clientId);
+    }
+
+    private void SpawnUnitForPlayer(ulong clientId)
+    {
+        BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(DEBUG_PlayerWarrior.UnitTeam);
+
+        GameObject unitObj = Instantiate(DEBUG_PlayerWarrior.gameObject);
+
+        NetworkObject netObj = unitObj.GetComponent<NetworkObject>();
+
+        unitObj.transform.position = slot.UnitHolder.position;
+
+        netObj.SpawnWithOwnership(clientId);
+
+        UnitController unit = unitObj.GetComponent<UnitController>();
+
+        BattleManager.instance.RegisterUnit(unit);
+        slot.BindUnitToSlot(unit);
     }
 
     public void SpawnUnit(UnitController unit)

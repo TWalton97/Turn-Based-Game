@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Unity.Netcode;
 
-public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public bool IsActiveTurn = false;
 
@@ -59,6 +60,14 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
         RecalculateCombatStats();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            Debug.Log($"{gameObject.name} is owned by this client!");
+        }
+    }
+
     private void ApplyClassPresetStats()
     {
         MaxHealth = UnitData.MaxHealth;
@@ -89,6 +98,7 @@ public class UnitController : MonoBehaviour, IPointerClickHandler, IPointerEnter
     public void BeginActionPhase()
     {
         IsActiveTurn = true;
+        
         //If there is an enemy controller, let it decide
         //Otherwise we want to display the UI
         if (enemyController == null)

@@ -51,8 +51,12 @@ public class ProgressionManager : MonoBehaviour
     private void Start()
     {
         RemainingRoomData = RoomData;
-        LoadNextRoom();
         TurnManager.OnBattleEnded += LoadNextRoom;
+    }
+
+    public void LoadFirstRoom()
+    {
+        LoadNextRoom();
     }
 
     private void OnDestroy()
