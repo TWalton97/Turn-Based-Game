@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 90961607817683323}
   - component: {fileID: 1794804008494616754}
   - component: {fileID: 2220474873611023449}
-  - component: {fileID: 1312115834694874499}
+  - component: {fileID: -1230232494730589073}
   m_Layer: 0
   m_Name: Player_Warrior
   m_TagString: Untagged
@@ -101,6 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActiveTurn: 0
+  HasActedThisTurn: 0
   UnitName: Warrior
   UnitStats:
     Strength: 0
@@ -126,10 +127,15 @@ MonoBehaviour:
     OutgoingHealing: 0
   UnitData: {fileID: 11400000, guid: dc23714d03f23a5478d97a3e6724cdd7, type: 2}
   MaxHealth: 32
-  CurrentHealth: 32
+  CurrentHealth:
+    m_InternalValue: 0
+  DisplayedHealth: 0
   MaxMana: 5
-  CurrentMana: 0
-  IsAlive: 1
+  CurrentMana:
+    m_InternalValue: 0
+  DisplayedMana: 0
+  IsAlive:
+    m_InternalValue: 0
   UnitTeam: 0
   Abilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
@@ -186,7 +192,7 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &1312115834694874499
+--- !u!114 &-1230232494730589073
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

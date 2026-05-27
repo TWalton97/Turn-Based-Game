@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
-public class ProgressionManager : MonoBehaviour
+public class ProgressionManager : NetworkBehaviour
 {
     //Progression manager handles moving from scene to scene
     //This includes loading in the rooms, event menus, or camps
@@ -56,11 +57,14 @@ public class ProgressionManager : MonoBehaviour
 
     public void LoadFirstRoom()
     {
+        Debug.Log($"Network ready: {NetworkManager.Singleton.IsListening}");
+        Debug.Log($"Connected clients: {NetworkManager.Singleton.ConnectedClients.Count}");
         LoadNextRoom();
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
+        base.OnDestroy();
         TurnManager.OnBattleEnded -= LoadNextRoom;
     }
 
@@ -78,8 +82,15 @@ public class ProgressionManager : MonoBehaviour
         if (CurrentRoomData != null)
             UnloadCombatRoom();
 
-        CampManager.instance.PopulateCampUI(BattleManager.instance.FriendlyUnits[0]);
-        UIManager.instance.EnableCampUI();
+        foreach (UnitController unit in BattleManager.instance.FriendlyUnits)
+        {
+            if (unit.IsOwner)
+            {
+                CampManager.instance.PopulateCampUI(unit);
+                UIManager.instance.EnableCampUI();
+                return;
+            }
+        }
     }
 
     public void LoadCombatRoom(RoomData roomData)
@@ -90,10 +101,15 @@ public class ProgressionManager : MonoBehaviour
         UIManager.instance.EnableCombatUI();
 
         CurrentlyLoadedBackground = Instantiate(Background);
-        for (int i = 0; i < 2; i++)
+
+        if (NetworkManager.Singleton.IsServer)
         {
-            SpawnManager.instance.SpawnUnit(AvailableEnemies[UnityEngine.Random.Range(0, AvailableEnemies.Count)]);
+            for (int i = 0; i < 2; i++)
+            {
+                SpawnManager.instance.SpawnUnit(AvailableEnemies[UnityEngine.Random.Range(0, AvailableEnemies.Count)]);
+            }
         }
+
 
         // switch (roomData)
         // {
@@ -115,15 +131,18 @@ public class ProgressionManager : MonoBehaviour
         if (CurrentlyLoadedBackground != null)
             Destroy(CurrentlyLoadedBackground);
 
-        foreach (UnitController controller in BattleManager.instance.EnemyUnits)
+        if (NetworkManager.Singleton.IsServer)
         {
-            TurnManager.instance.RemoveUnitFromTurnEntries(controller);
-            Destroy(controller.gameObject);
-        }
+            foreach (UnitController controller in BattleManager.instance.EnemyUnits)
+            {
+                TurnManager.instance.RemoveUnitFromTurnEntries(controller);
+                Destroy(controller.gameObject);
+            }
 
-        foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
-        {
-            TurnManager.instance.RemoveUnitFromTurnEntries(controller);
+            foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+            {
+                TurnManager.instance.RemoveUnitFromTurnEntries(controller);
+            }
         }
 
         BattleManager.instance.RemoveAllEnemies();
@@ -132,37 +151,60 @@ public class ProgressionManager : MonoBehaviour
 
     public void LoadNextRoom()
     {
-        foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+        if (NetworkManager.Singleton.IsServer)
         {
-            controller.UpdateHealth(15);
+            foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+            {
+                controller.Heal(15);
+            }
+
+            if (RemainingRoomData.Count == 0)
+            {
+                Debug.Log("No more rooms remaining!");
+                return;
+            }
+
+            RoomIndex = (RoomIndex + 1) % RoomOrder.Count;
+            RoomType nextRoomType = RoomOrder[RoomIndex];
+
+            //Picking what room is next
+            switch (nextRoomType)
+            {
+                case RoomType.Camp:
+                    LoadRoomClientRpc(0);
+                    //LoadCamp();
+                    break;
+                case RoomType.Combat:
+                    LoadRoomClientRpc(1);
+                    //RoomData roomDataToLoad = RemainingRoomData[0];
+                    //LoadCombatRoom(roomDataToLoad);
+                    break;
+                case RoomType.Event:
+                    LoadRoomClientRpc(2);
+                    //LoadEvent();
+                    break;
+            }
+
+            CurrentRoomIndex++;
+            RoomCountText.text = "Forest (" + CurrentRoomIndex.ToString() + "/8)";
         }
+    }
 
-        if (RemainingRoomData.Count == 0)
+    [ClientRpc]
+    public void LoadRoomClientRpc(int roomType)
+    {
+        switch (roomType)
         {
-            Debug.Log("No more rooms remaining!");
-            return;
-        }
-
-        //When this gets called, we check our current index, then decide what to load based on index
-        RoomIndex = (RoomIndex + 1) % RoomOrder.Count;
-        RoomType nextRoomType = RoomOrder[RoomIndex];
-
-        switch (nextRoomType)
-        {
-            case RoomType.Camp:
+            case 0:
                 LoadCamp();
                 break;
-            case RoomType.Combat:
+            case 1:
                 RoomData roomDataToLoad = RemainingRoomData[0];
                 LoadCombatRoom(roomDataToLoad);
-                RemainingRoomData.RemoveAt(0);
                 break;
-            case RoomType.Event:
+            case 2:
                 LoadEvent();
                 break;
         }
-
-        CurrentRoomIndex++;
-        RoomCountText.text = "Forest (" + CurrentRoomIndex.ToString() + "/8)";
     }
 }

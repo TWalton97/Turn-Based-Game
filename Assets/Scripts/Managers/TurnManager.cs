@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
-public class TurnManager : MonoBehaviour
+public class TurnManager : NetworkBehaviour
 {
     //This class just handles figuring out the turn order
     //It also calls to specific units when their turn starts
@@ -41,15 +42,12 @@ public class TurnManager : MonoBehaviour
 
     private void Start()
     {
-        OnActionPhaseCompleted += ProcessEndOfTurnEffects;
-        OnTurnEnded += MoveToNextTurn;
         ProgressionManager.OnRoomLoaded += GenerateTurnOrder;
     }
 
-    void OnDestroy()
+    public override void OnDestroy()
     {
-        OnActionPhaseCompleted -= ProcessEndOfTurnEffects;
-        OnTurnEnded -= MoveToNextTurn;
+        base.OnDestroy();
         ProgressionManager.OnRoomLoaded -= GenerateTurnOrder;
     }
 
@@ -64,6 +62,9 @@ public class TurnManager : MonoBehaviour
 
     private void GenerateTurnOrder()
     {
+        if (!IsServer)
+            return;
+
         initiativeList.Clear();
 
         foreach (var unit in BattleManager.instance.FriendlyUnits)
@@ -87,16 +88,35 @@ public class TurnManager : MonoBehaviour
         initiativeList = initiativeList.OrderByDescending(x => x.roll).ToList();
         UnitControllerTurnOrder = initiativeList.Select(x => x.unit).ToList();
 
+        ulong[] unitIds = new ulong[initiativeList.Count];
+        float[] rolls = new float[initiativeList.Count];
+
         for (int i = 0; i < initiativeList.Count; i++)
         {
-            turnOrderPanelController.CreateTurnEntry(initiativeList[i].unit, initiativeList[i].roll);
+            unitIds[i] = initiativeList[i].unit.NetworkObjectId;
+            rolls[i] = initiativeList[i].roll;
         }
+
+        GenerateTurnEntryListClientRpc(unitIds, rolls);
+
         CurrentTurnIndex = -1;
         MoveToNextTurn();
     }
 
+    [ClientRpc]
+    public void GenerateTurnEntryListClientRpc(ulong[] unitIds, float[] rolls)
+    {
+        for (int i = 0; i < unitIds.Length; i++)
+        {
+            turnOrderPanelController.CreateTurnEntry(GetTarget(unitIds[i]), rolls[i]);
+        }
+    }
+
     private void MoveToNextTurn()
     {
+        if (!IsServer)
+            return;
+
         if (IsBattleOver())
         {
             OnBattleEnded?.Invoke();
@@ -118,32 +138,53 @@ public class TurnManager : MonoBehaviour
                 return;
             }
         }
-        while (!UnitControllerTurnOrder[CurrentTurnIndex].IsAlive);
+        while (!UnitControllerTurnOrder[CurrentTurnIndex].IsAlive.Value);
 
         UnitController currentUnit =
             UnitControllerTurnOrder[CurrentTurnIndex];
 
-        CombatMenuController.CurrentUnitController = currentUnit;
-
-        turnOrderPanelController.SetActiveTurnEntry(currentUnit);
-
         currentUnit.RegenerateResources();
-        OnRefreshUI?.Invoke(currentUnit);
+
         currentUnit.ProcessStatusEffects();
+
+        StartTurnClientRpc(currentUnit.NetworkObjectId);
+
         currentUnit.BeginActionPhase();
     }
 
-    private void ProcessEndOfTurnEffects(UnitController controller)
+    [ClientRpc]
+    public void StartTurnClientRpc(ulong unitId)
+    {
+        UnitController unit = GetTarget(unitId);
+        CombatMenuController.CurrentUnitController = unit;
+
+        turnOrderPanelController.SetActiveTurnEntry(unit);
+
+        OnRefreshUI?.Invoke(unit);
+
+        unit.BeginClientTurn();
+    }
+
+    public UnitController GetTarget(ulong targetId)
+    {
+        UnitController controller = BattleManager.instance.AllUnits.Find(t => t.NetworkObjectId == targetId);
+        return controller;
+    }
+
+    public void ResolveAction(UnitController controller)
     {
         controller.ProcessEndTurnEffects();
-        OnTurnEnded?.Invoke();
+
+        controller.EndClientTurn();
+
+        MoveToNextTurn();
     }
 
     private bool IsBattleOver()
     {
-        bool allFriendliesDead = BattleManager.instance.FriendlyUnits.All(u => !u.IsAlive);
+        bool allFriendliesDead = BattleManager.instance.FriendlyUnits.All(u => !u.IsAlive.Value);
 
-        bool allEnemiesDead = BattleManager.instance.EnemyUnits.All(u => !u.IsAlive);
+        bool allEnemiesDead = BattleManager.instance.EnemyUnits.All(u => !u.IsAlive.Value);
 
         if (allFriendliesDead)
         {
@@ -158,5 +199,10 @@ public class TurnManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void TryUseAbility_Server(int abilityIndex, ulong targetId)
+    {
+
     }
 }

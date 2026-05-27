@@ -17,7 +17,7 @@ public class ItemButtonController : AbilityButtonController, IPointerEnterHandle
 
         if (Ability.TargetType == TargetType.Self)
         {
-            controller.TryUseAbility(Ability, controller);
+            controller.TryUseAbility(controller.GetAbilityIndex(Ability), controller.NetworkObjectId);
             combatMenuController.ItemPanel.ActivatePanel();
             return;
         }

@@ -11501,6 +11501,21 @@ MonoBehaviour:
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 2381207045323696021, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 2381207045323696021, guid: e91b782b0ea4d5746a9c14a85d088845, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 2381207045323696021, guid: df20a2b68b3ad094e823742f3ba5d5bc, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -13468,7 +13483,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02f0543132f6e084896a3a85b91d6aca, type: 2}
   RoomIndex: -1
   RoomCountText: {fileID: 1543857193}
-  RoomOrder: 02000000000000000100000000000000
+  RoomOrder: 01000000020000000100000000000000
   CurrentRoomIndex: 0
   AvailableEnemies:
   - {fileID: 1859624672593206805, guid: df20a2b68b3ad094e823742f3ba5d5bc, type: 3}
@@ -13637,6 +13652,11 @@ MonoBehaviour:
     EventSelectionButton: {fileID: 912482050}
     EventSelectionButtonText: {fileID: 1391540128}
   CurrentEvent: {fileID: 0}
+  CurrentEventNode:
+    nodeID: 
+    image: {fileID: 0}
+    description: 
+    choices: []
 --- !u!1001 &961846108
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23651,6 +23671,7 @@ GameObject:
   - component: {fileID: 1739626052}
   - component: {fileID: 1739626051}
   - component: {fileID: 1739626050}
+  - component: {fileID: 1739626055}
   m_Layer: 5
   m_Name: NetworkCanvas
   m_TagString: Untagged
@@ -23670,6 +23691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 009c73e5eee6ece40b043365f12ccae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RequiredNumberOfPlayers: 2
 --- !u!114 &1739626051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23753,6 +23775,22 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1739626055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1739626049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2471479241
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &1749212706
 GameObject:
   m_ObjectHideFlags: 0

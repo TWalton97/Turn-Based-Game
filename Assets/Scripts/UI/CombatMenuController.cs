@@ -101,8 +101,8 @@ public class CombatMenuController : MonoBehaviour
 
         CurrentUnitController = controller;
         UpdateUI();
-        controller.OnHealthValueChanged += UpdateUI;
-        controller.OnManaValueChanged += UpdateUI;
+        controller.OnDisplayedHealthChanged += UpdateUI;
+        controller.OnDisplayedManaChanged += UpdateUI;
         gameObject.SetActive(true);
     }
 
@@ -114,10 +114,10 @@ public class CombatMenuController : MonoBehaviour
         TurnTimer.text = "30s";
         UnitGold.text = "0";
 
-        HealthBarText.text = CurrentUnitController.CurrentHealth + "/" + CurrentUnitController.MaxHealth;
-        HealthBarFill.fillAmount = (float)CurrentUnitController.CurrentHealth / CurrentUnitController.MaxHealth;
+        HealthBarText.text = CurrentUnitController.DisplayedHealth + "/" + CurrentUnitController.MaxHealth;
+        HealthBarFill.fillAmount = (float)CurrentUnitController.DisplayedHealth / CurrentUnitController.MaxHealth;
 
-        ManaBarText.text = CurrentUnitController.CurrentMana + "/" + CurrentUnitController.MaxMana;
-        ManaBarFill.fillAmount = (float)CurrentUnitController.CurrentMana / CurrentUnitController.MaxMana;
+        ManaBarText.text = CurrentUnitController.DisplayedMana + "/" + CurrentUnitController.MaxMana;
+        ManaBarFill.fillAmount = (float)CurrentUnitController.DisplayedMana / CurrentUnitController.MaxMana;
     }
 }

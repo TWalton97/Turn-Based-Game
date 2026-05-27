@@ -46,8 +46,8 @@ public class UIManager : MonoBehaviour
     {
         if (currentlySelectedUnit != null)
         {
-            currentlySelectedUnit.OnManaValueChanged -= UpdateContextMenu;
-            currentlySelectedUnit.OnHealthValueChanged -= UpdateContextMenu;
+            currentlySelectedUnit.OnDisplayedManaChanged -= UpdateContextMenu;
+            currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
             currentlySelectedUnit = null;
         }
     }
@@ -57,14 +57,14 @@ public class UIManager : MonoBehaviour
         if (currentlySelectedUnit != null && currentlySelectedUnit != controller)
         {
             //Unsubscribe from the old events
-            currentlySelectedUnit.OnManaValueChanged -= UpdateContextMenu;
-            currentlySelectedUnit.OnHealthValueChanged -= UpdateContextMenu;
+            currentlySelectedUnit.OnDisplayedManaChanged -= UpdateContextMenu;
+            currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
         }
 
         currentlySelectedUnit = controller;
 
-        currentlySelectedUnit.OnManaValueChanged += UpdateContextMenu;
-        currentlySelectedUnit.OnHealthValueChanged += UpdateContextMenu;
+        currentlySelectedUnit.OnDisplayedManaChanged += UpdateContextMenu;
+        currentlySelectedUnit.OnDisplayedHealthChanged += UpdateContextMenu;
 
         UpdateContextMenu();
     }
@@ -73,11 +73,11 @@ public class UIManager : MonoBehaviour
     {
         ContextMenuUnitName.text = currentlySelectedUnit.UnitName;
 
-        ContextMenuHealthBarFill.fillAmount = (float)currentlySelectedUnit.CurrentHealth / currentlySelectedUnit.MaxHealth;
-        ContextMenuHealthBarText.text = currentlySelectedUnit.CurrentHealth + "/" + currentlySelectedUnit.MaxHealth;
+        ContextMenuHealthBarFill.fillAmount = (float)currentlySelectedUnit.DisplayedHealth / currentlySelectedUnit.MaxHealth;
+        ContextMenuHealthBarText.text = currentlySelectedUnit.DisplayedHealth + "/" + currentlySelectedUnit.MaxHealth;
 
-        ContextMenuManaBarFill.fillAmount = (float)currentlySelectedUnit.CurrentMana / currentlySelectedUnit.MaxMana;
-        ContextMenuManaBarText.text = currentlySelectedUnit.CurrentMana + "/" + currentlySelectedUnit.MaxMana;
+        ContextMenuManaBarFill.fillAmount = (float)currentlySelectedUnit.DisplayedMana / currentlySelectedUnit.MaxMana;
+        ContextMenuManaBarText.text = currentlySelectedUnit.DisplayedMana + "/" + currentlySelectedUnit.MaxMana;
     }
 
     public void EnableCombatUI()

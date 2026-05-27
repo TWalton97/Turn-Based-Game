@@ -17,7 +17,7 @@ public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointer
         if (TrackedUnit == null)
             return;
 
-        TrackedUnit.OnHealthValueChanged -= UpdateHealthBar;
+        TrackedUnit.OnDisplayedHealthChanged -= UpdateHealthBar;
     }
 
     public void AssignTrackedUnit(UnitController controller, float initiativeValue)
@@ -28,14 +28,14 @@ public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointer
         InitiativeValueText.text = initiativeValue.ToString();
         UpdateHealthBar();
 
-        TrackedUnit.OnHealthValueChanged += UpdateHealthBar;
+        TrackedUnit.OnDisplayedHealthChanged += UpdateHealthBar;
     }
     private void UpdateHealthBar()
     {
         if (TrackedUnit == null)
             return;
 
-        HealthBarFill.fillAmount = (float)TrackedUnit.CurrentHealth / TrackedUnit.MaxHealth;
+        HealthBarFill.fillAmount = (float)TrackedUnit.DisplayedHealth / TrackedUnit.MaxHealth;
     }
 
     public void ToggleArrow(bool value)

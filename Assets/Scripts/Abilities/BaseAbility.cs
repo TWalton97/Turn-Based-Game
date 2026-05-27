@@ -29,7 +29,7 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
 
     public bool CanUse(UnitController controller)
     {
-        return controller.CurrentHealth >= ManaCost;
+        return controller.CurrentHealth.Value >= ManaCost;
     }
 
     public void ConsumeCost(UnitController controller)

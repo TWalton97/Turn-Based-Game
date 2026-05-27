@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : NetworkBehaviour
 {
     public UnitController unitController;
     public UnitController target;
@@ -14,23 +15,35 @@ public class EnemyController : MonoBehaviour
     private void Awake()
     {
         unitController = GetComponent<UnitController>();
-        unitController.OnDie += OnDeathEvents;
     }
 
-    private void OnDestroy()
+    public override void OnNetworkSpawn()
     {
-        unitController.OnDie -= OnDeathEvents;
+        base.OnNetworkSpawn();
+        unitController.IsAlive.OnValueChanged += OnDeathEvents;
     }
 
-    private void OnDeathEvents()
+    public override void OnNetworkDespawn()
     {
-        BattleManager.instance.DistributeExpToPlayers(ExpValue);
-        BattleManager.instance.DistributeItemsToPlayer(AvailableDrops[Random.Range(0, AvailableDrops.Count)]);
-        //Can also distribute drops here?
+        base.OnNetworkDespawn();
+
+        unitController.IsAlive.OnValueChanged -= OnDeathEvents;
+    }
+
+    private void OnDeathEvents(bool oldValue, bool newValue)
+    {
+        if (newValue == false)
+        {
+            BattleManager.instance.DistributeExpToPlayers(ExpValue);
+            BattleManager.instance.DistributeItemsToPlayer(AvailableDrops[Random.Range(0, AvailableDrops.Count)]);
+        }
     }
 
     public void PickAction()
     {
+        if (!IsServer)
+            return;
+
         List<BaseAbility> validAbilities = ReturnListOfValidAbilities();
 
         if (validAbilities.Count == 0)
@@ -42,11 +55,22 @@ public class EnemyController : MonoBehaviour
         }
 
         BaseAbility chosenAbility = ChooseAbility(validAbilities);
+
         List<UnitController> validTargets = GetValidTargets(chosenAbility);
+
         target = validTargets[Random.Range(0, validTargets.Count)];
+
         unitControllers = ReturnTargetControllers(chosenAbility);
-        unitController.UpdateMana(chosenAbility.ManaCost);
-        unitController.TryUseAbility(chosenAbility, target);
+        ulong targetId = target.NetworkObjectId;
+
+        //unitController.TryUseAbility(chosenAbility, target);
+        PickActionClientRpc(unitController.GetAbilityIndex(chosenAbility), targetId);
+    }
+
+    [ClientRpc]
+    public void PickActionClientRpc(int abilityIndex, ulong targetId)
+    {
+        unitController.TryUseAbility(abilityIndex, targetId);
     }
 
     private List<BaseAbility> ReturnListOfValidAbilities()
@@ -55,7 +79,7 @@ public class EnemyController : MonoBehaviour
 
         foreach (BaseAbility ability in unitController.Abilities)
         {
-            if (ability.ManaCost > unitController.CurrentMana)
+            if (ability.ManaCost > unitController.CurrentMana.Value)
                 continue;
 
             if (GetValidTargets(ability).Count == 0)
@@ -75,13 +99,13 @@ public class EnemyController : MonoBehaviour
         : BattleManager.instance.EnemyUnits;
 
         targets = targets
-        .Where(t => t.IsAlive)
+        .Where(t => t.IsAlive.Value)
         .ToList();
 
         if (ability.DamageType == DamageType.Heal)
         {
             targets = targets
-                .Where(t => t.CurrentHealth < t.MaxHealth)
+                .Where(t => t.CurrentHealth.Value < t.MaxHealth)
                 .ToList();
         }
 
@@ -139,4 +163,6 @@ public class EnemyController : MonoBehaviour
         }
         return unitControllers;
     }
+
+    
 }

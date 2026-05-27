@@ -34,9 +34,11 @@ public class EventManager : NetworkBehaviour
 
     [Header("Runtime State")]
     public EventDefinition CurrentEvent;
+    public EventNode CurrentEventNode;
 
-    private readonly Dictionary<ulong, string> PlayerVotes = new();
+    private readonly Dictionary<ulong, int> PlayerVotes = new();
     private readonly List<EventDefinition> currentEventOptions = new();
+    private readonly Dictionary<int, EventDefinition> SelectedEventOptions = new();
 
     private void Awake()
     {
@@ -45,15 +47,27 @@ public class EventManager : NetworkBehaviour
 
     #region EVENT GENERATION
 
+    //Event manager timeline
+
+    //On event started, the server chooses 3 events from the pool and distributes their indexes to each player
+    //Each player takes those indexes and populates the event choices
+    //Each event choice button submits a vote for that event's index to the server
+
+    //Once the number of votes for an event >= number of clients, the server tells all clients to load the starting node of that event
+    //The starting node populates the buttons with more vote buttons based on the option index
+    //Clicking a button submits a vote for that index
+
+    //General loop: Clients submit votes to server, server waits until votes reach player count, server tells clients what outcome is
+
     public void PopulateEventOptions()
     {
         if (!IsServer)
             return;
 
-        GenerateEventOptions();
+        ServerGenerateEventOptions();
     }
 
-    private void GenerateEventOptions()
+    private void ServerGenerateEventOptions()
     {
         if (Events.Count < 3)
         {
@@ -61,35 +75,42 @@ public class EventManager : NetworkBehaviour
             return;
         }
 
-        int a = Random.Range(0, Events.Count);
-        int b = Random.Range(0, Events.Count);
-        int c = Random.Range(0, Events.Count);
+        int eventA = Random.Range(0, Events.Count);
+        int eventB = Random.Range(0, Events.Count);
+        int eventC = Random.Range(0, Events.Count);
 
-        ShowEventOptionsClientRpc(a, b, c);
+        ShowEventOptionsClientRpc(eventA, eventB, eventC);
     }
 
     [ClientRpc]
-    private void ShowEventOptionsClientRpc(int a, int b, int c)
+    private void ShowEventOptionsClientRpc(int eventA, int eventB, int eventC)
     {
-        SetupSelectionMenu(a, b, c);
+        SetupEventSelectionMenu(eventA, eventB, eventC);
     }
 
-    private void SetupSelectionMenu(int a, int b, int c)
+    private void SetupEventSelectionMenu(int eventA, int eventB, int eventC)
     {
+        CurrentEvent = null;
+        CurrentEventNode = null;
+
         EventSelectionMenu.SetActive(true);
         StoryEventMenu.SetActive(false);
 
-        SetupOptionUI(0, Events[a]);
-        SetupOptionUI(1, Events[b]);
-        SetupOptionUI(2, Events[c]);
+        SelectedEventOptions.Clear();
+
+        SetupEventSelectionUI(0, Events[eventA]);
+        SetupEventSelectionUI(1, Events[eventB]);
+        SetupEventSelectionUI(2, Events[eventC]);
     }
 
     #endregion
 
     #region UI SETUP
 
-    private void SetupOptionUI(int uiIndex, EventDefinition eventDef)
+    private void SetupEventSelectionUI(int uiIndex, EventDefinition eventDef)
     {
+        SelectedEventOptions.Add(uiIndex, eventDef);
+
         var ui = EventSelections[uiIndex];
         var startNode = eventDef.GetNode(eventDef.startNodeID);
 
@@ -102,7 +123,7 @@ public class EventManager : NetworkBehaviour
 
         ui.EventSelectionButton.onClick.AddListener(() =>
         {
-            SubmitVoteServerRpc(eventID);
+            SubmitEventVoteServerRpc(uiIndex);
         });
     }
 
@@ -111,20 +132,20 @@ public class EventManager : NetworkBehaviour
     #region VOTING
 
     [ServerRpc(RequireOwnership = false)]
-    public void SubmitVoteServerRpc(string eventID, ServerRpcParams rpcParams = default)
+    public void SubmitEventVoteServerRpc(int optionIndex, ServerRpcParams rpcParams = default)
     {
-        Debug.Log($"Submitting vote to server");
+        Debug.Log($"Submitting vote to server for option {optionIndex}");   //This could be any option - event selection, event option selection, etc...
 
         ulong senderId = rpcParams.Receive.SenderClientId;
 
-        PlayerVotes[senderId] = eventID;
+        PlayerVotes[senderId] = optionIndex;
 
         CheckVotes();
     }
 
     private void CheckVotes()
     {
-        Dictionary<string, int> voteCounts = new();
+        Dictionary<int, int> voteCounts = new();
 
         foreach (var vote in PlayerVotes.Values)
         {
@@ -144,48 +165,94 @@ public class EventManager : NetworkBehaviour
         }
     }
 
-    private void ResolveWinningVote(string winningEventID)
+    private void ResolveWinningVote(int winningEventIndex)
     {
-        EventDefinition winningEvent =
-            Events.Find(e => e.eventID == winningEventID);
-
-        if (winningEvent == null)
+        if (CurrentEvent == null)
         {
-            Debug.LogError($"Winning event not found: {winningEventID}");
-            return;
+            Debug.Log($"Event {winningEventIndex} had the most votes, loading event {winningEventIndex}");
+            //If there is no current event, then we're voting on an event to start
+            //We set the winning event to the selectedEventOptions of the correct index
+            EventDefinition winningEvent = SelectedEventOptions[winningEventIndex];
+
+            if (winningEvent == null)
+            {
+                Debug.LogError($"Winning event not found: {winningEvent.eventID}");
+                return;
+            }
+
+            LoadEventNodeClientRpc(winningEvent.eventID);
+        }
+        else
+        {
+            Debug.Log($"Event option {winningEventIndex} had the most votes, executing event option {winningEventIndex}");
+            EventEffectExecuteClientRpc(winningEventIndex);
+
+            EventNode nextNode = CurrentEvent.GetNode(CurrentEventNode.choices[winningEventIndex].nextNodeID);
+            if (nextNode != null)
+                LoadEventNodeClientRpc(nextNode.nodeID);
         }
 
-        CurrentEvent = winningEvent;
-
         PlayerVotes.Clear();
-
-        LoadEventNodeClientRpc(winningEventID);
     }
-
     #endregion
 
     #region EVENT LOADING
 
     [ClientRpc]
+    public void EventEffectExecuteClientRpc(int currentEventOptionIndex)
+    {
+        Debug.Log($"Executed all event effects for option {currentEventOptionIndex}");
+        
+        foreach (var effect in CurrentEventNode.choices[currentEventOptionIndex].effects)
+        {
+            effect.Execute();
+        }
+    }
+
+    [ClientRpc]
     private void LoadEventNodeClientRpc(string eventID)
     {
-        EventDefinition eventDef =
+        EventNode startNode = null;
+
+        if (CurrentEvent == null)
+        {
+            EventDefinition eventDef =
             Events.Find(e => e.eventID == eventID);
 
-        if (eventDef == null)
+            if (eventDef == null)
+            {
+                Debug.LogError($"Client could not find event: {eventID}");
+                return;
+            }
+
+            CurrentEvent = eventDef;
+            startNode = eventDef.GetNode(eventDef.startNodeID);
+        }
+        else
         {
-            Debug.LogError($"Client could not find event: {eventID}");
+            EventNode eventNode = CurrentEvent.GetNode(eventID);
+
+            if (eventNode == null)
+            {
+                Debug.LogError($"Client could not find event node: {eventID}");
+                return;
+            }
+
+            startNode = CurrentEvent.GetNode(eventID);
+        }
+
+        if (startNode == null)
+        {
+            Debug.LogError("Next event node is null");
             return;
         }
 
-        CurrentEvent = eventDef;
-
-        EventNode startNode = eventDef.GetNode(eventDef.startNodeID);
         LoadEventNode(startNode);
     }
 
     public void LoadEventNode(EventNode node)
     {
+        CurrentEventNode = node;
         EventSelectionMenu.SetActive(false);
         StoryEventMenu.SetActive(true);
 
@@ -195,6 +262,7 @@ public class EventManager : NetworkBehaviour
 
         foreach (var option in EventNodeOptions)
             option.EventSelectionButton.gameObject.SetActive(false);
+
 
         for (int i = 0; i < node.choices.Count; i++)
         {
@@ -206,15 +274,19 @@ public class EventManager : NetworkBehaviour
 
             ui.EventSelectionButton.onClick.RemoveAllListeners();
 
+            int capturedChoiceIndex = i;
+
+            //We need to just change this to submit a vote with an index and let the server decide
             ui.EventSelectionButton.onClick.AddListener(() =>
             {
-                foreach (var effect in choice.effects)
-                    effect.Execute();
+                SubmitEventVoteServerRpc(capturedChoiceIndex);
+                // foreach (var effect in choice.effects)
+                //     effect.Execute();
 
-                EventNode nextNode = CurrentEvent.GetNode(choice.nextNodeID);
+                // EventNode nextNode = CurrentEvent.GetNode(choice.nextNodeID);
 
-                if (nextNode != null)
-                    LoadEventNode(nextNode);
+                // if (nextNode != null)
+                //     LoadEventNode(nextNode);
             });
         }
     }

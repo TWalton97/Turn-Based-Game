@@ -31,13 +31,13 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
 
     public virtual void ActivateButton()
     {
-        UnitController controller = TurnManager.instance.UnitControllerTurnOrder[TurnManager.instance.CurrentTurnIndex];
+        UnitController controller = combatMenuController.CurrentUnitController;
         if (!Ability.CanUse(controller))
             return;
 
         if (Ability.TargetType == TargetType.Self)
         {
-            controller.TryUseAbility(Ability, controller);
+            controller.TryUseAbility(controller.GetAbilityIndex(Ability), controller.NetworkObjectId);
             combatMenuController.ItemPanel.ActivatePanel();
             return;
         }

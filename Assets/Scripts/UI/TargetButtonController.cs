@@ -2,11 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class TargetButtonController : NetworkBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private CombatMenuController combatMenuController;
     public TextMeshProUGUI UnitName;
@@ -24,7 +25,7 @@ public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPoin
     public void EnableButton(UnitController unit, BaseAbility ability)
     {
         UnitName.text = unit.UnitName;
-        HealthBarFill.fillAmount = (float)unit.CurrentHealth / unit.MaxHealth;
+        HealthBarFill.fillAmount = (float)unit.CurrentHealth.Value / unit.MaxHealth;
         this.ability = ability;
         this.target = unit;
         unitControllers = ReturnTargetControllers();
@@ -39,10 +40,10 @@ public class TargetButtonController : MonoBehaviour, IPointerEnterHandler, IPoin
     public void ActivateButton()
     {
         Debug.Log("Using ability " + ability.AbilityName);
-        combatMenuController.CurrentUnitController.TryUseAbility(ability, target);
-        // combatMenuController.CurrentUnitController.IsActiveTurn = false;
-        // combatMenuController.CurrentUnitController.UpdateMana(ability.ManaCost);
-        // StartCoroutine(PlayAttackAnimation());
+        //combatMenuController.CurrentUnitController.TryUseAbility(combatMenuController.CurrentUnitController.GetAbilityIndex(ability), target.NetworkObjectId);
+        combatMenuController.CurrentUnitController.RequestUseAbilityServerRpc(combatMenuController.CurrentUnitController.GetAbilityIndex(ability), target.NetworkObjectId);
+
+        //Instead of using this ability, it should tell the server to use this ability...
 
         combatMenuController.CloseAllMenus();
     }

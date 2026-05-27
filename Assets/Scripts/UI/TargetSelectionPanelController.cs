@@ -31,7 +31,7 @@ public class TargetSelectionPanelController : FightPanelController
             case Team.Enemy:
                 foreach (UnitController controller in BattleManager.instance.EnemyUnits)
                 {
-                    if (controller.IsAlive)
+                    if (controller.IsAlive.Value)
                     {
                         targetButtonControllers[i].EnableButton(controller, ability);
                         i++;
@@ -42,7 +42,7 @@ public class TargetSelectionPanelController : FightPanelController
             case Team.Ally:
                 foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
                 {
-                    if (controller.IsAlive)
+                    if (controller.IsAlive.Value)
                     {
                         targetButtonControllers[i].EnableButton(controller, ability);
                         i++;
