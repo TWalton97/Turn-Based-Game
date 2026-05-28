@@ -96,12 +96,12 @@ public class EnemyController : NetworkBehaviour
         .Where(t => t.IsAlive.Value)
         .ToList();
 
-        if (ability.DamageType == DamageType.Heal)
-        {
-            targets = targets
-                .Where(t => t.CurrentHealth.Value < t.MaxHealth)
-                .ToList();
-        }
+        // if (ability.DamageType == DamageType.Heal)
+        // {
+        //     targets = targets
+        //         .Where(t => t.CurrentHealth.Value < t.MaxHealth)
+        //         .ToList();
+        // }
 
         return targets;
     }

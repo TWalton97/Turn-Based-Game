@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: Vampiric Strike
+  m_Name: SiphonLife
   m_EditorClassIdentifier: 
-  AbilityName: Vampiric Strike
-  AbilityDescription: Strikes a single unit for 6 damage, healing yourself for the
-    same amount
-  ManaCost: 1
+  AbilityName: Siphon Life
+  AbilityDescription: Siphons the life out of a single unit dealing 10 damage and
+    distributing it to your team, healing them for 50% of damage dealt
+  ManaCost: 2
   TeamTargeting: 1
   TargetType: 0
-  Cooldown: 1
-  MovesToTarget: 1
+  Cooldown: 0
+  MovesToTarget: 0
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 6
+    DamageAmount: 10
     NumberOfHits: 1
     DurationBetweenHits: 0
     StrengthScaling: 0
@@ -38,8 +38,8 @@ MonoBehaviour:
     EffectScalingType: 0
     ScalingMultiplier: 1
   - DamageType: 4
-    TargetType: 4
-    DamageAmount: -6
+    TargetType: 2
+    DamageAmount: -10
     NumberOfHits: 1
     DurationBetweenHits: 0
     StrengthScaling: 0
@@ -49,4 +49,4 @@ MonoBehaviour:
     ConditionType: 5
     ConditionThreshold: 0
     EffectScalingType: 1
-    ScalingMultiplier: 1
+    ScalingMultiplier: 0.5

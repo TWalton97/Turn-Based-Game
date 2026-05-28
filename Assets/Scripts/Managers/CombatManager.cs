@@ -52,46 +52,29 @@ public class CombatManager : NetworkBehaviour
     {
         UnitController user = NetworkUtilities.GetUnitControllerById(userId);
         BaseAbility ability = user.Abilities[abilityIndex];
+        UnitController target = NetworkUtilities.GetUnitControllerById(targetId);
 
-        List<UnitController> targets = new();
-
-        switch (ability.TargetType)
-        {
-            case TargetType.SingleUnit:
-                targets.Add(NetworkUtilities.GetUnitControllerById(targetId));
-                break;
-            case TargetType.AllUnits:
-                if (ability.TeamTargeting == Team.Ally)
-                {
-                    targets = BattleManager.instance.AllUnits.Where(u => u.UnitTeam == user.UnitTeam && u.IsAlive.Value).ToList();
-                }
-                else
-                {
-                    targets = BattleManager.instance.AllUnits.Where(u => u.UnitTeam != user.UnitTeam && u.IsAlive.Value).ToList();
-                }
-                break;
-            case TargetType.Self:
-                targets.Add(user);
-                break;
-        }
-
-        ServerExecuteAbility(user, ability, targets);
+        ServerExecuteAbility(user, ability, target);
     }
 
-    public void ServerExecuteAbility(UnitController user, BaseAbility ability, List<UnitController> targets)
+    public void ServerExecuteAbility(UnitController user, BaseAbility ability, UnitController target)
     {
         if (!IsServer)
             return;
 
         ability.ConsumeCost(user);
 
-        AbilityResult abilityResult = CombatResolver.ResolveAbility(user, ability, targets);
-        foreach (TargetResult targetResult in abilityResult.TargetResults)
+        AbilityResult abilityResult = CombatResolver.ResolveAbility(user, ability, target);
+
+        foreach (AbilityEffectResult abilityEffectResult in abilityResult.AbilityEffectResults)
         {
-            UnitController controller = NetworkUtilities.GetUnitControllerById(targetResult.TargetId);
-            for (int i = 0; i < targetResult.Hits.Length; i++)
+            foreach (TargetResult targetResult in abilityEffectResult.TargetResults)
             {
-                controller.ServerTakeDamage(targetResult.Hits[i]);
+                UnitController controller = NetworkUtilities.GetUnitControllerById(targetResult.TargetId);
+                foreach (HitResult hitResult in targetResult.Hits)
+                {
+                    controller.ServerTakeDamage(hitResult);
+                }
             }
         }
 

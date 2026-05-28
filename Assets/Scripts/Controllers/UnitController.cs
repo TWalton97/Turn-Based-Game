@@ -241,18 +241,21 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         yield return new WaitForSeconds(0.5f);
 
-        yield return MoveToTargetIfNeeded(ability.MovesToTarget, NetworkUtilities.GetUnitControllerById(abilityResult.TargetResults[0].TargetId));
+        yield return MoveToTargetIfNeeded(ability.MovesToTarget, NetworkUtilities.GetUnitControllerById(abilityResult.TargetId));
 
         yield return new WaitForSeconds(0.4f);
 
-        for (int i = 0; i < ability.NumberOfHits; i++)
+        for (int p = 0; p < abilityResult.AbilityEffectResults.Length; p++)
         {
-            for (int p = 0; p < abilityResult.TargetResults.Length; p++)
+            for (int o = 0; o < abilityResult.AbilityEffectResults[p].TargetResults.Length; o++)
             {
-                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.TargetResults[p].TargetId);
-                target.ClientTakeDamage(abilityResult.TargetResults[p].Hits[i]);
+                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.AbilityEffectResults[p].TargetResults[o].TargetId);
+                for (int i = 0; i < abilityResult.AbilityEffectResults[p].TargetResults[o].Hits.Length; i++)
+                {
+                    target.ClientTakeDamage(abilityResult.AbilityEffectResults[p].TargetResults[o].Hits[i]);
+                    yield return new WaitForSeconds(ability.abilityEffects[p].DurationBetweenHits);
+                }
             }
-            yield return new WaitForSeconds(ability.DurationBetweenHits);
         }
 
         yield return new WaitForSeconds(0.4f);

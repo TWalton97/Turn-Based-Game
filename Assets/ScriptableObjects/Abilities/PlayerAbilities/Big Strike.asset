@@ -22,7 +22,12 @@ MonoBehaviour:
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
-  DamageType: 1
-  DamageAmount: 15
-  NumberOfHits: 1
-  DurationBetweenHits: 0
+  abilityEffects:
+  - DamageType: 1
+    TargetType: 0
+    DamageAmount: 15
+    NumberOfHits: 1
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0

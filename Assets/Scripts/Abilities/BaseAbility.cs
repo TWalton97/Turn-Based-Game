@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Abilities", menuName = "Abilities")]
@@ -18,14 +19,6 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
     public Animation Animation;
     public GameObject VFX;
 
-    public DamageType DamageType;
-    public int DamageAmount;
-    public int NumberOfHits;
-    public float DurationBetweenHits;
-
-    public float StrengthScaling = 0f;
-    public float DexterityScaling = 0f;
-    public float IntelligenceScaling = 0f;
 
     public List<AbilityEffect> abilityEffects = new();
 
@@ -49,7 +42,18 @@ public class AbilityEffect
     public TargetType TargetType;
     public int DamageAmount;
     public int NumberOfHits;
-    public int DurationBetweenHits;
+    public float DurationBetweenHits;
+
+    public float StrengthScaling = 0f;
+    public float DexterityScaling = 0f;
+    public float IntelligenceScaling = 0f;
+
+    [Header("Condition")]
+    public EffectType EffectType = EffectType.None;
+    public ConditionType ConditionType = ConditionType.None;
+    public float ConditionThreshold = 0f;
+    public EffectScalingType EffectScalingType = EffectScalingType.None;
+    public float ScalingMultiplier = 1f;
 }
 
 public enum Team
@@ -75,5 +79,47 @@ public enum DamageType
     Cold,
     Heal
 }
+
+[System.Serializable]
+public enum ConditionType
+{
+    None,
+
+    // success checks
+    RequiresAnyHit,
+    RequiresAnyCrit,
+    RequiresAllMissed,
+    RequiresNoDodges,
+
+    // result-based checks
+    RequiresDamageDealt,
+    RequiresHealingDone,
+
+    // contextual
+    RequiresPreviousEffectSuccess
+}
+
+[System.Serializable]
+public enum EffectType
+{
+    None,
+    Damage,
+    Heal,
+    ApplyStatus,
+    Shield,
+    ManaRestore
+}
+
+[System.Serializable]
+public enum EffectScalingType
+{
+    None,
+
+    BasedOnPreviousDamage,
+    BasedOnPreviousHealing,
+    BasedOnCritCount,
+}
+
+
 
 

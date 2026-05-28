@@ -138,6 +138,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
   - {fileID: 11400000, guid: 7d8e5f7a47187504882a8beb186cd789, type: 2}
   - {fileID: 11400000, guid: f6e308f811fc34a46942a4198a489c5f, type: 2}
+  - {fileID: 11400000, guid: b23ef7dd4f22c4d4f916f76b8aab0343, type: 2}
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
 --- !u!136 &3498775540722136037
 CapsuleCollider:

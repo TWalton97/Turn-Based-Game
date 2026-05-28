@@ -88,7 +88,7 @@ public class CampManager : MonoBehaviour
             entry.AssignAbilityToButton(ability);
             entry.GetComponent<Button>().onClick.AddListener(() =>
             {
-                PopulateDetailsPanel(ability.name, ability.AbilityDescription, ability.DamageAmount.ToString());
+                PopulateDetailsPanel(ability.name, ability.AbilityDescription, ability.abilityEffects[0].DamageAmount.ToString());
             });
         }
     }
