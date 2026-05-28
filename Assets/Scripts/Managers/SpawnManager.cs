@@ -36,6 +36,17 @@ public class SpawnManager : NetworkBehaviour
         SpawnUnitForPlayer(clientId);
     }
 
+    public UnitController PickRandomClass()
+    {
+        int rand = Random.Range(0, 2);
+        if (rand == 0)
+        {
+            return DEBUG_PlayerWarrior;
+        }
+
+        return DEBUG_PlayerHealer;
+    }
+
     private void SpawnUnitForPlayer(ulong clientId)
     {
         if (!IsServer)
@@ -43,7 +54,7 @@ public class SpawnManager : NetworkBehaviour
 
         BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(DEBUG_PlayerWarrior.UnitTeam);
 
-        GameObject unitObj = Instantiate(DEBUG_PlayerWarrior.gameObject);
+        GameObject unitObj = Instantiate(PickRandomClass().gameObject);
 
         NetworkObject netObj = unitObj.GetComponent<NetworkObject>();
 

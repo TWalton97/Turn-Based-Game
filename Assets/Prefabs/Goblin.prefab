@@ -99,7 +99,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4eff241273515048bc5282693aa788e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActiveTurn: 0
   UnitName: Goblin
   UnitStats:
     Strength: 0
@@ -125,13 +124,19 @@ MonoBehaviour:
     OutgoingHealing: 0
   UnitData: {fileID: 11400000, guid: 622cfe8c60dcd1245afa85b00913ea0a, type: 2}
   MaxHealth: 20
-  CurrentHealth: 20
+  CurrentHealth:
+    m_InternalValue: 0
+  DisplayedHealth: 0
   MaxMana: 5
-  CurrentMana: 0
-  IsAlive: 1
+  CurrentMana:
+    m_InternalValue: 0
+  DisplayedMana: 0
+  IsAlive:
+    m_InternalValue: 0
   UnitTeam: 1
   Abilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+  highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
 --- !u!114 &7367418481594108555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,8 +150,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitController: {fileID: 0}
-  target: {fileID: 0}
-  unitControllers: []
   ExpValue: 10
   AvailableDrops:
   - {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}

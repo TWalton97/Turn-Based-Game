@@ -23,31 +23,33 @@ public class CombatMenuController : MonoBehaviour
     public TextMeshProUGUI ManaBarText;
     public Image ManaBarFill;
 
+    private Animator animator;
+
     private void Awake()
     {
+        animator = GetComponent<Animator>();
+
         TurnManager.OnRefreshUI += FightPanel.SetupAbilityButtons;
-        TurnManager.OnRefreshUI += ItemPanel.SetupAbilityButtons;
-        TurnManager.OnRefreshUI += SetupUI;
+        TurnManager.OnRefreshUI += ItemPanel.SetupItemButtons;
+        TurnManager.OnRefreshUI += ToggleAndSetupCombatUI;
+        TurnManager.OnActionSelected += DisableUI;
     }
 
     private void OnDestroy()
     {
         TurnManager.OnRefreshUI -= FightPanel.SetupAbilityButtons;
-        TurnManager.OnRefreshUI -= ItemPanel.SetupAbilityButtons;
-        TurnManager.OnRefreshUI -= SetupUI;
+        TurnManager.OnRefreshUI -= ItemPanel.SetupItemButtons;
+        TurnManager.OnRefreshUI -= ToggleAndSetupCombatUI;
+        TurnManager.OnActionSelected -= DisableUI;
     }
 
     public void ActivateFightPanel()
     {
-        if (!CurrentUnitController.IsActiveTurn)
-            return;
-
         if (!CurrentUnitController.IsOwner)
         {
             Debug.Log($"Not the owner of the current turn's unit, not enabling UI");
             return;
         }
-
 
         if (ItemPanel.IsPanelOpened)
             ItemPanel.ActivatePanel();
@@ -60,9 +62,6 @@ public class CombatMenuController : MonoBehaviour
 
     public void ActivateItemPanel()
     {
-        if (!CurrentUnitController.IsActiveTurn)
-            return;
-
         if (FightPanel.IsPanelOpened)
             FightPanel.ActivatePanel();
 
@@ -71,9 +70,6 @@ public class CombatMenuController : MonoBehaviour
 
     public void ActivateTargetSelectionPanel(BaseAbility ability)
     {
-        if (!CurrentUnitController.IsActiveTurn)
-            return;
-
         FightPanel.ActivatePanel();
         TargetSelectionPanel.SetupTargetButtons(ability);
         TargetSelectionPanel.ActivatePanel();
@@ -91,19 +87,25 @@ public class CombatMenuController : MonoBehaviour
             ItemPanel.ActivatePanel();
     }
 
-    public void SetupUI(UnitController controller)
+    public void ToggleAndSetupCombatUI(UnitController controller)
     {
         if (controller.enemyController != null || !controller.IsOwner)
         {
-            gameObject.SetActive(false);
+            DisableUI();
             return;
         }
 
+        animator.SetBool("Hide", false);
         CurrentUnitController = controller;
         UpdateUI();
         controller.OnDisplayedHealthChanged += UpdateUI;
         controller.OnDisplayedManaChanged += UpdateUI;
-        gameObject.SetActive(true);
+    }
+
+    public void DisableUI()
+    {
+        CloseAllMenus();
+        animator.SetBool("Hide", true);
     }
 
     public void UpdateUI()

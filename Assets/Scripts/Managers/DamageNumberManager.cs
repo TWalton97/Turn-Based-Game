@@ -14,17 +14,18 @@ public class DamageNumberManager : MonoBehaviour
             instance = this;
     }
 
-    public void SpawnDamageNumberAtPosition(DamageResult result, Vector3 position)
+    public void SpawnDamageNumberAtPosition(HitResult result, Vector3 position)
     {
         DamageNumber damageNumber = Instantiate(DamageNumberPrefab);
         damageNumber.transform.position = position + Vector3.up;
-        damageNumber.SetText(result.Damage, result.Crit);
-    }
-
-    public void SpawnDodgedTextAtPosition(Vector3 position)
-    {
-        DamageNumber damageNumber = Instantiate(DamageNumberPrefab);
-        damageNumber.transform.position = position + Vector3.up;
-        damageNumber.SetDodgeText();
+        
+        if (result.Dodged)
+        {
+            damageNumber.SetDodgeText();
+        }
+        else
+        {
+            damageNumber.SetText(result.Damage, result.Crit);
+        }
     }
 }

@@ -99,7 +99,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4eff241273515048bc5282693aa788e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActiveTurn: 0
   UnitName: Bandit
   UnitStats:
     Strength: 0
@@ -125,14 +124,20 @@ MonoBehaviour:
     OutgoingHealing: 0
   UnitData: {fileID: 11400000, guid: 622cfe8c60dcd1245afa85b00913ea0a, type: 2}
   MaxHealth: 26
-  CurrentHealth: 26
+  CurrentHealth:
+    m_InternalValue: 0
+  DisplayedHealth: 0
   MaxMana: 5
-  CurrentMana: 0
-  IsAlive: 1
+  CurrentMana:
+    m_InternalValue: 0
+  DisplayedMana: 0
+  IsAlive:
+    m_InternalValue: 0
   UnitTeam: 1
   Abilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
   - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
+  highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
 --- !u!114 &7367418481594108555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,8 +151,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitController: {fileID: 0}
-  target: {fileID: 0}
-  unitControllers: []
   ExpValue: 15
   AvailableDrops:
   - {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}

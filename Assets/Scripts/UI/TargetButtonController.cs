@@ -39,13 +39,7 @@ public class TargetButtonController : NetworkBehaviour, IPointerEnterHandler, IP
 
     public void ActivateButton()
     {
-        Debug.Log("Using ability " + ability.AbilityName);
-        //combatMenuController.CurrentUnitController.TryUseAbility(combatMenuController.CurrentUnitController.GetAbilityIndex(ability), target.NetworkObjectId);
-        combatMenuController.CurrentUnitController.RequestUseAbilityServerRpc(combatMenuController.CurrentUnitController.GetAbilityIndex(ability), target.NetworkObjectId);
-
-        //Instead of using this ability, it should tell the server to use this ability...
-
-        combatMenuController.CloseAllMenus();
+        CombatManager.instance.RequestCombatActionServerRpc(combatMenuController.CurrentUnitController.NetworkObjectId, combatMenuController.CurrentUnitController.GetAbilityIndex(ability), target.NetworkObjectId);
     }
 
     private List<UnitController> ReturnTargetControllers()

@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public static class CombatResolver
 {
-    public static DamageResult CalculateDamage(UnitController attacker, BaseAbility ability, UnitController target)
+    public static HitResult CalculateHitDamage(UnitController attacker, BaseAbility ability, UnitController target)
     {
-        DamageResult result = new DamageResult();
+        HitResult result = new HitResult();
 
         //First we check if the unit dodges
         bool dodged = Random.Range(0f, 100f) < target.CombatStats.DodgeChance;
@@ -44,12 +45,77 @@ public static class CombatResolver
         return result;
     }
 
+    public static AbilityResult ResolveAbility(UnitController user, BaseAbility ability, List<UnitController> targets)
+    {
+        AbilityResult abilityResult = new AbilityResult();
+        abilityResult.AttackerId = user.NetworkObjectId;
+        abilityResult.AbilityId = user.GetAbilityIndex(ability);
+
+        abilityResult.TargetResults = new TargetResult[targets.Count];
+
+        for (int i = 0; i < targets.Count; i++)
+        {
+            TargetResult targetResult = new TargetResult();
+
+            targetResult.Hits = new HitResult[ability.NumberOfHits];
+            targetResult.TargetId = targets[i].NetworkObjectId;
+
+            for (int p = 0; p < ability.NumberOfHits; p++)
+            {
+                HitResult hitResult = CalculateHitDamage(user, ability, targets[i]);
+                targetResult.Hits[p] = hitResult;
+            }
+            abilityResult.TargetResults[i] = targetResult;
+        }
+        return abilityResult;
+    }
+
 }
 
-public class DamageResult
+[System.Serializable]
+public struct AbilityResult : INetworkSerializable
 {
-    public bool Dodged;
-    public bool Crit;
+    public ulong AttackerId;
+    public int AbilityId;
 
-    public float Damage;
+    public TargetResult[] TargetResults;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref AttackerId);
+        serializer.SerializeValue(ref AbilityId);
+        serializer.SerializeValue(ref TargetResults);
+    }
 }
+
+[System.Serializable]
+public struct TargetResult : INetworkSerializable
+{
+    public ulong TargetId;
+
+    public HitResult[] Hits;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref TargetId);
+        serializer.SerializeValue(ref Hits);
+    }
+}
+
+public struct HitResult : INetworkSerializable
+{
+    public float Damage;
+    public bool Crit;
+    public bool Dodged;
+    public bool Blocked;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref Damage);
+        serializer.SerializeValue(ref Crit);
+        serializer.SerializeValue(ref Dodged);
+        serializer.SerializeValue(ref Blocked);
+    }
+}
+
+

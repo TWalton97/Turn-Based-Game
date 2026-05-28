@@ -16,7 +16,7 @@ public class ItemPanelController : PanelController
         }
     }
 
-    public void SetupAbilityButtons(UnitController controller)
+    public void SetupItemButtons(UnitController controller)
     {
         if (controller.enemyController != null || !controller.IsOwner)
             return;

@@ -37,7 +37,7 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
 
         if (Ability.TargetType == TargetType.Self)
         {
-            controller.TryUseAbility(controller.GetAbilityIndex(Ability), controller.NetworkObjectId);
+            CombatManager.instance.RequestCombatActionServerRpc(controller.NetworkObjectId, controller.GetAbilityIndex(Ability), controller.NetworkObjectId);
             combatMenuController.ItemPanel.ActivatePanel();
             return;
         }

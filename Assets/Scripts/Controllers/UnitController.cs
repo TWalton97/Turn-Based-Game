@@ -9,8 +9,6 @@ using Unity.Netcode.Components;
 
 public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public bool IsActiveTurn = false;
-
     public string UnitName;
 
     public UnitStats UnitStats;
@@ -32,6 +30,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public List<BaseAbility> Abilities;
 
     private MeshRenderer meshRenderer;
+    private Material mat;
+
+    private Color originalEmission;
+
+    [SerializeField] private Color highlightEmission = Color.white * 2f;
 
     public Action OnDisplayedManaChanged;
     public Action OnDisplayedHealthChanged;
@@ -44,9 +47,14 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public Dictionary<Attribute, Action<float>> statSetters;
 
+
+
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
+        mat = meshRenderer.material;
+        originalEmission = mat.GetColor("_EmissionColor");
+
         enemyController = GetComponent<EnemyController>();
 
         statSetters = new Dictionary<Attribute, Action<float>>
@@ -137,32 +145,12 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         //TODO: status effects will go here
     }
 
-    public void BeginActionPhase()
+    public void ServerBeginTurn()
     {
-        IsActiveTurn = true;
-
-        //If there is an enemy controller, let it decide
-        //Otherwise we want to display the UI
         if (enemyController == null)
             return;
 
         enemyController.PickAction();
-    }
-
-    public void BeginClientTurn()
-    {
-        if (!IsOwner)
-            return;
-
-        IsActiveTurn = true;
-    }
-
-    public void EndClientTurn()
-    {
-        if (!IsOwner)
-            return;
-
-        IsActiveTurn = false;
     }
 
     public void ProcessEndTurnEffects()
@@ -170,25 +158,36 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         //TODO: end of turn effects will go here
     }
 
-    public void TakeDamage(DamageResult damageResult, bool syncDisplayedHealth = false)
+    public void ServerTakeDamage(HitResult hitResult, bool syncDisplayedHealth = false)
     {
         if (!IsServer) return;
 
         if (!IsAlive.Value) return;
 
-        CurrentHealth.Value = (int)Mathf.Clamp(CurrentHealth.Value - damageResult.Damage, 0, MaxHealth);
+        CurrentHealth.Value = (int)Mathf.Clamp(CurrentHealth.Value - hitResult.Damage, 0, MaxHealth);
 
         if (syncDisplayedHealth)
         {
-            DisplayedHealth = (int)Mathf.Clamp(CurrentHealth.Value - damageResult.Damage, 0, MaxHealth);
+            DisplayedHealth = (int)Mathf.Clamp(CurrentHealth.Value - hitResult.Damage, 0, MaxHealth);
             OnDisplayedHealthChanged?.Invoke();
         }
 
         if (CurrentHealth.Value <= 0)
-            Die();
+            ServerDie();
     }
 
-    public void Heal(int amount, bool syncDisplayedHealth = false)
+    public void ClientTakeDamage(HitResult hitResult)
+    {
+        DisplayedHealth = (int)Mathf.Clamp(DisplayedHealth - hitResult.Damage, 0, MaxHealth);
+        DamageNumberManager.instance.SpawnDamageNumberAtPosition(hitResult, transform.position);
+        OnDisplayedHealthChanged?.Invoke();
+        if (DisplayedHealth <= 0)
+        {
+            ClientDie();
+        }
+    }
+
+    public void ServerHeal(int amount, bool syncDisplayedHealth = false)
     {
         if (!IsServer) return;
 
@@ -212,89 +211,38 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         OnDisplayedManaChanged?.Invoke();
     }
 
-    private void Die()
+    private void ServerDie()
     {
-        Debug.Log(gameObject.name + " has died");
-        OnDie?.Invoke();
-        gameObject.SetActive(false);
-        TurnManager.instance.RemoveUnitFromTurnEntries(this);
+        TurnManager.instance.RemoveTurnEntryList(this);
         IsAlive.Value = false;
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestUseAbilityServerRpc(int abilityIndex, ulong targetId)
+    private void ClientDie()
     {
-        TryUseAbility(abilityIndex, targetId);
+        TurnManager.instance.RemoveTurnEntryUI(this);
+        OnDie?.Invoke();
+        gameObject.SetActive(false);
     }
 
-    public void TryUseAbility(int abilityIndex, ulong targetId)
-    {
-        if (!IsServer)
-            return;
-
-        BaseAbility ability = Abilities[abilityIndex];
-        UnitController target = GetTarget(targetId);
-        ReturnTargetControllers(ability, target);
-
-        ability.ConsumeCost(this);
-
-        int numberOfHits = ability.NumberOfHits;
-
-        bool[] dodged = new bool[numberOfHits];
-        bool[] crit = new bool[numberOfHits];
-        float[] damage = new float[numberOfHits];
-
-        //We need to construct the damage output then pass this into the ExecuteAbility function
-        for (int i = 0; i < ability.NumberOfHits; i++)
-        {
-            DamageResult damageResult = CombatResolver.CalculateDamage(this, ability, target);
-            dodged[i] = damageResult.Dodged;
-            crit[i] = damageResult.Crit;
-            damage[i] = damageResult.Damage;
-            foreach (UnitController controller in unitControllers)
-            {
-                controller.TakeDamage(damageResult);
-            }
-        }
-
-        UseAbilityClientRpc(abilityIndex, targetId, dodged, crit, damage);
-    }
-
-    [ClientRpc]
-    public void UseAbilityClientRpc(int abilityIndex, ulong targetId, bool[] dodged, bool[] crit, float[] damage)
-    {
-        StartCoroutine(PlayAbilitySequence(Abilities[abilityIndex], GetTarget(targetId), dodged, crit, damage));
-    }
-
-    private IEnumerator PlayAbilitySequence(BaseAbility ability, UnitController target, bool[] dodged, bool[] crit, float[] damage)
+    public IEnumerator PlayAbilitySequence(BaseAbility ability, AbilityResult abilityResult)
     {
         NetworkTransform networkTransform = GetComponent<NetworkTransform>();
+
         if (networkTransform != null)
             networkTransform.enabled = false;
 
-        IsActiveTurn = false;
-
         yield return new WaitForSeconds(0.5f);
 
-        yield return MoveToTargetIfNeeded(ability.MovesToTarget, target);
+        yield return MoveToTargetIfNeeded(ability.MovesToTarget, NetworkUtilities.GetUnitControllerById(abilityResult.TargetResults[0].TargetId));
 
         yield return new WaitForSeconds(0.4f);
 
         for (int i = 0; i < ability.NumberOfHits; i++)
         {
-            DamageResult damageResult = new DamageResult();
-            damageResult.Dodged = dodged[i];
-            damageResult.Crit = crit[i];
-            damageResult.Damage = damage[i];
-            if (dodged[i])
+            for (int p = 0; p < abilityResult.TargetResults.Length; p++)
             {
-                DamageNumberManager.instance.SpawnDodgedTextAtPosition(target.transform.position);
-            }
-            else
-            {
-                DamageNumberManager.instance.SpawnDamageNumberAtPosition(damageResult, target.transform.position);
-                target.DisplayedHealth -= (int)damageResult.Damage;
-                target.OnDisplayedHealthChanged?.Invoke();
+                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.TargetResults[p].TargetId);
+                target.ClientTakeDamage(abilityResult.TargetResults[p].Hits[i]);
             }
             yield return new WaitForSeconds(ability.DurationBetweenHits);
         }
@@ -307,36 +255,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         if (networkTransform != null)
             networkTransform.enabled = true;
-        RequestEndActionServerRpc();
 
         yield return null;
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestEndActionServerRpc()
-    {
-        if (!IsServer)
-            return;
-
-        TurnManager.instance.ResolveAction(this);
-    }
-
-    public void ApplyEffect(BaseAbility ability, UnitController selectedTarget)
-    {
-        if (!IsServer)
-            return;
-
-        foreach (UnitController controller in unitControllers)
-        {
-            DamageResult damageResult = CombatResolver.CalculateDamage(this, ability, selectedTarget);
-            controller.TakeDamage(damageResult);
-        }
-    }
-
-    public UnitController GetTarget(ulong targetId)
-    {
-        UnitController controller = BattleManager.instance.AllUnits.Find(t => t.NetworkObjectId == targetId);
-        return controller;
     }
 
     public int GetAbilityIndex(BaseAbility ability)
@@ -376,44 +296,16 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         yield break;
     }
 
-    private List<UnitController> ReturnTargetControllers(BaseAbility ability, UnitController target)
-    {
-        unitControllers.Clear();
-
-        if (ability.TargetType == TargetType.SingleUnit)
-        {
-            unitControllers.Add(target);
-        }
-        else
-        {
-            switch (ability.TeamTargeting)
-            {
-                case Team.Enemy:
-                    foreach (UnitController controller in BattleManager.instance.EnemyUnits)
-                    {
-                        unitControllers.Add(controller);
-                    }
-                    break;
-
-                case Team.Ally:
-                    foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
-                    {
-                        unitControllers.Add(controller);
-                    }
-                    break;
-            }
-        }
-        return unitControllers;
-    }
-
     public void EnableHighlight()
     {
-        meshRenderer.material.EnableKeyword("_EMISSION");
+        mat.EnableKeyword("_EMISSION");
+        mat.SetColor("_EmissionColor", highlightEmission);
     }
 
     public void DisableHighlight()
     {
-        meshRenderer.material.DisableKeyword("_EMISSION");
+        mat.DisableKeyword("_EMISSION");
+        mat.SetColor("_EmissionColor", originalEmission);
     }
 
     public void OnPointerClick(PointerEventData eventData)

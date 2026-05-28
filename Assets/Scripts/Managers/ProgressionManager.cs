@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
@@ -43,6 +44,8 @@ public class ProgressionManager : NetworkBehaviour
     public List<UnitController> AvailableEnemies;
     public GameObject Background;
 
+    private HashSet<ulong> readyClients = new();
+
     public void Awake()
     {
         if (instance == null)
@@ -57,8 +60,6 @@ public class ProgressionManager : NetworkBehaviour
 
     public void LoadFirstRoom()
     {
-        Debug.Log($"Network ready: {NetworkManager.Singleton.IsListening}");
-        Debug.Log($"Connected clients: {NetworkManager.Singleton.ConnectedClients.Count}");
         LoadNextRoom();
     }
 
@@ -110,18 +111,6 @@ public class ProgressionManager : NetworkBehaviour
             }
         }
 
-
-        // switch (roomData)
-        // {
-        //     case CombatRoom combatRoom:
-        //         CurrentlyLoadedBackground = Instantiate(combatRoom.RoomBackground);
-        //         foreach (UnitController controller in combatRoom.Enemies)
-        //         {
-        //             SpawnManager.instance.SpawnUnit(controller);
-        //         }
-        //         break;
-        // }
-
         CurrentRoomData = roomData;
         OnRoomLoaded?.Invoke();
     }
@@ -149,13 +138,20 @@ public class ProgressionManager : NetworkBehaviour
         CurrentRoomData = null;
     }
 
+    public IEnumerator DelayBeforeLoadingNextRoom()
+    {
+        yield return new WaitForSeconds(1.5f);
+        LoadNextRoom();
+        yield return null;
+    }
+
     public void LoadNextRoom()
     {
         if (NetworkManager.Singleton.IsServer)
         {
             foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
             {
-                controller.Heal(15);
+                controller.ServerHeal(15);
             }
 
             if (RemainingRoomData.Count == 0)
@@ -206,5 +202,23 @@ public class ProgressionManager : NetworkBehaviour
                 LoadEvent();
                 break;
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void BattlePresentationFinishedServerRpc(ServerRpcParams rpcParams = default)
+    {
+        ulong sender = rpcParams.Receive.SenderClientId;
+
+        readyClients.Add(sender);
+
+        if (AllClientsReady())
+        {
+            LoadNextRoom();
+        }
+    }
+
+    private bool AllClientsReady()
+    {
+        return readyClients.Count == NetworkManager.Singleton.ConnectedClients.Count;
     }
 }

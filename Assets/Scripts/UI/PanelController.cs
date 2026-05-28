@@ -5,7 +5,7 @@ using UnityEngine;
 public class PanelController : MonoBehaviour
 {
     private Animator animator;
-    public bool IsPanelOpened { get; private set; } = false;
+    public bool IsPanelOpened = false;
 
 
     public virtual void Awake()
@@ -27,7 +27,7 @@ public class PanelController : MonoBehaviour
 
     private void TogglePanel(bool value)
     {
-        animator.SetTrigger("Activate");
+        animator.SetBool("IsOpened", value);
         IsPanelOpened = value;
     }
 }

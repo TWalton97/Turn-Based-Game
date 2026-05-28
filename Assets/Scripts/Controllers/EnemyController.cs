@@ -7,8 +7,6 @@ using UnityEngine;
 public class EnemyController : NetworkBehaviour
 {
     public UnitController unitController;
-    public UnitController target;
-    public List<UnitController> unitControllers = new();
     public int ExpValue = 10;
     public List<ItemSO> AvailableDrops;
 
@@ -44,33 +42,29 @@ public class EnemyController : NetworkBehaviour
         if (!IsServer)
             return;
 
-        List<BaseAbility> validAbilities = ReturnListOfValidAbilities();
+        List<BaseAbility> validAbilities = ReturnListOfValidAbilities();    //This generates a list of valid abilities
 
         if (validAbilities.Count == 0)
         {
-            Debug.Log("No valid abilities found, ending turn");
-            unitController.IsActiveTurn = false;
-            TurnManager.OnActionPhaseCompleted?.Invoke(unitController);
+            Debug.LogWarning("Could not find any valid abilities");
             return;
         }
 
-        BaseAbility chosenAbility = ChooseAbility(validAbilities);
+        BaseAbility chosenAbility = ChooseAbility(validAbilities);  //This chooses a random valid ability
 
-        List<UnitController> validTargets = GetValidTargets(chosenAbility);
+        List<UnitController> validTargets = GetValidTargets(chosenAbility); //This returns a list of all valid targets
 
-        target = validTargets[Random.Range(0, validTargets.Count)];
+        if (validTargets.Count == 0)
+        {
+            Debug.LogWarning("Could not find any valid targets");
+            return;
+        }
 
-        unitControllers = ReturnTargetControllers(chosenAbility);
-        ulong targetId = target.NetworkObjectId;
+        UnitController primaryTarget = validTargets[Random.Range(0, validTargets.Count)]; //This picks a random valid target
 
-        //unitController.TryUseAbility(chosenAbility, target);
-        PickActionClientRpc(unitController.GetAbilityIndex(chosenAbility), targetId);
-    }
+        ulong targetId = primaryTarget.NetworkObjectId;
 
-    [ClientRpc]
-    public void PickActionClientRpc(int abilityIndex, ulong targetId)
-    {
-        unitController.TryUseAbility(abilityIndex, targetId);
+        CombatManager.instance.RequestCombatActionServerRpc(unitController.NetworkObjectId, unitController.GetAbilityIndex(chosenAbility), targetId);  //This requests a combat action on the targets
     }
 
     private List<BaseAbility> ReturnListOfValidAbilities()
@@ -133,36 +127,4 @@ public class EnemyController : NetworkBehaviour
 
         return validAbilities[0];
     }
-
-    private List<UnitController> ReturnTargetControllers(BaseAbility ability)
-    {
-        unitControllers.Clear();
-
-        if (ability.TargetType == TargetType.SingleUnit)
-        {
-            unitControllers.Add(target);
-        }
-        else
-        {
-            switch (ability.TeamTargeting)
-            {
-                case Team.Enemy:
-                    foreach (UnitController controller in BattleManager.instance.EnemyUnits)
-                    {
-                        unitControllers.Add(controller);
-                    }
-                    break;
-
-                case Team.Ally:
-                    foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
-                    {
-                        unitControllers.Add(controller);
-                    }
-                    break;
-            }
-        }
-        return unitControllers;
-    }
-
-    
 }
