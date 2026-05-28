@@ -83,6 +83,8 @@ public class CombatManager : NetworkBehaviour
         if (!IsServer)
             return;
 
+        ability.ConsumeCost(user);
+
         AbilityResult abilityResult = CombatResolver.ResolveAbility(user, ability, targets);
         foreach (TargetResult targetResult in abilityResult.TargetResults)
         {

@@ -10,6 +10,16 @@ public static class CombatResolver
     {
         HitResult result = new HitResult();
 
+        if (ability.DamageAmount < 0)
+        {
+            float heal = ability.DamageAmount
+            + (ability.StrengthScaling * attacker.UnitStats.Strength)
+            + (ability.DexterityScaling * attacker.UnitStats.Dexterity)
+            + (ability.IntelligenceScaling * attacker.UnitStats.Intelligence);
+            result.Damage = Mathf.Round(heal * 10f / 10f);
+            return result;
+        }
+
         //First we check if the unit dodges
         bool dodged = Random.Range(0f, 100f) < target.CombatStats.DodgeChance;
         if (dodged)
@@ -70,6 +80,12 @@ public static class CombatResolver
         return abilityResult;
     }
 
+    //We need to deconstruct an ability into it's various ability effects
+    //Each ability effect should have its own ability effect result
+    //An ability effect result includes a list of target results
+
+
+
 }
 
 [System.Serializable]
@@ -84,6 +100,19 @@ public struct AbilityResult : INetworkSerializable
     {
         serializer.SerializeValue(ref AttackerId);
         serializer.SerializeValue(ref AbilityId);
+        serializer.SerializeValue(ref TargetResults);
+    }
+}
+
+[System.Serializable]
+public struct AbilityEffectResult : INetworkSerializable
+{
+    public ulong AttackerId;
+    public TargetResult[] TargetResults;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref AttackerId);
         serializer.SerializeValue(ref TargetResults);
     }
 }

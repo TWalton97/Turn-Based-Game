@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
+  m_Name: Vampiric Strike
+  m_EditorClassIdentifier: 
+  AbilityName: 
+  AbilityDescription: 
+  ManaCost: 0
+  TeamTargeting: 0
+  TargetType: 0
+  Cooldown: 0
+  MovesToTarget: 0
+  UsesProjectile: 0
+  Animation: {fileID: 0}
+  VFX: {fileID: 0}
+  DamageType: 0
+  DamageAmount: 0
+  NumberOfHits: 0
+  DurationBetweenHits: 0
+  StrengthScaling: 0
+  DexterityScaling: 0
+  IntelligenceScaling: 0

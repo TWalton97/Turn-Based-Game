@@ -9,7 +9,6 @@ public class NetworkUI : NetworkBehaviour
     public void StartHost()
     {
         SpawnManager.instance.BindNetworkEvents();
-        NetworkManager.Singleton.OnClientConnectedCallback += CheckNumberOfPlayers;
 
         NetworkManager.Singleton.StartHost();
 
@@ -30,17 +29,8 @@ public class NetworkUI : NetworkBehaviour
         yield return null;
     }
 
-    private void CheckNumberOfPlayers(ulong clientId)
+    public void StartGame()
     {
-        if (!IsServer)
-            return;
-
-        Debug.Log($"Current number of players is {NetworkManager.Singleton.ConnectedClientsList.Count}");
-
-        if (NetworkManager.Singleton.ConnectedClientsList.Count >= RequiredNumberOfPlayers)
-        {
-            Debug.Log($"Enough players connecting - loading first room");
-            ProgressionManager.instance.LoadFirstRoom();
-        }
+        ProgressionManager.instance.LoadFirstRoom();
     }
 }

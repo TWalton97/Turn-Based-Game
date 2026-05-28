@@ -80,13 +80,10 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         ApplyClassPresetStats();
         RecalculateCombatStats();
 
-        if (!IsServer)
-        {
-            CurrentHealth.OnValueChanged += OnHealthChanged;
-            CurrentMana.OnValueChanged += OnManaChanged;
+        CurrentHealth.OnValueChanged += OnHealthChanged;
+        CurrentMana.OnValueChanged += OnManaChanged;
 
-            IsAlive.OnValueChanged += OnIsDeadChanged;
-        }
+        TurnManager.OnRefreshUI += SyncHealthAndManaValues;
     }
 
     public override void OnNetworkDespawn()
@@ -94,6 +91,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         base.OnNetworkDespawn();
 
         BattleManager.instance.UnregisterUnit(this);
+        TurnManager.OnRefreshUI -= SyncHealthAndManaValues;
     }
 
     private void OnHealthChanged(int oldValue, int newValue)
@@ -108,13 +106,15 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     private void OnManaChanged(int oldValue, int newValue)
     {
-        OnDisplayedManaChanged?.Invoke();
+
     }
 
-    private void OnIsDeadChanged(bool oldValue, bool newValue)
+    public void SyncHealthAndManaValues(UnitController controller)
     {
-        gameObject.SetActive(false);
-        OnDie?.Invoke();
+        DisplayedHealth = CurrentHealth.Value;
+        DisplayedMana = CurrentMana.Value;
+        OnDisplayedHealthChanged?.Invoke();
+        OnDisplayedManaChanged?.Invoke();
     }
 
     public void ApplyClassPresetStats()
@@ -137,7 +137,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public void RegenerateResources()
     {
         //TODO: determine how many resources to restore
-        UpdateMana(-1);
+        ServerUpdateMana(1);
     }
 
     public void ProcessStatusEffects()
@@ -168,7 +168,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         if (syncDisplayedHealth)
         {
-            DisplayedHealth = (int)Mathf.Clamp(CurrentHealth.Value - hitResult.Damage, 0, MaxHealth);
+            DisplayedHealth = CurrentHealth.Value;
             OnDisplayedHealthChanged?.Invoke();
         }
 
@@ -197,16 +197,24 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         if (syncDisplayedHealth)
         {
-            DisplayedMana = (int)Mathf.Clamp(CurrentHealth.Value + amount, 0, MaxHealth);
-            OnDisplayedManaChanged?.Invoke();
+            DisplayedHealth = CurrentHealth.Value;
+            OnDisplayedHealthChanged?.Invoke();
         }
     }
 
-    public void UpdateMana(int amount)
+
+    public void ServerUpdateMana(int amount, bool syncDisplayedMana = false)
     {
         if (!IsAlive.Value) return;
 
-        CurrentMana.Value = Mathf.Clamp(CurrentMana.Value - amount, 0, MaxMana);
+        CurrentMana.Value = Mathf.Clamp(CurrentMana.Value + amount, 0, MaxMana);
+
+        if (syncDisplayedMana)
+            ClientUpdateMana();
+    }
+
+    public void ClientUpdateMana()
+    {
         DisplayedMana = CurrentMana.Value;
         OnDisplayedManaChanged?.Invoke();
     }
