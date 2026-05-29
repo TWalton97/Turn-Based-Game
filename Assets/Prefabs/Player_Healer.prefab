@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3498775540722136037}
   - component: {fileID: 3720814759524597484}
   - component: {fileID: -2965846473281534113}
+  - component: {fileID: 7541817039877468931}
   m_Layer: 0
   m_Name: Player_Healer
   m_TagString: Untagged
@@ -134,11 +135,13 @@ MonoBehaviour:
   IsAlive:
     m_InternalValue: 0
   UnitTeam: 0
-  Abilities:
+  BaseAbilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+  - {fileID: 11400000, guid: 354640637653c7f4696242a7a985f961, type: 2}
   - {fileID: 11400000, guid: 7d8e5f7a47187504882a8beb186cd789, type: 2}
   - {fileID: 11400000, guid: f6e308f811fc34a46942a4198a489c5f, type: 2}
   - {fileID: 11400000, guid: b23ef7dd4f22c4d4f916f76b8aab0343, type: 2}
+  RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
 --- !u!136 &3498775540722136037
 CapsuleCollider:
@@ -189,3 +192,17 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &7541817039877468931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381207045323696021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b1ccf784e09f0e47990e147f6b43f64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ActiveStatusEffects: []
+  StatusEffectNames: []

@@ -12,12 +12,12 @@ public class BattleSlot : MonoBehaviour
     {
         UnitController = controller;
 
-        UnitController.OnDie += () => UnbindUnit();
+        UnitController.OnClientDie += () => UnbindUnit();
     }
 
     public void UnbindUnit()
     {
-        UnitController.OnDie -= () => UnbindUnit();
+        UnitController.OnClientDie -= () => UnbindUnit();
 
         UnitController = null;
     }

@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1794804008494616754}
   - component: {fileID: 2220474873611023449}
   - component: {fileID: -1230232494730589073}
+  - component: {fileID: 4742403311387134192}
   m_Layer: 0
   m_Name: Player_Warrior
   m_TagString: Untagged
@@ -135,13 +136,15 @@ MonoBehaviour:
   IsAlive:
     m_InternalValue: 0
   UnitTeam: 0
-  Abilities:
+  BaseAbilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
   - {fileID: 11400000, guid: 354640637653c7f4696242a7a985f961, type: 2}
-  - {fileID: 11400000, guid: d8cbd032d0e5b724481a33fca3f8e9db, type: 2}
-  - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
   - {fileID: 11400000, guid: 9b750ea59653d954eb91a2c3e4cb8e08, type: 2}
+  - {fileID: 11400000, guid: d8cbd032d0e5b724481a33fca3f8e9db, type: 2}
+  - {fileID: 11400000, guid: cc2ed14a3320c184e93bd01dd83ad442, type: 2}
+  - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
   - {fileID: 11400000, guid: 1e9e7bfca9b32dd4ebec2b7f4c169da3, type: 2}
+  RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
 --- !u!136 &90961607817683323
 CapsuleCollider:
@@ -218,3 +221,17 @@ MonoBehaviour:
   ScaleThreshold: 0.01
   InLocalSpace: 0
   Interpolate: 1
+--- !u!114 &4742403311387134192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381207045323696021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b1ccf784e09f0e47990e147f6b43f64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ActiveStatusEffects: []
+  StatusEffectNames: []

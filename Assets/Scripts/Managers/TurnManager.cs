@@ -7,19 +7,11 @@ using UnityEngine;
 
 public class TurnManager : NetworkBehaviour
 {
-    //This class just handles figuring out the turn order
-    //It also calls to specific units when their turn starts
     public static TurnManager instance;
 
     public TurnOrderPanelController turnOrderPanelController;
 
     public List<UnitController> UnitControllerTurnOrder;
-    public int CurrentTurnIndex;
-
-    public UnitController CurrentTurnUnitController;
-    public ulong CurrentTurnUnitId;
-
-    public UnitController LocalCurrentTurnUnitController;   //THIS IS JUST WHAT TURN THE CLIENT IS VIEWING
 
     public struct InitiativeEntry
     {
@@ -35,11 +27,21 @@ public class TurnManager : NetworkBehaviour
     public bool IsBattleEnded;
     public static Action OnActionSelected;
 
-    public static Action OnLocalTurnProgressed;
+    //Server-side turn events
+    public static Action<UnitController> OnServerTurnStarted;
+    public static Action<UnitController> OnServerActionPhaseStarted;
+    public static Action<UnitController> OnServerTurnEnded;
+    public int ServerCurrentTurnIndex;
+    public UnitController ServerCurrentTurnUnitController;
+    public ulong ServerCurrentTurnUnitId;
 
-
-    //TODO: move this to a UI manager
-    public CombatMenuController CombatMenuController;
+    //Client-side turn events
+    public static Action<UnitController> OnClientTurnStarted;
+    public static Action<UnitController> OnClientActionPhaseStarted;
+    public static Action<UnitController> OnClientTurnEnded;
+    public int ClientCurrentTurnIndex;
+    public UnitController ClientCurrentTurnUnitController;
+    public ulong ClientCurrentTurnUnitId;
 
     private void Awake()
     {
@@ -59,15 +61,6 @@ public class TurnManager : NetworkBehaviour
     }
 
     public void RemoveUnitFromTurnEntries(UnitController controller)
-    {
-        if (UnitControllerTurnOrder.Contains(controller))
-        {
-            turnOrderPanelController.RemoveTurnEntry(controller);
-            UnitControllerTurnOrder.Remove(controller);
-        }
-    }
-
-    public void RemoveTurnEntryList(UnitController controller)
     {
         if (UnitControllerTurnOrder.Contains(controller))
         {
@@ -118,10 +111,10 @@ public class TurnManager : NetworkBehaviour
             rolls[i] = initiativeList[i].roll;
         }
 
-        GenerateTurnEntryListClientRpc(unitIds, rolls);
+        ServerCurrentTurnIndex = -1;
+        ServerMoveToNextTurn();
 
-        CurrentTurnIndex = -1;
-        MoveToNextTurn();
+        GenerateTurnEntryListClientRpc(unitIds, rolls);
     }
 
     [ClientRpc]
@@ -129,13 +122,27 @@ public class TurnManager : NetworkBehaviour
     {
         for (int i = 0; i < unitIds.Length; i++)
         {
-            turnOrderPanelController.CreateTurnEntry(NetworkUtilities.GetUnitControllerById(unitIds[i]), rolls[i]);
+            UnitController unit = NetworkUtilities.GetUnitControllerById(unitIds[i]);
+            turnOrderPanelController.CreateTurnEntry(unit, rolls[i]);
+            if (!IsServer)
+            {
+                initiativeList.Add(new InitiativeEntry
+                {
+                    unit = unit,
+                    roll = rolls[i]
+                });
+
+                initiativeList = initiativeList.OrderByDescending(x => x.roll).ToList();
+                UnitControllerTurnOrder = initiativeList.Select(x => x.unit).ToList();
+            }
+
         }
         turnOrderPanelController.SetActiveTurnEntry(NetworkUtilities.GetUnitControllerById(unitIds[0]));
-        OnRefreshUI?.Invoke(NetworkUtilities.GetUnitControllerById(unitIds[0]));
+        ClientCurrentTurnIndex = -1;
+        ClientMoveToNextTurn();
     }
 
-    public void MoveToNextTurn()
+    public void ServerMoveToNextTurn()
     {
         if (!IsServer)
             return;
@@ -147,15 +154,19 @@ public class TurnManager : NetworkBehaviour
             return;
         }
 
-        if (CurrentTurnUnitController != null)
-            CurrentTurnUnitController.ProcessEndTurnEffects();
+        UnitController previousUnit = ServerCurrentTurnUnitController;
+
+        if (ServerCurrentTurnUnitController != null)
+            OnServerTurnEnded?.Invoke(ServerCurrentTurnUnitController);
+
+        int currentIndex = UnitControllerTurnOrder.IndexOf(previousUnit);
 
         int attempts = 0;
+        int nextIndex = currentIndex;
 
         do
         {
-            CurrentTurnIndex =
-                (CurrentTurnIndex + 1) % UnitControllerTurnOrder.Count;
+            nextIndex = (nextIndex + 1) % UnitControllerTurnOrder.Count;
 
             attempts++;
 
@@ -165,30 +176,55 @@ public class TurnManager : NetworkBehaviour
                 return;
             }
         }
-        while (!UnitControllerTurnOrder[CurrentTurnIndex].IsAlive.Value);
+        while (!UnitControllerTurnOrder[nextIndex].IsAlive.Value);
 
-        CurrentTurnUnitController = UnitControllerTurnOrder[CurrentTurnIndex];
-        CurrentTurnUnitId = UnitControllerTurnOrder[CurrentTurnIndex].NetworkObjectId;
+        ServerCurrentTurnIndex = nextIndex;
+        ServerCurrentTurnUnitController = UnitControllerTurnOrder[nextIndex];
+        ServerCurrentTurnUnitId = UnitControllerTurnOrder[ServerCurrentTurnIndex].NetworkObjectId;
 
-        NotifyTurnChangedClientRpc(CurrentTurnUnitId);
-        CurrentTurnUnitController.RegenerateResources();
-        CurrentTurnUnitController.ProcessStatusEffects();
-        CurrentTurnUnitController.ServerBeginTurn();
+        OnServerTurnStarted?.Invoke(ServerCurrentTurnUnitController);
+        OnServerActionPhaseStarted?.Invoke(ServerCurrentTurnUnitController);
+    }
+
+    public void ClientMoveToNextTurn()
+    {
+        if (ClientCurrentTurnUnitController != null)
+            OnClientTurnEnded?.Invoke(ClientCurrentTurnUnitController);
+
+        UnitController previousUnit = ClientCurrentTurnUnitController;
+        int currentIndex = UnitControllerTurnOrder.IndexOf(previousUnit);
+
+        int attempts = 0;
+        int nextIndex = currentIndex;
+
+        do
+        {
+            nextIndex = (nextIndex + 1) % UnitControllerTurnOrder.Count;
+
+            attempts++;
+
+            if (attempts >= UnitControllerTurnOrder.Count)
+            {
+                Debug.Log("No alive units remaining.");
+                return;
+            }
+        }
+        while (!UnitControllerTurnOrder[nextIndex].IsAlive.Value);
+
+        ClientCurrentTurnIndex = nextIndex;
+        ClientCurrentTurnUnitController = UnitControllerTurnOrder[ClientCurrentTurnIndex];
+        ClientCurrentTurnUnitId = UnitControllerTurnOrder[ClientCurrentTurnIndex].NetworkObjectId;
+
+        turnOrderPanelController.SetActiveTurnEntry(ClientCurrentTurnUnitController);
+
+        OnClientTurnStarted?.Invoke(ClientCurrentTurnUnitController);
+        OnClientActionPhaseStarted?.Invoke(ClientCurrentTurnUnitController);
     }
 
     [ClientRpc]
     void NotifyBattleEndedClientRpc()
     {
         CombatManager.instance.FinishQueuedActionsThenEndBattle();
-    }
-
-    [ClientRpc]
-    void NotifyTurnChangedClientRpc(ulong unitTurnId)
-    {
-        CurrentTurnUnitId = unitTurnId;
-        CurrentTurnUnitController = NetworkUtilities.GetUnitControllerById(unitTurnId);
-        if (LocalCurrentTurnUnitController == null)
-            LocalCurrentTurnUnitController = CurrentTurnUnitController;
     }
 
     private bool IsBattleOver()
@@ -214,6 +250,6 @@ public class TurnManager : NetworkBehaviour
 
     public bool IsUnitsTurn(ulong unitId)
     {
-        return CurrentTurnUnitController.NetworkObjectId == unitId;
+        return ServerCurrentTurnUnitController.NetworkObjectId == unitId;
     }
 }

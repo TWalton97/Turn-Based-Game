@@ -3,23 +3,60 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public CombatMenuController combatMenuController;
     public BaseAbility Ability;
+    public RuntimeAbilityInstance AbilityInstance;
     public ICombatActionSource CombatAction;
     public TextMeshProUGUI AbilityName;
+    public TextMeshProUGUI CannotUseText;
+
+    public Image image;
+
+    public Color CanUseColor;
+    public Color CannotUseColor;
 
     private void Awake()
     {
         combatMenuController = GetComponentInParent<CombatMenuController>();
     }
 
-    public void EnableButton(BaseAbility ability)
+    public void EnableButton(UnitController controller, RuntimeAbilityInstance abilityInstance = null, BaseAbility baseAbility = null)
     {
-        Ability = ability;
-        AbilityName.text = ability.AbilityName;
+        if (abilityInstance != null)
+        {
+            Ability = abilityInstance.Ability;
+            AbilityInstance = abilityInstance;
+            AbilityName.text = abilityInstance.Ability.AbilityName;
+
+            if (!abilityInstance.CanUse(controller))
+            {
+                image.color = CannotUseColor;
+                CannotUseText.enabled = true;
+                if (abilityInstance.RemainingCooldownTurns > 0)
+                {
+                    CannotUseText.text = $"{abilityInstance.RemainingCooldownTurns} turns";
+                }
+                else
+                {
+                    CannotUseText.text = $"Not enough mana";
+                }
+            }
+            else
+            {
+                image.color = CanUseColor;
+                CannotUseText.enabled = false;
+            }
+        }
+        else
+        {
+            Ability = baseAbility;
+            AbilityName.text = baseAbility.AbilityName;
+        }
+
         gameObject.SetActive(true);
     }
 
@@ -32,7 +69,7 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
     public virtual void ActivateButton()
     {
         UnitController controller = combatMenuController.CurrentUnitController;
-        if (!Ability.CanUse(controller))
+        if (!AbilityInstance.CanUse(controller))
             return;
 
         if (Ability.TargetType == TargetType.Self)

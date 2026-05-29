@@ -18,6 +18,7 @@ public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointer
             return;
 
         TrackedUnit.OnDisplayedHealthChanged -= UpdateHealthBar;
+        TrackedUnit.OnClientDie -= DestroyTurnEntry;
     }
 
     public void AssignTrackedUnit(UnitController controller, float initiativeValue)
@@ -29,7 +30,14 @@ public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointer
         UpdateHealthBar();
 
         TrackedUnit.OnDisplayedHealthChanged += UpdateHealthBar;
+        TrackedUnit.OnClientDie += DestroyTurnEntry;
     }
+
+    private void DestroyTurnEntry()
+    {
+        Destroy(gameObject);
+    }
+
     private void UpdateHealthBar()
     {
         if (TrackedUnit == null)

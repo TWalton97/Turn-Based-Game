@@ -37,11 +37,11 @@ public class CombatManager : NetworkBehaviour
         }
 
         UnitController user = NetworkUtilities.GetUnitControllerById(userId);
-        BaseAbility ability = user.Abilities[abilityIndex];
+        RuntimeAbilityInstance ability = user.RuntimeAbilityInstances[abilityIndex];
 
         if (!ability.CanUse(user))
         {
-            Debug.LogWarning($"UnitController with id {userId} does not have the resources to use ability {ability.name}");
+            Debug.LogWarning($"UnitController with id {userId} does not have the resources to use ability {ability.Ability.AbilityName}");
             return;
         }
 
@@ -51,20 +51,20 @@ public class CombatManager : NetworkBehaviour
     public void ServerResolveTargets(ulong userId, int abilityIndex, ulong targetId)
     {
         UnitController user = NetworkUtilities.GetUnitControllerById(userId);
-        BaseAbility ability = user.Abilities[abilityIndex];
+        RuntimeAbilityInstance ability = user.RuntimeAbilityInstances[abilityIndex];
         UnitController target = NetworkUtilities.GetUnitControllerById(targetId);
 
         ServerExecuteAbility(user, ability, target);
     }
 
-    public void ServerExecuteAbility(UnitController user, BaseAbility ability, UnitController target)
+    public void ServerExecuteAbility(UnitController user, RuntimeAbilityInstance ability, UnitController target)
     {
         if (!IsServer)
             return;
 
         ability.ConsumeCost(user);
 
-        AbilityResult abilityResult = CombatResolver.ResolveAbility(user, ability, target);
+        AbilityResult abilityResult = CombatResolver.ResolveAbility(user, ability.Ability, target);
 
         foreach (AbilityEffectResult abilityEffectResult in abilityResult.AbilityEffectResults)
         {
@@ -79,7 +79,7 @@ public class CombatManager : NetworkBehaviour
         }
 
         BeginAnimationSequenceClientRpc(abilityResult);   //This is just telling each client to play the animation
-        TurnManager.instance.MoveToNextTurn();
+        TurnManager.instance.ServerMoveToNextTurn();
     }
 
     [ClientRpc]
@@ -104,18 +104,14 @@ public class CombatManager : NetworkBehaviour
     {
         isPlayingAbility = true;
 
-
         while (abilityQueue.Count > 0)
         {
             AbilityResult result = abilityQueue.Dequeue();
             UnitController user = NetworkUtilities.GetUnitControllerById(result.AttackerId);
-            TurnManager.instance.turnOrderPanelController.SetActiveTurnEntry(user);
-            yield return user.PlayAbilitySequence(user.Abilities[result.AbilityId], result);
+            yield return user.PlayAbilitySequence(user.RuntimeAbilityInstances[result.AbilityId].Ability, result);
         }
 
         isPlayingAbility = false;
-        TurnManager.instance.turnOrderPanelController.SetActiveTurnEntry(TurnManager.instance.CurrentTurnUnitController);
-        TurnManager.OnRefreshUI?.Invoke(TurnManager.instance.CurrentTurnUnitController);
     }
 
     public void FinishQueuedActionsThenEndBattle()

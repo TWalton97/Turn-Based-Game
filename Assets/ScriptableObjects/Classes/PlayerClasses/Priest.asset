@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Priest
   m_EditorClassIdentifier: 
   ClassName: Priest
-  MaxHealth: 25
+  MaxHealth: 150
   MaxMana: 5
   Strength: 0
   Dexterity: 0
@@ -22,16 +22,3 @@ MonoBehaviour:
   Faith: 3
   Charisma: 0
   Luck: 0
-  InitiativeMin: 3
-  InitiativeMax: 6
-  CritChance: 0
-  CritDamage: 100
-  BlockChance: 0
-  BlockDamageReduction: 50
-  DodgeChance: 0
-  Aggro: 0
-  Lifesteal: 0
-  EnergyGain: 0
-  LuckyDrop: 0
-  IncomingHealing: 100
-  OutgoingHealing: 100

@@ -26,9 +26,9 @@ public class FightPanelController : PanelController
             abilityButtonController.DisableButton();
         }
 
-        for (int i = 0; i < controller.Abilities.Count; i++)
+        for (int i = 0; i < controller.RuntimeAbilityInstances.Count; i++)
         {
-            abilityButtonControllers[i].EnableButton(controller.Abilities[i]);
+            abilityButtonControllers[i].EnableButton(controller, controller.RuntimeAbilityInstances[i]);
         }
     }
 }

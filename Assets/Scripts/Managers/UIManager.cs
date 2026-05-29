@@ -9,23 +9,13 @@ public class UIManager : MonoBehaviour
     //Stores references to UI elements that need to be enabled/disabled
     public static UIManager instance;
 
-    //Controls Action Menu
-
-    //Controls Unit Context Menu
-
-    //Controls Turn Order Menu
-
-    //Controls Status Effect Descriptions
-
-    //Controls Selected Ability Description
-
-
     private UnitController currentlySelectedUnit;
     public TextMeshProUGUI ContextMenuUnitName;
     public Image ContextMenuHealthBarFill;
     public TextMeshProUGUI ContextMenuHealthBarText;
     public Image ContextMenuManaBarFill;
     public TextMeshProUGUI ContextMenuManaBarText;
+    public List<StatusEffectIcon> StatusEffectIcons;
 
     public GameObject CombatUI;
     public GameObject EventUI;
@@ -63,6 +53,17 @@ public class UIManager : MonoBehaviour
 
         currentlySelectedUnit = controller;
 
+        foreach (StatusEffectIcon icon in StatusEffectIcons)
+        {
+            icon.gameObject.SetActive(false);
+        }
+
+        for (int i = 0; i < currentlySelectedUnit.statusEffectController.ActiveStatusEffects.Count; i++)
+        {
+            StatusEffectIcons[i].AssignStatusEffect(currentlySelectedUnit.statusEffectController.ActiveStatusEffects[i]);
+            StatusEffectIcons[i].gameObject.SetActive(true);
+        }
+
         currentlySelectedUnit.OnDisplayedManaChanged += UpdateContextMenu;
         currentlySelectedUnit.OnDisplayedHealthChanged += UpdateContextMenu;
 
@@ -78,6 +79,17 @@ public class UIManager : MonoBehaviour
 
         ContextMenuManaBarFill.fillAmount = (float)currentlySelectedUnit.DisplayedMana / currentlySelectedUnit.MaxMana;
         ContextMenuManaBarText.text = currentlySelectedUnit.DisplayedMana + "/" + currentlySelectedUnit.MaxMana;
+
+        foreach (StatusEffectIcon icon in StatusEffectIcons)
+        {
+            icon.gameObject.SetActive(false);
+        }
+
+        for (int i = 0; i < currentlySelectedUnit.statusEffectController.ActiveStatusEffects.Count; i++)
+        {
+            StatusEffectIcons[i].AssignStatusEffect(currentlySelectedUnit.statusEffectController.ActiveStatusEffects[i]);
+            StatusEffectIcons[i].gameObject.SetActive(true);
+        }
     }
 
     public void EnableCombatUI()

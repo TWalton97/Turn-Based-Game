@@ -27,7 +27,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public Team UnitTeam;
 
-    public List<BaseAbility> Abilities;
+    public List<BaseAbility> BaseAbilities;
+    public List<RuntimeAbilityInstance> RuntimeAbilityInstances;
 
     private MeshRenderer meshRenderer;
     private Material mat;
@@ -38,11 +39,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public Action OnDisplayedManaChanged;
     public Action OnDisplayedHealthChanged;
-    public Action OnDie;
-
-    private List<UnitController> unitControllers = new();
+    public Action OnClientDie;
+    public Action OnServerDie;
 
     public EnemyController enemyController { get; private set; }
+    public StatusEffectController statusEffectController { get; private set; }
     private Vector3 startPos;
 
     public Dictionary<Attribute, Action<float>> statSetters;
@@ -56,6 +57,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         originalEmission = mat.GetColor("_EmissionColor");
 
         enemyController = GetComponent<EnemyController>();
+        statusEffectController = GetComponent<StatusEffectController>();
 
         statSetters = new Dictionary<Attribute, Action<float>>
         {
@@ -67,6 +69,14 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             { Attribute.CHA, v => UnitStats.Charisma += (int)v },
             { Attribute.LCK, v => UnitStats.Luck += (int)v },
         };
+
+        TurnManager.OnServerTurnStarted += ServerTurnInitialization;
+        TurnManager.OnServerActionPhaseStarted += ServerBeginActionPhase;
+        TurnManager.OnServerTurnEnded += ServerEndTurn;
+
+        TurnManager.OnClientTurnStarted += ClientTurnInitialization;
+        TurnManager.OnClientActionPhaseStarted += ClientBeginActionPhase;
+        TurnManager.OnClientTurnEnded += ClientEndTurn;
     }
 
     public override void OnNetworkSpawn()
@@ -77,13 +87,15 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         BattleManager.instance.RegisterUnit(this);
 
+        for (int i = 0; i < BaseAbilities.Count; i++)
+        {
+            RuntimeAbilityInstance runtimeAbilityInstance = new();
+            runtimeAbilityInstance.Ability = BaseAbilities[i];
+            RuntimeAbilityInstances.Add(runtimeAbilityInstance);
+        }
+
         ApplyClassPresetStats();
         RecalculateCombatStats();
-
-        CurrentHealth.OnValueChanged += OnHealthChanged;
-        CurrentMana.OnValueChanged += OnManaChanged;
-
-        TurnManager.OnRefreshUI += SyncHealthAndManaValues;
     }
 
     public override void OnNetworkDespawn()
@@ -91,29 +103,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         base.OnNetworkDespawn();
 
         BattleManager.instance.UnregisterUnit(this);
-        TurnManager.OnRefreshUI -= SyncHealthAndManaValues;
     }
 
-    private void OnHealthChanged(int oldValue, int newValue)
+    public void SyncManaValues(UnitController controller)
     {
-
-    }
-
-    public void ApplyPendingHealthVisual()
-    {
-
-    }
-
-    private void OnManaChanged(int oldValue, int newValue)
-    {
-
-    }
-
-    public void SyncHealthAndManaValues(UnitController controller)
-    {
-        DisplayedHealth = CurrentHealth.Value;
         DisplayedMana = CurrentMana.Value;
-        OnDisplayedHealthChanged?.Invoke();
         OnDisplayedManaChanged?.Invoke();
     }
 
@@ -140,22 +134,68 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         ServerUpdateMana(1);
     }
 
-    public void ProcessStatusEffects()
+    public void ServerTurnInitialization(UnitController controller)
     {
-        //TODO: status effects will go here
+        if (controller != this)
+            return;
+
+        statusEffectController.ServerProcStatusEffects(ActivationTime.StartOfTurn);
+        foreach (RuntimeAbilityInstance abilityInstance in RuntimeAbilityInstances)
+        {
+            abilityInstance.ProgressCooldown();
+        }
+        //Beginning of turn status effects modify health values
     }
 
-    public void ServerBeginTurn()
+    public void ClientTurnInitialization(UnitController controller)
     {
+        if (controller != this)
+            return;
+
+        statusEffectController.ClientProcStatusEffects(ActivationTime.StartOfTurn);
+        //Beginning of turn status effects display
+    }
+
+    public void ServerBeginActionPhase(UnitController controller)
+    {
+        if (controller != this)
+            return;
+
+        RegenerateResources();
+
         if (enemyController == null)
             return;
 
         enemyController.PickAction();
+        //Action is decided and computed
     }
 
-    public void ProcessEndTurnEffects()
+    public void ClientBeginActionPhase(UnitController controller)
     {
-        //TODO: end of turn effects will go here
+        if (controller != this)
+            return;
+
+        ClientUpdateMana(1);
+        TurnManager.OnRefreshUI?.Invoke(controller);
+        //Enable UI
+    }
+
+    public void ServerEndTurn(UnitController controller)
+    {
+        if (controller != this)
+            return;
+
+        statusEffectController.ServerProcStatusEffects(ActivationTime.EndOfTurn);
+        //End of turn status effects modify health values
+    }
+
+    public void ClientEndTurn(UnitController controller)
+    {
+        if (controller != this)
+            return;
+
+        statusEffectController.ClientProcStatusEffects(ActivationTime.EndOfTurn);
+        //End of turn status effects display
     }
 
     public void ServerTakeDamage(HitResult hitResult, bool syncDisplayedHealth = false)
@@ -202,35 +242,36 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         }
     }
 
-
-    public void ServerUpdateMana(int amount, bool syncDisplayedMana = false)
+    public void ServerUpdateMana(int amount, bool syncDisplayMana = false)
     {
         if (!IsAlive.Value) return;
 
         CurrentMana.Value = Mathf.Clamp(CurrentMana.Value + amount, 0, MaxMana);
 
-        if (syncDisplayedMana)
-            ClientUpdateMana();
+        if (syncDisplayMana)
+            ClientUpdateMana(amount);
     }
 
-    public void ClientUpdateMana()
+    public void ClientUpdateMana(int amount)
     {
-        DisplayedMana = CurrentMana.Value;
+        DisplayedMana = Mathf.Clamp(DisplayedMana += amount, 0, MaxMana);
         OnDisplayedManaChanged?.Invoke();
     }
 
     private void ServerDie()
     {
-        TurnManager.instance.RemoveTurnEntryList(this);
+        TurnManager.instance.RemoveUnitFromTurnEntries(this);
+        OnServerDie?.Invoke();
         IsAlive.Value = false;
     }
 
     private void ClientDie()
     {
         TurnManager.instance.RemoveTurnEntryUI(this);
-        OnDie?.Invoke();
+        OnClientDie?.Invoke();
         gameObject.SetActive(false);
     }
+
 
     public IEnumerator PlayAbilitySequence(BaseAbility ability, AbilityResult abilityResult)
     {
@@ -239,7 +280,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (networkTransform != null)
             networkTransform.enabled = false;
 
-        yield return new WaitForSeconds(0.5f);
+        AbilityNamePresentationManager.instance.DisplayName(ability);
+
+        SyncManaValues(this);
+
+        yield return new WaitForSeconds(1.5f);
 
         yield return MoveToTargetIfNeeded(ability.MovesToTarget, NetworkUtilities.GetUnitControllerById(abilityResult.TargetId));
 
@@ -262,17 +307,23 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         yield return MoveToOriginalPositionIfNeeded(ability.MovesToTarget);
 
-        yield return new WaitForSeconds(0.4f);
+        yield return new WaitForSeconds(1f);
 
         if (networkTransform != null)
             networkTransform.enabled = true;
 
+        TurnManager.instance.ClientMoveToNextTurn();
         yield return null;
+    }
+
+    public int GetAbilityIndex(RuntimeAbilityInstance ability)
+    {
+        return RuntimeAbilityInstances.IndexOf(ability);
     }
 
     public int GetAbilityIndex(BaseAbility ability)
     {
-        return Abilities.IndexOf(ability);
+        return RuntimeAbilityInstances.IndexOf(RuntimeAbilityInstances.Where(t => t.Ability == ability).First());
     }
 
     private IEnumerator MoveToTargetIfNeeded(bool movesToTarget, UnitController selectedTarget)

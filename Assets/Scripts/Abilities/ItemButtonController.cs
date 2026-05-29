@@ -9,7 +9,7 @@ public class ItemButtonController : AbilityButtonController, IPointerEnterHandle
     public BattleItemSO BattleItem;
     public override void ActivateButton()
     {
-        UnitController controller = TurnManager.instance.UnitControllerTurnOrder[TurnManager.instance.CurrentTurnIndex];
+        UnitController controller = TurnManager.instance.UnitControllerTurnOrder[TurnManager.instance.ServerCurrentTurnIndex];
         if (!Ability.CanUse(controller))
             return;
 

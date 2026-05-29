@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7367418481594108555}
   - component: {fileID: 5333646278970840875}
   - component: {fileID: 4773962348617907823}
+  - component: {fileID: 3015999725038739780}
   m_Layer: 0
   m_Name: Bandit
   m_TagString: Untagged
@@ -134,9 +135,11 @@ MonoBehaviour:
   IsAlive:
     m_InternalValue: 0
   UnitTeam: 1
-  Abilities:
+  BaseAbilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
   - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
+  - {fileID: 11400000, guid: 1e9e7bfca9b32dd4ebec2b7f4c169da3, type: 2}
+  RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
 --- !u!114 &7367418481594108555
 MonoBehaviour:
@@ -185,3 +188,17 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &3015999725038739780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381207045323696021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b1ccf784e09f0e47990e147f6b43f64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ActiveStatusEffects: []
+  StatusEffectNames: []

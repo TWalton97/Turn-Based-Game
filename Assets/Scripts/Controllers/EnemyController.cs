@@ -42,7 +42,7 @@ public class EnemyController : NetworkBehaviour
         if (!IsServer)
             return;
 
-        List<BaseAbility> validAbilities = ReturnListOfValidAbilities();    //This generates a list of valid abilities
+        List<RuntimeAbilityInstance> validAbilities = ReturnListOfValidAbilities();    //This generates a list of valid abilities
 
         if (validAbilities.Count == 0)
         {
@@ -50,7 +50,7 @@ public class EnemyController : NetworkBehaviour
             return;
         }
 
-        BaseAbility chosenAbility = ChooseAbility(validAbilities);  //This chooses a random valid ability
+        RuntimeAbilityInstance chosenAbility = ChooseAbility(validAbilities);  //This chooses a random valid ability
 
         List<UnitController> validTargets = GetValidTargets(chosenAbility); //This returns a list of all valid targets
 
@@ -67,28 +67,61 @@ public class EnemyController : NetworkBehaviour
         CombatManager.instance.RequestCombatActionServerRpc(unitController.NetworkObjectId, unitController.GetAbilityIndex(chosenAbility), targetId);  //This requests a combat action on the targets
     }
 
-    private List<BaseAbility> ReturnListOfValidAbilities()
+    private List<RuntimeAbilityInstance> ReturnListOfValidAbilities()
     {
-        List<BaseAbility> validAbilities = new();
+        List<RuntimeAbilityInstance> validAbilities = new();
 
-        foreach (BaseAbility ability in unitController.Abilities)
+        foreach (RuntimeAbilityInstance runtimeAbility in unitController.RuntimeAbilityInstances)
         {
-            if (ability.ManaCost > unitController.CurrentMana.Value)
+            if (!runtimeAbility.CanUse(unitController))
                 continue;
 
-            if (GetValidTargets(ability).Count == 0)
+            List<UnitController> validTargets = GetValidTargets(runtimeAbility);
+            if (validTargets.Count == 0)
                 continue;
 
-            validAbilities.Add(ability);
+            if (!AbilityIntentConditionMet(runtimeAbility, validTargets))
+                continue;
+
+            validAbilities.Add(runtimeAbility);
         }
 
         return validAbilities;
     }
 
-    private List<UnitController> GetValidTargets(BaseAbility ability)
+    public bool AbilityIntentConditionMet(RuntimeAbilityInstance ability, List<UnitController> validTargets)
+    {
+        foreach (AIIntent intent in ability.Ability.AIIntents)
+        {
+            switch (intent)
+            {
+                case AIIntent.Damage:
+                    break;
+                case AIIntent.Heal:
+                    bool hasInjuredTarget = validTargets.Any(t => t.CurrentHealth.Value < t.MaxHealth);
+                    if (!hasInjuredTarget)
+                        return false;
+                    break;
+                case AIIntent.SelfHeal:
+                    if (unitController.CurrentHealth.Value == unitController.MaxHealth)
+                        return false;
+                    break;
+                case AIIntent.AOEDamage:
+                    if (validTargets.Count <= 1)
+                        return false;
+                    break;
+                default:
+                    Debug.LogWarning($"Unhandled AIIntent: {intent}");
+                    break;
+            }
+        }
+        return true;
+    }
+
+    private List<UnitController> GetValidTargets(RuntimeAbilityInstance ability)
     {
         List<UnitController> targets =
-        ability.TeamTargeting == Team.Enemy
+        ability.Ability.TeamTargeting == Team.Enemy
         ? BattleManager.instance.FriendlyUnits
         : BattleManager.instance.EnemyUnits;
 
@@ -96,35 +129,81 @@ public class EnemyController : NetworkBehaviour
         .Where(t => t.IsAlive.Value)
         .ToList();
 
-        // if (ability.DamageType == DamageType.Heal)
-        // {
-        //     targets = targets
-        //         .Where(t => t.CurrentHealth.Value < t.MaxHealth)
-        //         .ToList();
-        // }
+        if (ability.Ability.AIIntents.Contains(AIIntent.Heal))
+            targets = targets.Where(t => t.CurrentHealth.Value < t.MaxHealth).ToList();
 
         return targets;
     }
 
-    private BaseAbility ChooseAbility(List<BaseAbility> validAbilities)
+    private RuntimeAbilityInstance ChooseAbility(List<RuntimeAbilityInstance> validAbilities)
     {
-        int totalWeight = 0;
+        Dictionary<RuntimeAbilityInstance, float> scores = new();
 
-        foreach (BaseAbility ability in validAbilities)
+        foreach (RuntimeAbilityInstance ability in validAbilities)
         {
-            totalWeight += ability.ManaCost;
+            float score = ScoreAbility(ability);
+
+            scores.Add(ability, score);
         }
 
-        int roll = Random.Range(0, totalWeight);
+        return ChooseWeightedAbility(scores);
+    }
 
-        foreach (BaseAbility ability in validAbilities)
+    private float ScoreAbility(RuntimeAbilityInstance ability)
+    {
+        float score = 1f;
+
+        List<UnitController> validTargets = GetValidTargets(ability);
+
+        foreach (AIIntent intent in ability.Ability.AIIntents)
         {
-            roll -= ability.ManaCost;
+            switch (intent)
+            {
+                case AIIntent.Damage:
+                    score += 4f;
+                    break;
 
-            if (roll < 0)
-                return ability;
+                case AIIntent.Heal:
+                    float missingHealth = validTargets
+                        .Max(t => t.MaxHealth - t.CurrentHealth.Value);
+                    score += missingHealth;
+                    break;
+
+                case AIIntent.SelfHeal:
+                    float selfMissing = unitController.MaxHealth - unitController.CurrentHealth.Value;
+                    score += selfMissing;
+                    break;
+
+                case AIIntent.AOEDamage:
+                    score += validTargets.Count * 5f;
+                    break;
+            }
         }
 
-        return validAbilities[0];
+        float manaPressure = unitController.CurrentMana.Value;
+        if (ability.Ability.ManaCost > 0)
+        {
+            score += manaPressure * 3f;
+        }
+
+        score += ability.Ability.ManaCost * 0.5f;
+        return Mathf.Max(1f, score);
+    }
+
+    private RuntimeAbilityInstance ChooseWeightedAbility(Dictionary<RuntimeAbilityInstance, float> scores)
+    {
+        float totalWeight = scores.Values.Sum();
+
+        float roll = Random.Range(0f, totalWeight);
+
+        foreach (var pair in scores)
+        {
+            roll -= pair.Value;
+
+            if (roll <= 0f)
+                return pair.Key;
+        }
+
+        return scores.Keys.First();
     }
 }

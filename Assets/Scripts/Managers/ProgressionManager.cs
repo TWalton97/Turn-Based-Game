@@ -151,7 +151,7 @@ public class ProgressionManager : NetworkBehaviour
         {
             foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
             {
-                controller.ServerHeal(15);
+                controller.ServerHeal(15, true);
             }
 
             if (RemainingRoomData.Count == 0)

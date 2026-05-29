@@ -80,15 +80,15 @@ public class CampManager : MonoBehaviour
         }
         CampAbilityEntries.Clear();
 
-        for (int i = 0; i < TrackedUnitController.Abilities.Count; i++)
+        for (int i = 0; i < TrackedUnitController.RuntimeAbilityInstances.Count; i++)
         {
-            BaseAbility ability = TrackedUnitController.Abilities[i];
+            RuntimeAbilityInstance abilityInstance = TrackedUnitController.RuntimeAbilityInstances[i];
             CampAbilityEntry entry = Instantiate(AbilityEntry, AbilityEntriesParent);
             CampAbilityEntries.Add(entry);
-            entry.AssignAbilityToButton(ability);
+            entry.AssignAbilityToButton(abilityInstance.Ability);
             entry.GetComponent<Button>().onClick.AddListener(() =>
             {
-                PopulateDetailsPanel(ability.name, ability.AbilityDescription, ability.abilityEffects[0].DamageAmount.ToString());
+                PopulateDetailsPanel(abilityInstance.Ability.AbilityName, abilityInstance.Ability.AbilityDescription, abilityInstance.Ability.abilityEffects[0].DamageAmount.ToString());
             });
         }
     }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Warrior
   m_EditorClassIdentifier: 
   ClassName: Warrior
-  MaxHealth: 30
+  MaxHealth: 120
   MaxMana: 5
   Strength: 3
   Dexterity: 0

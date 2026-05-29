@@ -134,8 +134,6 @@ public class EventManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void SubmitEventVoteServerRpc(int optionIndex, ServerRpcParams rpcParams = default)
     {
-        Debug.Log($"Submitting vote to server for option {optionIndex}");   //This could be any option - event selection, event option selection, etc...
-
         ulong senderId = rpcParams.Receive.SenderClientId;
 
         PlayerVotes[senderId] = optionIndex;
@@ -169,9 +167,6 @@ public class EventManager : NetworkBehaviour
     {
         if (CurrentEvent == null)
         {
-            Debug.Log($"Event {winningEventIndex} had the most votes, loading event {winningEventIndex}");
-            //If there is no current event, then we're voting on an event to start
-            //We set the winning event to the selectedEventOptions of the correct index
             EventDefinition winningEvent = SelectedEventOptions[winningEventIndex];
 
             if (winningEvent == null)
@@ -184,7 +179,6 @@ public class EventManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log($"Event option {winningEventIndex} had the most votes, executing event option {winningEventIndex}");
             EventEffectExecuteClientRpc(winningEventIndex);
 
             EventNode nextNode = CurrentEvent.GetNode(CurrentEventNode.choices[winningEventIndex].nextNodeID);
@@ -200,9 +194,7 @@ public class EventManager : NetworkBehaviour
 
     [ClientRpc]
     public void EventEffectExecuteClientRpc(int currentEventOptionIndex)
-    {
-        Debug.Log($"Executed all event effects for option {currentEventOptionIndex}");
-        
+    {   
         foreach (var effect in CurrentEventNode.choices[currentEventOptionIndex].effects)
         {
             effect.Execute();
@@ -280,13 +272,6 @@ public class EventManager : NetworkBehaviour
             ui.EventSelectionButton.onClick.AddListener(() =>
             {
                 SubmitEventVoteServerRpc(capturedChoiceIndex);
-                // foreach (var effect in choice.effects)
-                //     effect.Execute();
-
-                // EventNode nextNode = CurrentEvent.GetNode(choice.nextNodeID);
-
-                // if (nextNode != null)
-                //     LoadEventNode(nextNode);
             });
         }
     }

@@ -19,6 +19,7 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
     public Animation Animation;
     public GameObject VFX;
 
+    public List<AIIntent> AIIntents;
 
     public List<AbilityEffect> abilityEffects = new();
 
@@ -29,7 +30,14 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
 
     public void ConsumeCost(UnitController controller)
     {
-        controller.ServerUpdateMana(-ManaCost, true);
+        if (controller.enemyController == null)
+        {
+            controller.ServerUpdateMana(-ManaCost, true);
+        }
+        else
+        {
+            controller.ServerUpdateMana(-ManaCost);
+        }
     }
 }
 
@@ -47,6 +55,8 @@ public class AbilityEffect
     public float StrengthScaling = 0f;
     public float DexterityScaling = 0f;
     public float IntelligenceScaling = 0f;
+
+    public StatusEffect StatusToApply;
 
     [Header("Condition")]
     public EffectType EffectType = EffectType.None;
@@ -118,6 +128,16 @@ public enum EffectScalingType
     BasedOnPreviousDamage,
     BasedOnPreviousHealing,
     BasedOnCritCount,
+}
+
+[System.Serializable]
+public enum AIIntent
+{
+    Damage,
+    Heal,
+    SelfHeal,
+    AOEDamage,
+
 }
 
 

@@ -34,7 +34,7 @@ public class ItemPanelController : PanelController
             if (entry.Item is BattleItemSO battleItem)
             {
                 abilityButtonControllers[i].BattleItem = battleItem;
-                abilityButtonControllers[i].EnableButton(battleItem.ability);
+                abilityButtonControllers[i].EnableButton(controller, null, battleItem.ability);
                 i++;
             }
         }

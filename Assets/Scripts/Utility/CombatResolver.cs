@@ -86,6 +86,9 @@ public static class CombatResolver
             //For each target of the effect, we create a target result
             for (int o = 0; o < abilityEffectTargets.Count; o++)
             {
+                if (effect.StatusToApply != null)
+                    abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply);
+
                 abilityEffectResults[p] = new AbilityEffectResult();
                 HitResult[] hitResults = new HitResult[effect.NumberOfHits];
                 //For each hit, we create a hit result
@@ -185,6 +188,8 @@ public struct AbilityEffectResult : INetworkSerializable
     public bool AnyHit;
     public bool AnyCrit;
     public bool AnyDodged;
+
+    public bool ApplyStatusEffect;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
