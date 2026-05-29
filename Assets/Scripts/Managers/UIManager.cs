@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     //Stores references to UI elements that need to be enabled/disabled
     public static UIManager instance;
 
+    public GameObject ContextMenuParent;
     private UnitController currentlySelectedUnit;
     public TextMeshProUGUI ContextMenuUnitName;
     public Image ContextMenuHealthBarFill;
@@ -25,11 +26,8 @@ public class UIManager : MonoBehaviour
     {
         if (instance == null)
             instance = this;
-    }
 
-    private void Start()
-    {
-
+        ProgressionManager.OnRoomLoaded += ClearContextMenu;
     }
 
     private void OnDestroy()
@@ -40,6 +38,8 @@ public class UIManager : MonoBehaviour
             currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
             currentlySelectedUnit = null;
         }
+
+        ProgressionManager.OnRoomLoaded -= ClearContextMenu;
     }
 
     public void AssignContextMenu(UnitController controller)
@@ -49,6 +49,7 @@ public class UIManager : MonoBehaviour
             //Unsubscribe from the old events
             currentlySelectedUnit.OnDisplayedManaChanged -= UpdateContextMenu;
             currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
+            currentlySelectedUnit.OnClientDie -= ClearContextMenu;
         }
 
         currentlySelectedUnit = controller;
@@ -66,8 +67,24 @@ public class UIManager : MonoBehaviour
 
         currentlySelectedUnit.OnDisplayedManaChanged += UpdateContextMenu;
         currentlySelectedUnit.OnDisplayedHealthChanged += UpdateContextMenu;
+        currentlySelectedUnit.OnClientDie += ClearContextMenu;
 
         UpdateContextMenu();
+        ContextMenuParent.SetActive(true);
+    }
+
+    public void ClearContextMenu()
+    {
+        if (currentlySelectedUnit != null)
+        {
+            currentlySelectedUnit.OnDisplayedManaChanged -= UpdateContextMenu;
+            currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
+            currentlySelectedUnit.OnClientDie -= ClearContextMenu;
+
+            currentlySelectedUnit = null;
+        }
+
+        ContextMenuParent.SetActive(false);
     }
 
     private void UpdateContextMenu()

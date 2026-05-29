@@ -24,7 +24,8 @@ public class TurnManager : NetworkBehaviour
     public static Action<UnitController> OnRefreshUI;
 
     public static Action OnBattleEnded;
-    public bool IsBattleEnded;
+    public bool ServerIsBattleEnded;
+    public bool ClientIsBattleEnded;
     public static Action OnActionSelected;
 
     //Server-side turn events
@@ -42,6 +43,7 @@ public class TurnManager : NetworkBehaviour
     public int ClientCurrentTurnIndex;
     public UnitController ClientCurrentTurnUnitController;
     public ulong ClientCurrentTurnUnitId;
+
 
     private void Awake()
     {
@@ -79,7 +81,7 @@ public class TurnManager : NetworkBehaviour
             return;
 
         initiativeList.Clear();
-        IsBattleEnded = false;
+        ServerIsBattleEnded = false;
 
         foreach (var unit in BattleManager.instance.FriendlyUnits)
         {
@@ -147,9 +149,9 @@ public class TurnManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-        if (IsBattleOver())
+        if (ServerIsBattleOver())
         {
-            IsBattleEnded = true; NotifyBattleEndedClientRpc();
+            ServerIsBattleEnded = true; NotifyBattleEndedClientRpc();
             ProgressionManager.instance.DelayBeforeLoadingNextRoom();
             return;
         }
@@ -176,7 +178,7 @@ public class TurnManager : NetworkBehaviour
                 return;
             }
         }
-        while (!UnitControllerTurnOrder[nextIndex].IsAlive.Value);
+        while (!UnitControllerTurnOrder[nextIndex].ServerIsAlive.Value);
 
         ServerCurrentTurnIndex = nextIndex;
         ServerCurrentTurnUnitController = UnitControllerTurnOrder[nextIndex];
@@ -186,8 +188,26 @@ public class TurnManager : NetworkBehaviour
         OnServerActionPhaseStarted?.Invoke(ServerCurrentTurnUnitController);
     }
 
-    public void ClientMoveToNextTurn()
+    public void RequestClientTurnAdvance()
     {
+        StartCoroutine(ClientAdvanceRoutine());
+    }
+
+    private IEnumerator ClientAdvanceRoutine()
+    {
+        yield return new WaitForSeconds(1f);
+
+        ClientMoveToNextTurn();
+    }
+
+    private void ClientMoveToNextTurn()
+    {
+        if (ClientIsBattleOver())
+        {
+            ClientIsBattleEnded = true;
+            return;
+        }
+
         if (ClientCurrentTurnUnitController != null)
             OnClientTurnEnded?.Invoke(ClientCurrentTurnUnitController);
 
@@ -209,7 +229,7 @@ public class TurnManager : NetworkBehaviour
                 return;
             }
         }
-        while (!UnitControllerTurnOrder[nextIndex].IsAlive.Value);
+        while (!UnitControllerTurnOrder[nextIndex].ClientIsAlive);
 
         ClientCurrentTurnIndex = nextIndex;
         ClientCurrentTurnUnitController = UnitControllerTurnOrder[ClientCurrentTurnIndex];
@@ -218,7 +238,6 @@ public class TurnManager : NetworkBehaviour
         turnOrderPanelController.SetActiveTurnEntry(ClientCurrentTurnUnitController);
 
         OnClientTurnStarted?.Invoke(ClientCurrentTurnUnitController);
-        OnClientActionPhaseStarted?.Invoke(ClientCurrentTurnUnitController);
     }
 
     [ClientRpc]
@@ -227,11 +246,11 @@ public class TurnManager : NetworkBehaviour
         CombatManager.instance.FinishQueuedActionsThenEndBattle();
     }
 
-    private bool IsBattleOver()
+    private bool ServerIsBattleOver()
     {
-        bool allFriendliesDead = BattleManager.instance.FriendlyUnits.All(u => !u.IsAlive.Value);
+        bool allFriendliesDead = BattleManager.instance.FriendlyUnits.All(u => !u.ServerIsAlive.Value);
 
-        bool allEnemiesDead = BattleManager.instance.EnemyUnits.All(u => !u.IsAlive.Value);
+        bool allEnemiesDead = BattleManager.instance.EnemyUnits.All(u => !u.ServerIsAlive.Value);
 
         if (allFriendliesDead)
         {
@@ -242,6 +261,25 @@ public class TurnManager : NetworkBehaviour
         if (allEnemiesDead)
         {
             Debug.Log("All enemies dead");
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool ClientIsBattleOver()
+    {
+        bool allFriendliesDead = BattleManager.instance.FriendlyUnits.All(u => !u.ClientIsAlive);
+
+        bool allEnemiesDead = BattleManager.instance.EnemyUnits.All(u => !u.ClientIsAlive);
+
+        if (allFriendliesDead)
+        {
+            return true;
+        }
+
+        if (allEnemiesDead)
+        {
             return true;
         }
 

@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using Unity.Netcode;
 using System.Linq;
 using Unity.Netcode.Components;
+using UnityEditor.PackageManager;
 
 public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -23,7 +24,10 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public NetworkVariable<int> CurrentMana;
     public int DisplayedMana;
 
-    public NetworkVariable<bool> IsAlive;
+    public NetworkVariable<bool> ServerIsAlive;
+    public bool ClientIsAlive;
+
+    public bool ActionPhaseStarted = false;
 
     public Team UnitTeam;
 
@@ -47,8 +51,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     private Vector3 startPos;
 
     public Dictionary<Attribute, Action<float>> statSetters;
-
-
 
     private void Awake()
     {
@@ -83,7 +85,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         base.OnNetworkSpawn();
 
-        IsAlive.Value = true;
+        ServerIsAlive.Value = true;
+        ClientIsAlive = true;
 
         BattleManager.instance.RegisterUnit(this);
 
@@ -134,16 +137,29 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         ServerUpdateMana(1);
     }
 
+    private IEnumerator ClientStartTurn(UnitController controller)
+    {
+        if (controller != this)
+            yield break;
+
+        yield return statusEffectController.ClientProcStatusEffects(ActivationTime.StartOfTurn);
+
+        foreach (RuntimeAbilityInstance abilityInstance in RuntimeAbilityInstances)
+        {
+            abilityInstance.ProgressCooldown();
+            yield return null;
+        }
+
+        TurnManager.OnClientActionPhaseStarted?.Invoke(controller);
+        yield return null;
+    }
+
     public void ServerTurnInitialization(UnitController controller)
     {
         if (controller != this)
             return;
 
         statusEffectController.ServerProcStatusEffects(ActivationTime.StartOfTurn);
-        foreach (RuntimeAbilityInstance abilityInstance in RuntimeAbilityInstances)
-        {
-            abilityInstance.ProgressCooldown();
-        }
         //Beginning of turn status effects modify health values
     }
 
@@ -152,13 +168,16 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (controller != this)
             return;
 
-        statusEffectController.ClientProcStatusEffects(ActivationTime.StartOfTurn);
+        StartCoroutine(ClientStartTurn(controller));
         //Beginning of turn status effects display
     }
 
     public void ServerBeginActionPhase(UnitController controller)
     {
         if (controller != this)
+            return;
+
+        if (!ServerIsAlive.Value)
             return;
 
         RegenerateResources();
@@ -176,6 +195,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         ClientUpdateMana(1);
+        ActionPhaseStarted = true;
         TurnManager.OnRefreshUI?.Invoke(controller);
         //Enable UI
     }
@@ -194,6 +214,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (controller != this)
             return;
 
+        ActionPhaseStarted = false;
         statusEffectController.ClientProcStatusEffects(ActivationTime.EndOfTurn);
         //End of turn status effects display
     }
@@ -202,7 +223,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         if (!IsServer) return;
 
-        if (!IsAlive.Value) return;
+        if (!ServerIsAlive.Value) return;
 
         CurrentHealth.Value = (int)Mathf.Clamp(CurrentHealth.Value - hitResult.Damage, 0, MaxHealth);
 
@@ -231,7 +252,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         if (!IsServer) return;
 
-        if (!IsAlive.Value) return;
+        if (!ServerIsAlive.Value) return;
 
         CurrentHealth.Value = (int)Mathf.Clamp(CurrentHealth.Value + amount, 0, MaxHealth);
 
@@ -244,7 +265,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void ServerUpdateMana(int amount, bool syncDisplayMana = false)
     {
-        if (!IsAlive.Value) return;
+        if (!ServerIsAlive.Value) return;
 
         CurrentMana.Value = Mathf.Clamp(CurrentMana.Value + amount, 0, MaxMana);
 
@@ -260,16 +281,26 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     private void ServerDie()
     {
-        TurnManager.instance.RemoveUnitFromTurnEntries(this);
+        if (!ServerIsAlive.Value)
+            return;
+
         OnServerDie?.Invoke();
-        IsAlive.Value = false;
+        ServerIsAlive.Value = false;
+        if (TurnManager.instance.ServerCurrentTurnUnitController == this)
+            TurnManager.instance.ServerMoveToNextTurn();
     }
 
     private void ClientDie()
     {
+        if (!ClientIsAlive)
+            return;
+
         TurnManager.instance.RemoveTurnEntryUI(this);
         OnClientDie?.Invoke();
         gameObject.SetActive(false);
+        ClientIsAlive = false;
+        if (TurnManager.instance.ClientCurrentTurnUnitController == this)
+            TurnManager.instance.RequestClientTurnAdvance();
     }
 
 
@@ -284,7 +315,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         SyncManaValues(this);
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2f);
 
         yield return MoveToTargetIfNeeded(ability.MovesToTarget, NetworkUtilities.GetUnitControllerById(abilityResult.TargetId));
 
@@ -307,12 +338,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         yield return MoveToOriginalPositionIfNeeded(ability.MovesToTarget);
 
-        yield return new WaitForSeconds(1f);
-
         if (networkTransform != null)
             networkTransform.enabled = true;
 
-        TurnManager.instance.ClientMoveToNextTurn();
+        TurnManager.instance.RequestClientTurnAdvance();
+
         yield return null;
     }
 

@@ -23,12 +23,13 @@ public class StatusEffectController : MonoBehaviour
         }
     }
 
-    public void ClientProcStatusEffects(ActivationTime activationTime)
+    public IEnumerator ClientProcStatusEffects(ActivationTime activationTime)
     {
         List<StatusEffect> statusEffects = ActiveStatusEffects.Where(t => t.ActivationTime == activationTime).ToList();
         foreach (StatusEffect statusEffect in statusEffects)
         {
             statusEffect.ClientExecuteEffect(unitController);
+            yield return new WaitForSeconds(1f);
         }
     }
 

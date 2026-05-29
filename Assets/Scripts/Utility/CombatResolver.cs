@@ -75,22 +75,31 @@ public static class CombatResolver
         //For each effect we create an ability effect result
         for (int p = 0; p < ability.abilityEffects.Count; p++)
         {
-            if (!EffectConditionEvaluator.CheckCondition(ability.abilityEffects[p], context))
-                continue;
+            abilityEffectResults[p] = new AbilityEffectResult();
+            abilityEffectResults[p].TargetResults = new TargetResult[0];
 
             AbilityEffect effect = ability.abilityEffects[p];
 
             List<UnitController> abilityEffectTargets = ReturnTargetsForAbilityEffect(user, effect, primaryTarget);
 
             TargetResult[] targetResults = new TargetResult[abilityEffectTargets.Count];
+
+            if (!EffectConditionEvaluator.CheckCondition(ability.abilityEffects[p], context))
+                continue;
+
             //For each target of the effect, we create a target result
             for (int o = 0; o < abilityEffectTargets.Count; o++)
             {
+                HitResult[] hitResults = new HitResult[effect.NumberOfHits];
+
+                targetResults[o] = new TargetResult();
+                targetResults[o].Hits = new HitResult[0];
+                targetResults[o].TargetId = abilityEffectTargets[o].NetworkObjectId;
+                targetResults[o].Hits = hitResults;
+
                 if (effect.StatusToApply != null)
                     abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply);
 
-                abilityEffectResults[p] = new AbilityEffectResult();
-                HitResult[] hitResults = new HitResult[effect.NumberOfHits];
                 //For each hit, we create a hit result
                 for (int i = 0; i < effect.NumberOfHits; i++)
                 {
@@ -114,9 +123,7 @@ public static class CombatResolver
                     }
                 }
 
-                targetResults[o] = new TargetResult();
-                targetResults[o].TargetId = abilityEffectTargets[o].NetworkObjectId;
-                targetResults[o].Hits = hitResults;
+
             }
 
 
@@ -141,13 +148,13 @@ public static class CombatResolver
                 targets.Add(primaryTarget);
                 break;
             case TargetType.AllUnits:
-                targets = BattleManager.instance.AllUnits.Where(u => u.IsAlive.Value).ToList();
+                targets = BattleManager.instance.AllUnits.Where(u => u.ServerIsAlive.Value).ToList();
                 break;
             case TargetType.CasterTeam:
-                targets = BattleManager.instance.AllUnits.Where(t => t.UnitTeam == user.UnitTeam && t.IsAlive.Value).ToList();
+                targets = BattleManager.instance.AllUnits.Where(t => t.UnitTeam == user.UnitTeam && t.ServerIsAlive.Value).ToList();
                 break;
             case TargetType.TargetTeam:
-                targets = BattleManager.instance.AllUnits.Where(t => t.UnitTeam == primaryTarget.UnitTeam && t.IsAlive.Value).ToList();
+                targets = BattleManager.instance.AllUnits.Where(t => t.UnitTeam == primaryTarget.UnitTeam && t.ServerIsAlive.Value).ToList();
                 break;
             case TargetType.Self:
                 targets.Add(user);

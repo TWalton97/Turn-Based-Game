@@ -18,14 +18,14 @@ public class EnemyController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        unitController.IsAlive.OnValueChanged += OnDeathEvents;
+        unitController.ServerIsAlive.OnValueChanged += OnDeathEvents;
     }
 
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
 
-        unitController.IsAlive.OnValueChanged -= OnDeathEvents;
+        unitController.ServerIsAlive.OnValueChanged -= OnDeathEvents;
     }
 
     private void OnDeathEvents(bool oldValue, bool newValue)
@@ -126,7 +126,7 @@ public class EnemyController : NetworkBehaviour
         : BattleManager.instance.EnemyUnits;
 
         targets = targets
-        .Where(t => t.IsAlive.Value)
+        .Where(t => t.ServerIsAlive.Value)
         .ToList();
 
         if (ability.Ability.AIIntents.Contains(AIIntent.Heal))

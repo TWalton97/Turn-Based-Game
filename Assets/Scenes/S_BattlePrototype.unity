@@ -14903,7 +14903,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turnOrderPanelController: {fileID: 101894645}
   UnitControllerTurnOrder: []
-  IsBattleEnded: 0
+  ServerIsBattleEnded: 0
+  ClientIsBattleEnded: 0
   ServerCurrentTurnIndex: 0
   ServerCurrentTurnUnitController: {fileID: 0}
   ServerCurrentTurnUnitId: 0
@@ -14976,6 +14977,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d6f2aebf27ecbe45b29f6311719a0b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ContextMenuParent: {fileID: 1783195981}
   ContextMenuUnitName: {fileID: 1191065964}
   ContextMenuHealthBarFill: {fileID: 410511520}
   ContextMenuHealthBarText: {fileID: 961936894}

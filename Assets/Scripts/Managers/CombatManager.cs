@@ -108,6 +108,7 @@ public class CombatManager : NetworkBehaviour
         {
             AbilityResult result = abilityQueue.Dequeue();
             UnitController user = NetworkUtilities.GetUnitControllerById(result.AttackerId);
+            yield return new WaitUntil(() => TurnManager.instance.ClientCurrentTurnUnitController == user && user.ActionPhaseStarted);
             yield return user.PlayAbilitySequence(user.RuntimeAbilityInstances[result.AbilityId].Ability, result);
         }
 
@@ -124,6 +125,8 @@ public class CombatManager : NetworkBehaviour
         while (isPlayingAbility)
             yield return null;
 
+        yield return new WaitForSeconds(1f);
+        
         ProgressionManager.instance.BattlePresentationFinishedServerRpc();
     }
 

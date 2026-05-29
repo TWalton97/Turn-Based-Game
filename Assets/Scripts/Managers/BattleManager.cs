@@ -66,7 +66,7 @@ public class BattleManager : MonoBehaviour
     {
         foreach (UnitController controller in FriendlyUnits)
         {
-            if (controller.IsAlive.Value)
+            if (controller.ServerIsAlive.Value)
             {
                 if (controller.TryGetComponent(out PlayerDataController dataController))
                 {
@@ -80,7 +80,7 @@ public class BattleManager : MonoBehaviour
     {
         foreach (UnitController controller in FriendlyUnits)
         {
-            if (controller.IsAlive.Value)
+            if (controller.ServerIsAlive.Value)
             {
                 if (controller.TryGetComponent(out PlayerDataController dataController))
                 {
