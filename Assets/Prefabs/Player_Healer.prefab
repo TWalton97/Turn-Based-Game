@@ -131,6 +131,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f6e308f811fc34a46942a4198a489c5f, type: 2}
   - {fileID: 11400000, guid: b23ef7dd4f22c4d4f916f76b8aab0343, type: 2}
   - {fileID: 11400000, guid: ccc04db49e729fc4c85690c40ca3a41c, type: 2}
+  - {fileID: 11400000, guid: ee80ccb0bb83f6c42b1fb592907e0221, type: 2}
+  - {fileID: 11400000, guid: e4dde0684ee6e674e9a64be3b8bbd66f, type: 2}
   RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
   StatModifiers: []

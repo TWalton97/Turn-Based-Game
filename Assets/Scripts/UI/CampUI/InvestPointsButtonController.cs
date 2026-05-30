@@ -55,4 +55,7 @@ public enum StatType
 
     IncomingDamage,
     OutgoingDamage,
+
+    CurrentMana,
+    MaximumMana
 }

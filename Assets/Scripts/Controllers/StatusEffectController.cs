@@ -66,10 +66,14 @@ public class StatusEffectController : MonoBehaviour
         }
 
         StatusEffectInstance statusEffectInstance = new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower);
-        ActiveStatusEffects.Add(statusEffectInstance);
-        StatusEffectNames.Add(statusEffect.StatusEffectName);
 
         statusEffect.ServerOnApplication(unitController, statusEffectInstance);
+        
+        if (statusEffect.NumberOfTurns == 0)
+            return;
+
+        ActiveStatusEffects.Add(statusEffectInstance);
+        StatusEffectNames.Add(statusEffect.StatusEffectName);
 
         OnStatusEffectsChanged?.Invoke();
     }

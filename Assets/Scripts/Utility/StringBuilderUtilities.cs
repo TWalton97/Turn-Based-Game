@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 public static class StringBuilderUtilities
 {
@@ -15,7 +16,7 @@ public static class StringBuilderUtilities
 
             if (field != null)
             {
-                object value = statusEffectPower;
+                object value = Mathf.Abs(statusEffectPower);
                 return value?.ToString() ?? "";
             }
 
