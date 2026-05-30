@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: LesserHealingPotion
+  m_Name: Block
   m_EditorClassIdentifier: 
-  AbilityName: Lesser Healing Potion
-  AbilityDescription: Heals yourself for 15 health
+  AbilityName: Block
+  AbilityDescription: Reduces incoming damage by 50% until your next turn
   ManaCost: 0
   TeamTargeting: 0
-  TargetType: 2
+  TargetType: 4
   Cooldown: 0
   MovesToTarget: 0
   UsesProjectile: 0
@@ -24,15 +24,15 @@ MonoBehaviour:
   VFX: {fileID: 0}
   AIIntents: 
   abilityEffects:
-  - DamageType: 5
+  - DamageType: 0
     TargetType: 4
-    DamageAmount: -15
-    NumberOfHits: 1
+    DamageAmount: 0
+    NumberOfHits: 0
     DurationBetweenHits: 0
     StrengthScaling: 0
     DexterityScaling: 0
     IntelligenceScaling: 0
-    StatusToApply: {fileID: 0}
+    StatusToApply: {fileID: 11400000, guid: 382bb05fe04007e489efdd7c02c5af6f, type: 2}
     EffectType: 0
     ConditionType: 0
     ConditionThreshold: 0

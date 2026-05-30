@@ -29,7 +29,7 @@ MonoBehaviour:
     DamageAmount: 15
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
+    StrengthScaling: 0.15
     DexterityScaling: 0
     IntelligenceScaling: 0
     StatusToApply: {fileID: 0}

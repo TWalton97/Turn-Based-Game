@@ -133,8 +133,10 @@ MonoBehaviour:
   CurrentMana:
     m_InternalValue: 0
   DisplayedMana: 0
-  IsAlive:
+  ServerIsAlive:
     m_InternalValue: 0
+  ClientIsAlive: 0
+  ActionPhaseStarted: 0
   UnitTeam: 0
   BaseAbilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
@@ -144,8 +146,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cc2ed14a3320c184e93bd01dd83ad442, type: 2}
   - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
   - {fileID: 11400000, guid: 1e9e7bfca9b32dd4ebec2b7f4c169da3, type: 2}
+  - {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
   RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
+  StatModifiers: []
+  CachedStatsDirty: 1
 --- !u!136 &90961607817683323
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -233,5 +238,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b1ccf784e09f0e47990e147f6b43f64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ActiveStatusEffects: []
   StatusEffectNames: []

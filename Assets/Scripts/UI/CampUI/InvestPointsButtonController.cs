@@ -51,5 +51,8 @@ public enum StatType
     EnergyGain,
     LuckyDrop,
     IncomingHealing,
-    OutgoingHealing
+    OutgoingHealing,
+
+    IncomingDamage,
+    OutgoingDamage,
 }

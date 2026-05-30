@@ -24,13 +24,13 @@ MonoBehaviour:
   VFX: {fileID: 0}
   AIIntents: 
   abilityEffects:
-  - DamageType: 1
+  - DamageType: 2
     TargetType: 0
     DamageAmount: 6
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0
+    StrengthScaling: 0.1
+    DexterityScaling: 0.1
     IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0

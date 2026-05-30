@@ -25,7 +25,7 @@ public class DamageNumberManager : MonoBehaviour
         }
         else
         {
-            damageNumber.SetText(result.Damage, result.Crit);
+            damageNumber.SetText(result);
         }
     }
 }

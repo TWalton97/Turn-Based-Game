@@ -14,12 +14,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public string UnitName;
 
     public UnitAttributes UnitStats;
-    public CombatStats CombatStats;
 
     public ClassStatPresetSO UnitData;
-    public int MaxHealth = 30;
-    public NetworkVariable<int> CurrentHealth;
-    public int DisplayedHealth;
+    public float MaxHealth = 30;
+    public NetworkVariable<float> CurrentHealth;
+    public float DisplayedHealth;
 
     public int MaxMana = 5;
     public NetworkVariable<int> CurrentMana;
@@ -102,8 +101,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void SyncManaValues(UnitController controller)
     {
-        DisplayedMana = CurrentMana.Value;
-        OnDisplayedManaChanged?.Invoke();
+        //DisplayedMana = CurrentMana.Value;
+        //OnDisplayedManaChanged?.Invoke();
     }
 
     public void ApplyClassPresetStats()
@@ -123,10 +122,15 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         UnitStats.Luck = UnitData.Luck;
     }
 
-    public void RegenerateResources()
+    public void ServerRegenerateResources()
     {
         //TODO: determine how many resources to restore
         ServerUpdateMana(1);
+    }
+
+    public void ClientRegenerateResources()
+    {
+        ClientUpdateMana(1);
     }
 
     private IEnumerator ClientStartTurn(UnitController controller)
@@ -152,6 +156,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         statusEffectController.ServerProcStatusEffects(ActivationTime.StartOfTurn);
+        statusEffectController.ServerProcStatusEffects(ActivationTime.OnApplication);
         //Beginning of turn status effects modify health values
     }
 
@@ -161,6 +166,9 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         StartCoroutine(ClientStartTurn(controller));
+        statusEffectController.ClientProcStatusEffects(ActivationTime.StartOfTurn);
+        statusEffectController.ClientProcStatusEffects(ActivationTime.OnApplication);
+        statusEffectController.ReduceRemainingTurnTimer();
         //Beginning of turn status effects display
     }
 
@@ -172,7 +180,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (!ServerIsAlive.Value)
             return;
 
-        RegenerateResources();
+        ServerRegenerateResources();
 
         if (enemyController == null)
             return;
@@ -186,7 +194,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (controller != this)
             return;
 
-        ClientUpdateMana(1);
+        ClientRegenerateResources();
         ActionPhaseStarted = true;
         TurnManager.OnRefreshUI?.Invoke(controller);
         //Enable UI
@@ -217,7 +225,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         if (!ServerIsAlive.Value) return;
 
-        CurrentHealth.Value = (int)Mathf.Clamp(CurrentHealth.Value - hitResult.Damage, 0, MaxHealth);
+        CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value - hitResult.Damage, 0, MaxHealth);
 
         if (syncDisplayedHealth)
         {
@@ -231,7 +239,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void ClientTakeDamage(HitResult hitResult)
     {
-        DisplayedHealth = (int)Mathf.Clamp(DisplayedHealth - hitResult.Damage, 0, MaxHealth);
+        DisplayedHealth = Mathf.Clamp(DisplayedHealth - hitResult.Damage, 0, MaxHealth);
         DamageNumberManager.instance.SpawnDamageNumberAtPosition(hitResult, transform.position);
         OnDisplayedHealthChanged?.Invoke();
         if (DisplayedHealth <= 0)
@@ -259,7 +267,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         if (!ServerIsAlive.Value) return;
 
-        Debug.Log($"Increasing CurrentMana.Value for {gameObject.name} from {CurrentMana.Value} to {CurrentMana.Value + amount}");
         CurrentMana.Value = Mathf.Clamp(CurrentMana.Value + amount, 0, MaxMana);
 
         if (syncDisplayMana)
@@ -306,7 +313,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         AbilityNamePresentationManager.instance.DisplayName(ability);
 
-        SyncManaValues(this);
+        ClientUpdateMana(-ability.ManaCost);
 
         yield return new WaitForSeconds(2f);
 
@@ -477,6 +484,13 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         stats[StatType.IncomingHealing] =
             100f + (0.5f * stats[StatType.FTH]);
+
+        // GENERIC DAMAGE MODIFIERS
+        stats[StatType.IncomingDamage] =
+            100f;
+
+        stats[StatType.OutgoingDamage] =
+            100f;
 
         // APPLY MODIFIERS
         ApplyModifiers(stats);

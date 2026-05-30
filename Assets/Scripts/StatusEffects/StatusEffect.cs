@@ -12,9 +12,13 @@ public abstract class StatusEffect : ScriptableObject
     public ActivationTime ActivationTime;
     public int NumberOfTurns;
 
-    public abstract void ServerExecuteEffect(UnitController controller, int statusEffectPower = 1);
+    public abstract void ServerOnApplication(UnitController controller, StatusEffectInstance instance);
+    public abstract void ClientOnApplication(UnitController controller, StatusEffectInstance instance);
 
-    public abstract void ClientExecuteEffect(UnitController controller, int statusEffectPower = 1);
+    public abstract void ServerExecuteEffect(UnitController controller, StatusEffectInstance instance);
+    public abstract void ClientExecuteEffect(UnitController controller, StatusEffectInstance instance);
+
+    public abstract void ServerRemoveStatus(UnitController controller, StatusEffectInstance instance);
 
     public abstract string ConstructDescriptionString(StatusEffectInstance statusEffectInstance);
 }
@@ -29,5 +33,6 @@ public enum ActivationTime
 {
     StartOfTurn,
     EndOfTurn,
-    OnHit
+    OnHit,
+    OnApplication
 }

@@ -48,7 +48,7 @@ public class AbilityEffect
 
     //Damage effect
     public TargetType TargetType;
-    public int DamageAmount;
+    public float DamageAmount;
     public int NumberOfHits;
     public float DurationBetweenHits;
 
@@ -87,6 +87,7 @@ public enum DamageType
     Physical,
     Fire,
     Cold,
+    Psychic,
     Heal
 }
 

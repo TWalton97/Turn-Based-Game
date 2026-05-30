@@ -13,6 +13,8 @@ public class StatusEffectController : MonoBehaviour
     public Action ServerOnStatusEffectsProcced;
     public Action ClientOnStatusEffectsProcced;
 
+    public Action OnStatusEffectsChanged;
+
     private void Awake()
     {
         unitController = GetComponent<UnitController>();
@@ -23,7 +25,7 @@ public class StatusEffectController : MonoBehaviour
         List<StatusEffectInstance> statusEffectInstances = ActiveStatusEffects.Where(t => t.StatusEffect.ActivationTime == activationTime).ToList();
         foreach (StatusEffectInstance statusEffectInstance in statusEffectInstances)
         {
-            statusEffectInstance.ServerActivateStatusEffect(unitController);
+            statusEffectInstance.ServerExecuteEffect(unitController);
         }
         ServerOnStatusEffectsProcced?.Invoke();
     }
@@ -33,26 +35,43 @@ public class StatusEffectController : MonoBehaviour
         List<StatusEffectInstance> statusEffectInstances = ActiveStatusEffects.Where(t => t.StatusEffect.ActivationTime == activationTime).ToList();
         foreach (StatusEffectInstance statusEffectInstance in statusEffectInstances)
         {
-            statusEffectInstance.ClientActivateStatusEffect(unitController);
-            if (statusEffectInstance.RemainingNumberOfTurns <= 0)
-                RemoveStatusEffect(statusEffectInstance.StatusEffect);
+            statusEffectInstance.ClientExecuteEffect(unitController);
             yield return new WaitForSeconds(0.7f);
         }
         ClientOnStatusEffectsProcced?.Invoke();
     }
 
-    public void AddStatusEffect(StatusEffect statusEffect, int statusEffectPower = 1)
+    public void ReduceRemainingTurnTimer()
+    {
+        for (int i = ActiveStatusEffects.Count - 1; i >= 0; i--)
+        {
+            ActiveStatusEffects[i].RemainingNumberOfTurns--;
+
+            if (ActiveStatusEffects[i].RemainingNumberOfTurns <= 0)
+            {
+                RemoveStatusEffect(ActiveStatusEffects[i].StatusEffect);
+            }
+        }
+    }
+
+    public void AddStatusEffect(StatusEffect statusEffect, float statusEffectPower = 1)
     {
         StatusEffectInstance existingStatusEffectInstance = ActiveStatusEffects.Find(t => t.StatusEffect == statusEffect);
         if (existingStatusEffectInstance != null)
         {
             existingStatusEffectInstance.RemainingNumberOfTurns = statusEffect.NumberOfTurns;
             existingStatusEffectInstance.StatusEffectPower = Mathf.Max(existingStatusEffectInstance.StatusEffectPower, statusEffectPower);
+            OnStatusEffectsChanged?.Invoke();
             return;
         }
 
-        ActiveStatusEffects.Add(new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower));
+        StatusEffectInstance statusEffectInstance = new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower);
+        ActiveStatusEffects.Add(statusEffectInstance);
         StatusEffectNames.Add(statusEffect.StatusEffectName);
+
+        statusEffect.ServerOnApplication(unitController, statusEffectInstance);
+
+        OnStatusEffectsChanged?.Invoke();
     }
 
     public void RemoveStatusEffect(StatusEffect statusEffect)
@@ -60,8 +79,15 @@ public class StatusEffectController : MonoBehaviour
         if (!ActiveStatusEffects.Where(t => t.StatusEffect == statusEffect).Any())
             return;
 
+        foreach (StatusEffectInstance instance in ActiveStatusEffects.Where(t => t.StatusEffect == statusEffect))
+        {
+            instance.StatusEffect.ServerRemoveStatus(unitController, instance);
+        }
+
         ActiveStatusEffects.Remove(ActiveStatusEffects.Where(t => t.StatusEffect == statusEffect).First());
         StatusEffectNames.Remove(statusEffect.StatusEffectName);
+
+        OnStatusEffectsChanged?.Invoke();
     }
 
     public List<StatusEffectInstance> ReturnStatusEffectInstancesOfType(BuffType buffType)

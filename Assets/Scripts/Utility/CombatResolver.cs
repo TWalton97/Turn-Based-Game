@@ -7,7 +7,7 @@ using UnityEngine;
 
 public static class CombatResolver
 {
-    public static HitResult CalculateHitDamage(UnitController attacker, AbilityEffect abilityEffect, UnitController target, int resolvedPower)
+    public static HitResult CalculateHitDamage(UnitController attacker, AbilityEffect abilityEffect, UnitController target, float resolvedPower)
     {
         HitResult result = new HitResult();
 
@@ -17,8 +17,11 @@ public static class CombatResolver
             + (abilityEffect.StrengthScaling * attacker.GetStatType(StatType.STR))
             + (abilityEffect.DexterityScaling * attacker.GetStatType(StatType.DEX))
             + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.INT));
+            result.DamageType = abilityEffect.DamageType;
             result.Dodged = false;
-            result.Damage = Mathf.Round(heal * 10f / 10f);
+            result.Damage = heal;
+            result.Damage *= 1 + Random.Range(-0.1f, 0.1f);
+            result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
             return result;
         }
 
@@ -33,15 +36,15 @@ public static class CombatResolver
         //If it isn't dodged, we calculate the damage
         float damage = resolvedPower
         + (abilityEffect.StrengthScaling * attacker.GetStatType(StatType.STR))
-        + (abilityEffect.DexterityScaling * attacker.GetStatType(StatType.STR))
-        + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.STR));
+        + (abilityEffect.DexterityScaling * attacker.GetStatType(StatType.DEX))
+        + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.INT));
 
         //Roll if it's a block
         bool blocked = Random.Range(0f, 100f) < target.GetStatType(StatType.BlockChance);
         if (blocked)
         {
-            damage *= 1 - (attacker.GetStatType(StatType.BlockDamageReduction) / 100);
-            result.Damage = Mathf.Round(damage * 10f / 10f);
+            damage *= 1 - (target.GetStatType(StatType.BlockDamageReduction) / 100);
+            result.Damage = damage;
             return result;
         }
 
@@ -53,8 +56,14 @@ public static class CombatResolver
             damage *= 1 + (attacker.GetStatType(StatType.CritDamage) / 100);
         }
 
+        //Add final multipliers
+        damage *= attacker.GetStatType(StatType.OutgoingDamage) / 100;
+        damage *= target.GetStatType(StatType.IncomingDamage) / 100;
+
         result.DamageType = abilityEffect.DamageType;
-        result.Damage = Mathf.Round(damage * 10f / 10f);
+        result.Damage = damage;
+        result.Damage *= 1 + Random.Range(-0.1f, 0.1f);
+        result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
         return result;
     }
 
@@ -100,15 +109,14 @@ public static class CombatResolver
                 //This is where we actually apply the status effect
                 if (effect.StatusToApply != null)
                 {
-                    int resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
-                    Debug.Log($"Resolved status power for {effect.StatusToApply} is {resolvedStatusPower}");
+                    float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
                     abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply, resolvedStatusPower);
                 }
 
                 //For each hit, we create a hit result
                 for (int i = 0; i < effect.NumberOfHits; i++)
                 {
-                    int resolvedPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
+                    float resolvedPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
                     hitResults[i] = CalculateHitDamage(user, effect, abilityEffectTargets[o], resolvedPower);
                     abilityEffectResults[p].TotalDamage += (int)hitResults[i].Damage;
 
@@ -127,10 +135,7 @@ public static class CombatResolver
                         abilityEffectResults[p].AnyCrit = true;
                     }
                 }
-
-
             }
-
 
             abilityEffectResults[p].AttackerId = userId;
             abilityEffectResults[p].TargetResults = targetResults;
@@ -171,7 +176,7 @@ public static class CombatResolver
 }
 
 [System.Serializable]
-public struct AbilityResult : INetworkSerializable
+public class AbilityResult : INetworkSerializable
 {
     public ulong AttackerId;
     public int AbilityId;
@@ -189,13 +194,13 @@ public struct AbilityResult : INetworkSerializable
 }
 
 [System.Serializable]
-public struct AbilityEffectResult : INetworkSerializable
+public class AbilityEffectResult : INetworkSerializable
 {
     public ulong AttackerId;
     public TargetResult[] TargetResults;
 
-    public int TotalDamage;
-    public int TotalHealing;
+    public float TotalDamage;
+    public float TotalHealing;
 
     public bool AnyHit;
     public bool AnyCrit;
@@ -209,11 +214,18 @@ public struct AbilityEffectResult : INetworkSerializable
         serializer.SerializeValue(ref TargetResults);
 
         serializer.SerializeValue(ref TotalDamage);
+        serializer.SerializeValue(ref TotalHealing);
+
+        serializer.SerializeValue(ref AnyHit);
+        serializer.SerializeValue(ref AnyCrit);
+        serializer.SerializeValue(ref AnyDodged);
+
+        serializer.SerializeValue(ref ApplyStatusEffect);
     }
 }
 
 [System.Serializable]
-public struct TargetResult : INetworkSerializable
+public class TargetResult : INetworkSerializable
 {
     public ulong TargetId;
 
@@ -226,7 +238,7 @@ public struct TargetResult : INetworkSerializable
     }
 }
 
-public struct HitResult : INetworkSerializable
+public class HitResult : INetworkSerializable
 {
     public DamageType DamageType;
     public float Damage;
@@ -236,6 +248,7 @@ public struct HitResult : INetworkSerializable
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
+        serializer.SerializeValue(ref DamageType);
         serializer.SerializeValue(ref Damage);
         serializer.SerializeValue(ref Crit);
         serializer.SerializeValue(ref Dodged);
@@ -282,9 +295,9 @@ public static class EffectConditionEvaluator
         }
     }
 
-    public static int ResolveEffectPower(AbilityEffect effect, AbilityExecutionContext ctx)
+    public static float ResolveEffectPower(AbilityEffect effect, AbilityExecutionContext ctx)
     {
-        int value = effect.DamageAmount;
+        float value = effect.DamageAmount;
 
         if (effect.EffectScalingType == EffectScalingType.BasedOnPreviousDamage)
         {
@@ -292,9 +305,9 @@ public static class EffectConditionEvaluator
             {
                 AbilityEffectResult last = ctx.EffectResults.Last();
 
-                int scaledValue = Mathf.RoundToInt(last.TotalDamage * effect.ScalingMultiplier);
+                float scaledValue = last.TotalDamage * effect.ScalingMultiplier;
 
-                value = scaledValue * (int)Mathf.Sign(effect.DamageAmount);
+                value = scaledValue * Mathf.Sign(effect.DamageAmount);
             }
         }
 

@@ -108,11 +108,13 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             "",
             "",
             ""),
-            eventData.position + new Vector2(150, 0));
+            eventData.position + new Vector2(150, 0),
+            this
+            );
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        TooltipManager.instance.DisableTooltip();
+        TooltipManager.DisableTooltipIfSource?.Invoke(this);
     }
 }

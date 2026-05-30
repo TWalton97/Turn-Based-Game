@@ -14,22 +14,41 @@ public class StatusEffectIcon : MonoBehaviour, IPointerEnterHandler, IPointerExi
         UpdateStatusEffectInfo();
     }
 
+    void OnDisable()
+    {
+        TooltipManager.DisableTooltipIfSource?.Invoke(this);
+    }
+
     public void UpdateStatusEffectInfo()
     {
         if (StatusEffectInstance == null)
             return;
 
         StatusEffectImage.sprite = StatusEffectInstance.StatusEffect.StatusSprite;
-        tooltipData = new TooltipData(StatusEffectInstance.StatusEffect.StatusEffectName, StatusEffectInstance.RemainingNumberOfTurns.ToString() + " turns remaining", StatusEffectInstance.StatusEffect.ConstructDescriptionString(StatusEffectInstance), "");
+        tooltipData = new TooltipData(
+            StatusEffectInstance.StatusEffect.StatusEffectName,
+            BuildTurnsRemainingString(StatusEffectInstance),
+            StatusEffectInstance.StatusEffect.ConstructDescriptionString(StatusEffectInstance),
+            ""
+            );
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        TooltipManager.instance.EnableTooltipAtPosition(tooltipData, eventData.position + new Vector2(150, 0));
+        TooltipManager.instance.EnableTooltipAtPosition(tooltipData, eventData.position + new Vector2(150, 0), this);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        TooltipManager.instance.DisableTooltip();
+        TooltipManager.DisableTooltipIfSource?.Invoke(this);
+    }
+
+    public string BuildTurnsRemainingString(StatusEffectInstance instance)
+    {
+        if (instance.RemainingNumberOfTurns > 1)
+        {
+            return instance.RemainingNumberOfTurns.ToString() + " turns remaining";
+        }
+        return instance.RemainingNumberOfTurns.ToString() + " turn remaining";
     }
 }

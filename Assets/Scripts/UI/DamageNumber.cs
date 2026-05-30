@@ -10,26 +10,46 @@ public class DamageNumber : MonoBehaviour
     public float lifeTime = 1.5f;
     public float fadeSpeed = 2f;
 
-    public void SetText(float value, bool isCrit)
+    public Color BlockedDamageColor;
+    public Color PhysicalDamageColor;
+    public Color FireDamageColor;
+    public Color ColdDamageColor;
+    public Color PsychicDamageColor;
+    public Color HealColor;
+
+    public void SetText(HitResult result)
     {
         transform.position += Random.insideUnitSphere * 0.3f;
-        string text = Mathf.Abs(value).ToString();
-        if (isCrit)
+        string text = Mathf.Abs(result.Damage).ToString();
+        if (result.Crit)
             text += "!";
 
         DamageText.text = text;
 
-        if (value > 0)
+        if (result.Blocked)
         {
-            DamageText.color = Color.red;
-        }
-        else if (value == 0)
-        {
-            DamageText.color = Color.white;
+            DamageText.color = BlockedDamageColor;
         }
         else
         {
-            DamageText.color = Color.green;
+            switch (result.DamageType)
+            {
+                case DamageType.Physical:
+                    DamageText.color = PhysicalDamageColor;
+                    break;
+                case DamageType.Fire:
+                    DamageText.color = FireDamageColor;
+                    break;
+                case DamageType.Cold:
+                    DamageText.color = ColdDamageColor;
+                    break;
+                case DamageType.Psychic:
+                    DamageText.color = PsychicDamageColor;
+                    break;
+                case DamageType.Heal:
+                    DamageText.color = HealColor;
+                    break;
+            }
         }
 
         Initialize();

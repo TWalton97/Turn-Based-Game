@@ -51,6 +51,7 @@ public class UIManager : MonoBehaviour
             currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
             currentlySelectedUnit.OnClientDie -= ClearContextMenu;
             currentlySelectedUnit.statusEffectController.ClientOnStatusEffectsProcced -= UpdateStatusEffectIcons;
+            currentlySelectedUnit.statusEffectController.OnStatusEffectsChanged -= RefreshStatusIcons;
         }
 
         currentlySelectedUnit = controller;
@@ -70,6 +71,7 @@ public class UIManager : MonoBehaviour
         currentlySelectedUnit.OnDisplayedHealthChanged += UpdateContextMenu;
         currentlySelectedUnit.OnClientDie += ClearContextMenu;
         currentlySelectedUnit.statusEffectController.ClientOnStatusEffectsProcced += UpdateStatusEffectIcons;
+        currentlySelectedUnit.statusEffectController.OnStatusEffectsChanged += RefreshStatusIcons;
 
         UpdateContextMenu();
         ContextMenuParent.SetActive(true);
@@ -83,6 +85,7 @@ public class UIManager : MonoBehaviour
             currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
             currentlySelectedUnit.OnClientDie -= ClearContextMenu;
             currentlySelectedUnit.statusEffectController.ClientOnStatusEffectsProcced -= UpdateStatusEffectIcons;
+            currentlySelectedUnit.statusEffectController.OnStatusEffectsChanged -= RefreshStatusIcons;
 
             currentlySelectedUnit = null;
         }
@@ -94,21 +97,28 @@ public class UIManager : MonoBehaviour
     {
         ContextMenuUnitName.text = currentlySelectedUnit.UnitName;
 
-        ContextMenuHealthBarFill.fillAmount = (float)currentlySelectedUnit.DisplayedHealth / currentlySelectedUnit.MaxHealth;
-        ContextMenuHealthBarText.text = currentlySelectedUnit.DisplayedHealth + "/" + currentlySelectedUnit.MaxHealth;
+        ContextMenuHealthBarFill.fillAmount = currentlySelectedUnit.DisplayedHealth / currentlySelectedUnit.MaxHealth;
+        ContextMenuHealthBarText.text = currentlySelectedUnit.DisplayedHealth.ToString("0.0") + "/" + currentlySelectedUnit.MaxHealth.ToString("0.0");
 
         ContextMenuManaBarFill.fillAmount = (float)currentlySelectedUnit.DisplayedMana / currentlySelectedUnit.MaxMana;
         ContextMenuManaBarText.text = currentlySelectedUnit.DisplayedMana + "/" + currentlySelectedUnit.MaxMana;
+    }
 
-        foreach (StatusEffectIcon icon in StatusEffectIcons)
-        {
-            icon.gameObject.SetActive(false);
-        }
+    private void RefreshStatusIcons()
+    {
+        var statuses = currentlySelectedUnit.statusEffectController.ActiveStatusEffects;
 
-        for (int i = 0; i < currentlySelectedUnit.statusEffectController.ActiveStatusEffects.Count; i++)
+        for (int i = 0; i < StatusEffectIcons.Count; i++)
         {
-            StatusEffectIcons[i].AssignStatusEffect(currentlySelectedUnit.statusEffectController.ActiveStatusEffects[i]);
-            StatusEffectIcons[i].gameObject.SetActive(true);
+            if (i < statuses.Count)
+            {
+                StatusEffectIcons[i].AssignStatusEffect(statuses[i]);
+                StatusEffectIcons[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                StatusEffectIcons[i].gameObject.SetActive(false);
+            }
         }
     }
 

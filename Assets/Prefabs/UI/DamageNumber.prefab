@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2303577309253495741}
-  - component: {fileID: 2017787253244063548}
   - component: {fileID: 6253944281554832082}
   - component: {fileID: 7766365721971178418}
   - component: {fileID: 6978993655430046931}
@@ -40,23 +39,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2017787253244063548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3497873228441238556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9e7b398a4241d94ba2d3bd8a9e3fd0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DamageText: {fileID: 6978993655430046931}
-  velocity: {x: 0, y: 0, z: 0}
-  gravity: -10
-  lifeTime: 1
-  fadeSpeed: 2
 --- !u!114 &6253944281554832082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,3 +240,9 @@ MonoBehaviour:
   gravity: -10
   lifeTime: 1
   fadeSpeed: 2
+  BlockedDamageColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 1}
+  PhysicalDamageColor: {r: 1, g: 1, b: 1, a: 1}
+  FireDamageColor: {r: 1, g: 0.25943398, b: 0.25943398, a: 1}
+  ColdDamageColor: {r: 0.28773582, g: 0.76967376, b: 1, a: 1}
+  PsychicDamageColor: {r: 1, g: 0.495283, b: 0.9306708, a: 1}
+  HealColor: {r: 0.28071377, g: 1, b: 0.2688679, a: 1}

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,24 +9,26 @@ public class StatusEffectInstance
     public UnitController UnitController;
 
     public int RemainingNumberOfTurns;
-    public int StatusEffectPower;
+    public float StatusEffectPower;
 
-    public StatusEffectInstance(UnitController _unitControler, StatusEffect _statusEffect, int _numberOfTurns, int _statusEffectPower)
+    public string id;
+
+    public StatusEffectInstance(UnitController _unitControler, StatusEffect _statusEffect, int _numberOfTurns, float _statusEffectPower)
     {
         UnitController = _unitControler;
         StatusEffect = _statusEffect;
         RemainingNumberOfTurns = _numberOfTurns;
         StatusEffectPower = _statusEffectPower;
+        id = Guid.NewGuid().ToString();
     }
 
-    public void ServerActivateStatusEffect(UnitController controller)
+    public void ServerExecuteEffect(UnitController controller)
     {
-        StatusEffect.ServerExecuteEffect(controller, StatusEffectPower);
+        StatusEffect.ServerExecuteEffect(controller, this);
     }
 
-    public void ClientActivateStatusEffect(UnitController controller)
+    public void ClientExecuteEffect(UnitController controller)
     {
-        StatusEffect.ClientExecuteEffect(controller, StatusEffectPower);
-        RemainingNumberOfTurns--;
+        StatusEffect.ClientExecuteEffect(controller, this);
     }
 }

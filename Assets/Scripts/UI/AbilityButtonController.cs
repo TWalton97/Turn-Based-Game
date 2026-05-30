@@ -42,7 +42,6 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
                 }
                 else
                 {
-                    Debug.Log($"Cannot use ability {Ability.AbilityName} because it costs {Ability.ManaCost} and the user has {controller.CurrentMana.Value}");
                     CannotUseText.text = $"Not enough mana";
                 }
             }
@@ -76,7 +75,7 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
         if (Ability.TargetType == TargetType.Self)
         {
             CombatManager.instance.RequestCombatActionServerRpc(controller.NetworkObjectId, controller.GetAbilityIndex(Ability), controller.NetworkObjectId);
-            combatMenuController.ItemPanel.ActivatePanel();
+            combatMenuController.CloseAllMenus();
             return;
         }
 
@@ -85,11 +84,11 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        TooltipManager.instance.EnableTooltipAtPosition(new TooltipData(Ability.AbilityName, Ability.ManaCost.ToString() + " Mana", Ability.AbilityDescription, "Cooldown: " + Ability.Cooldown), eventData.position + new Vector2(150, 0));
+        TooltipManager.instance.EnableTooltipAtPosition(new TooltipData(Ability.AbilityName, Ability.ManaCost.ToString() + " Mana", Ability.AbilityDescription, "Cooldown: " + Ability.Cooldown), eventData.position + new Vector2(150, 0), this);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        TooltipManager.instance.DisableTooltip();
+        TooltipManager.DisableTooltipIfSource?.Invoke(this);
     }
 }

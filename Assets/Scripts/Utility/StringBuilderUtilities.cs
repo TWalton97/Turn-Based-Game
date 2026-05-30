@@ -5,7 +5,7 @@ public static class StringBuilderUtilities
     private static readonly Regex PlaceholderRegex =
         new Regex(@"\{(\w+)\}");
 
-    public static string Build(string template, int statusEffectPower)
+    public static string Build(string template, float statusEffectPower)
     {
         return PlaceholderRegex.Replace(template, match =>
         {

@@ -30,8 +30,8 @@ MonoBehaviour:
     DamageAmount: 6
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0
+    StrengthScaling: 0.15
+    DexterityScaling: 0.15
     IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
     ConditionThreshold: 0
     EffectScalingType: 0
     ScalingMultiplier: 1
-  - DamageType: 4
+  - DamageType: 5
     TargetType: 4
     DamageAmount: -6
     NumberOfHits: 1

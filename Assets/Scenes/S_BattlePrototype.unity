@@ -14958,7 +14958,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02f0543132f6e084896a3a85b91d6aca, type: 2}
   RoomIndex: -1
   RoomCountText: {fileID: 1543857193}
-  RoomOrder: 01000000020000000100000000000000
+  RoomOrder: 01000000000000000200000000000000
   CurrentRoomIndex: 0
   AvailableEnemies:
   - {fileID: 1859624672593206805, guid: df20a2b68b3ad094e823742f3ba5d5bc, type: 3}
@@ -15083,6 +15083,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cee082da1d4f4ba45a434830e3f08b9a, type: 2}
   - {fileID: 11400000, guid: 2984604c0e08cc8458f27fa6094ef0ff, type: 2}
   - {fileID: 11400000, guid: ba243f443b58577419df5b241d17aa2a, type: 2}
+  - {fileID: 11400000, guid: 617a934724219474eaac9bce38c4f321, type: 2}
   CraftingEntriesParent: {fileID: 964138278}
   CraftingEntryPrefab: {fileID: 5453653390508399583, guid: 55c2ee4340c0e5849935ab9a6c1137f1, type: 3}
 --- !u!114 &958336436

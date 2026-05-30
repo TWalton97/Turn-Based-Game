@@ -116,9 +116,9 @@ public class CombatMenuController : MonoBehaviour
         TurnTimer.text = "30s";
         UnitGold.text = "0";
 
-        HealthBarText.text = CurrentUnitController.DisplayedHealth + "/" + CurrentUnitController.MaxHealth;
-        HealthBarFill.fillAmount = (float)CurrentUnitController.DisplayedHealth / CurrentUnitController.MaxHealth;
-
+        HealthBarText.text = CurrentUnitController.DisplayedHealth.ToString("0.0") + "/" + CurrentUnitController.MaxHealth.ToString("0.0");
+        HealthBarFill.fillAmount = CurrentUnitController.DisplayedHealth / CurrentUnitController.MaxHealth;
+        
         ManaBarText.text = CurrentUnitController.DisplayedMana + "/" + CurrentUnitController.MaxMana;
         ManaBarFill.fillAmount = (float)CurrentUnitController.DisplayedMana / CurrentUnitController.MaxMana;
     }

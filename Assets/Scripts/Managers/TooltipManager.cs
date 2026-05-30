@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -13,16 +14,27 @@ public class TooltipManager : MonoBehaviour
     public TextMeshProUGUI TooltipDescriptionText;
     public TextMeshProUGUI TooltipCooldownText;
 
+    public MonoBehaviour CurrentTooltipSource;
+    public static Action<MonoBehaviour> DisableTooltipIfSource;
+
     private void Awake()
     {
         if (instance == null)
             instance = this;
 
         DisableTooltip();
+
+        DisableTooltipIfSource += DisableTooltip;
     }
 
-    public void EnableTooltipAtPosition(TooltipData data, Vector3 position)
+    void OnDestroy()
     {
+        DisableTooltipIfSource -= DisableTooltip;
+    }
+
+    public void EnableTooltipAtPosition(TooltipData data, Vector3 position, MonoBehaviour source)
+    {
+        CurrentTooltipSource = source;
         TooltipParentObject.transform.position = position;
         TooltipTitleText.text = data.TooltipTitle;
         TooltipCostText.text = data.TooltipCost;
@@ -34,6 +46,15 @@ public class TooltipManager : MonoBehaviour
     public void DisableTooltip()
     {
         TooltipParentObject.SetActive(false);
+    }
+
+    private void DisableTooltip(MonoBehaviour source)
+    {
+        if (CurrentTooltipSource == source)
+        {
+            DisableTooltip();
+            source = null;
+        }
     }
 }
 
