@@ -110,20 +110,6 @@ MonoBehaviour:
     Faith: 0
     Charisma: 0
     Luck: 0
-  CombatStats:
-    InitiativeMin: 0
-    InitiativeMax: 0
-    CritChance: 0
-    CritDamage: 0
-    BlockChance: 0
-    BlockDamageReduction: 0
-    DodgeChance: 0
-    Aggro: 0
-    Lifesteal: 0
-    EnergyGain: 0
-    LuckyDrop: 0
-    IncomingHealing: 0
-    OutgoingHealing: 0
   UnitData: {fileID: 11400000, guid: dc23714d03f23a5478d97a3e6724cdd7, type: 2}
   MaxHealth: 32
   CurrentHealth:
@@ -140,13 +126,14 @@ MonoBehaviour:
   UnitTeam: 0
   BaseAbilities:
   - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+  - {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
   - {fileID: 11400000, guid: 354640637653c7f4696242a7a985f961, type: 2}
   - {fileID: 11400000, guid: 9b750ea59653d954eb91a2c3e4cb8e08, type: 2}
   - {fileID: 11400000, guid: d8cbd032d0e5b724481a33fca3f8e9db, type: 2}
   - {fileID: 11400000, guid: cc2ed14a3320c184e93bd01dd83ad442, type: 2}
   - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
   - {fileID: 11400000, guid: 1e9e7bfca9b32dd4ebec2b7f4c169da3, type: 2}
-  - {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
+  - {fileID: 11400000, guid: b98642cb307048b4daf337fef52fe607, type: 2}
   RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
   StatModifiers: []

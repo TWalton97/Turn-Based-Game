@@ -125,12 +125,12 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public void ServerRegenerateResources()
     {
         //TODO: determine how many resources to restore
-        ServerUpdateMana(1);
+        ServerUpdateMana(CalculateManaRegen());
     }
 
     public void ClientRegenerateResources()
     {
-        ClientUpdateMana(1);
+        ClientUpdateMana(CalculateManaRegen());
     }
 
     private IEnumerator ClientStartTurn(UnitController controller)
@@ -315,7 +315,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         ClientUpdateMana(-ability.ManaCost);
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(ability.AbilityAnimationDelay);
 
         yield return MoveToTargetIfNeeded(ability.MovesToTarget, NetworkUtilities.GetUnitControllerById(abilityResult.TargetId));
 
@@ -515,6 +515,26 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             RecalculateAllStats();
 
         return CachedStats.TryGetValue(stat, out var value) ? value : 0f;
+    }
+
+    public int CalculateManaRegen()
+    {
+        float energyGain = GetStatType(StatType.EnergyGain);
+
+        int manaRegen = 1;
+
+        // Guaranteed extra mana
+        manaRegen += Mathf.FloorToInt(energyGain / 100f);
+
+        // Chance for one additional mana
+        float remainder = energyGain % 100f;
+
+        if (UnityEngine.Random.Range(0f, 100f) < remainder)
+        {
+            manaRegen++;
+        }
+
+        return manaRegen;
     }
 }
 

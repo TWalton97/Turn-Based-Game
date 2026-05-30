@@ -15,12 +15,12 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
     public int Cooldown;
 
     public bool MovesToTarget;
+    public float AbilityAnimationDelay = 2f;
     public bool UsesProjectile;
     public Animation Animation;
     public GameObject VFX;
 
     public List<AIIntent> AIIntents;
-
     public List<AbilityEffect> abilityEffects = new();
 
     public bool CanUse(UnitController controller)

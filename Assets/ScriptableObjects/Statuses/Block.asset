@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StatusEffectName: Block
   StatusDescription: Reduces incoming damage by {power}%.
-  StatusSprite: {fileID: 21300000, guid: a6e6e59395278c64981f77c3575e4293, type: 3}
+  StatusSprite: {fileID: 21300000, guid: 0038c07c43785c04faa15ecb8093fe89, type: 3}
   BuffType: 0
   ActivationTime: 3
   NumberOfTurns: 1

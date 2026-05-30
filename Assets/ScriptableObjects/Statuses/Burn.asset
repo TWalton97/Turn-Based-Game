@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StatusEffectName: Burn
   StatusDescription: Deals {power} damage at the start of each turn
-  StatusSprite: {fileID: 21300000, guid: 1d4523c131d906b4196b0e3814b221ad, type: 3}
+  StatusSprite: {fileID: 21300000, guid: bd92c6460bb5438468597608360690c1, type: 3}
   BuffType: 1
   ActivationTime: 0
   NumberOfTurns: 3
