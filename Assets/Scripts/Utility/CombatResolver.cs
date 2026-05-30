@@ -97,8 +97,13 @@ public static class CombatResolver
                 targetResults[o].TargetId = abilityEffectTargets[o].NetworkObjectId;
                 targetResults[o].Hits = hitResults;
 
+                //This is where we actually apply the status effect
                 if (effect.StatusToApply != null)
-                    abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply);
+                {
+                    int resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
+                    Debug.Log($"Resolved status power for {effect.StatusToApply} is {resolvedStatusPower}");
+                    abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply, resolvedStatusPower);
+                }
 
                 //For each hit, we create a hit result
                 for (int i = 0; i < effect.NumberOfHits; i++)

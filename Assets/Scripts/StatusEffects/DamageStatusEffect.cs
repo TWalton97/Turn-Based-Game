@@ -7,29 +7,33 @@ using UnityEngine;
 public class DamageStatusEffect : StatusEffect
 {
     public DamageType DamageType;
-    public int DamageAmount;
 
-    public override void ServerExecuteEffect(UnitController controller)
+    public override void ServerExecuteEffect(UnitController controller, int statusEffectPower = 1)
     {
         HitResult hitResult = new HitResult();
         hitResult.Blocked = false;
         hitResult.Crit = false;
         hitResult.Dodged = false;
         hitResult.DamageType = DamageType;
-        hitResult.Damage = DamageAmount;
+        hitResult.Damage = statusEffectPower;
 
         controller.ServerTakeDamage(hitResult);
     }
 
-    public override void ClientExecuteEffect(UnitController controller)
+    public override void ClientExecuteEffect(UnitController controller, int statusEffectPower = 1)
     {
         HitResult hitResult = new HitResult();
         hitResult.Blocked = false;
         hitResult.Crit = false;
         hitResult.Dodged = false;
         hitResult.DamageType = DamageType;
-        hitResult.Damage = DamageAmount;
+        hitResult.Damage = statusEffectPower;
 
         controller.ClientTakeDamage(hitResult);
+    }
+
+    public override string ConstructDescriptionString(StatusEffectInstance statusEffectInstance)
+    {
+        return StringBuilderUtilities.Build(StatusDescription, statusEffectInstance.StatusEffectPower);
     }
 }

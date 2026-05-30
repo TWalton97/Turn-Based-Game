@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     private UnitController TrackedUnit;
 
@@ -65,5 +65,13 @@ public class TurnEntryController : MonoBehaviour, IPointerEnterHandler, IPointer
             return;
 
         TrackedUnit.DisableHighlight();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (TrackedUnit == null)
+            return;
+
+        UIManager.instance.AssignContextMenu(TrackedUnit);
     }
 }

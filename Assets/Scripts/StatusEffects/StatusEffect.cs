@@ -12,9 +12,11 @@ public abstract class StatusEffect : ScriptableObject
     public ActivationTime ActivationTime;
     public int NumberOfTurns;
 
-    public abstract void ServerExecuteEffect(UnitController controller);
+    public abstract void ServerExecuteEffect(UnitController controller, int statusEffectPower = 1);
 
-    public abstract void ClientExecuteEffect(UnitController controller);
+    public abstract void ClientExecuteEffect(UnitController controller, int statusEffectPower = 1);
+
+    public abstract string ConstructDescriptionString(StatusEffectInstance statusEffectInstance);
 }
 
 public enum BuffType

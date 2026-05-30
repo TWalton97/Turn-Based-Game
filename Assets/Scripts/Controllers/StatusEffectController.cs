@@ -41,16 +41,17 @@ public class StatusEffectController : MonoBehaviour
         ClientOnStatusEffectsProcced?.Invoke();
     }
 
-    public void AddStatusEffect(StatusEffect statusEffect)
+    public void AddStatusEffect(StatusEffect statusEffect, int statusEffectPower = 1)
     {
         StatusEffectInstance existingStatusEffectInstance = ActiveStatusEffects.Find(t => t.StatusEffect == statusEffect);
         if (existingStatusEffectInstance != null)
         {
             existingStatusEffectInstance.RemainingNumberOfTurns = statusEffect.NumberOfTurns;
+            existingStatusEffectInstance.StatusEffectPower = Mathf.Max(existingStatusEffectInstance.StatusEffectPower, statusEffectPower);
             return;
         }
 
-        ActiveStatusEffects.Add(new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns));
+        ActiveStatusEffects.Add(new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower));
         StatusEffectNames.Add(statusEffect.StatusEffectName);
     }
 

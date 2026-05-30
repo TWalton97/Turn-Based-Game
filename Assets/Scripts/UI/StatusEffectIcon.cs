@@ -20,7 +20,7 @@ public class StatusEffectIcon : MonoBehaviour, IPointerEnterHandler, IPointerExi
             return;
 
         StatusEffectImage.sprite = StatusEffectInstance.StatusEffect.StatusSprite;
-        tooltipData = new TooltipData(StatusEffectInstance.StatusEffect.StatusEffectName, StatusEffectInstance.RemainingNumberOfTurns.ToString() + " turns remaining", StatusEffectInstance.StatusEffect.StatusDescription, "");
+        tooltipData = new TooltipData(StatusEffectInstance.StatusEffect.StatusEffectName, StatusEffectInstance.RemainingNumberOfTurns.ToString() + " turns remaining", StatusEffectInstance.StatusEffect.ConstructDescriptionString(StatusEffectInstance), "");
     }
 
     public void OnPointerEnter(PointerEventData eventData)
