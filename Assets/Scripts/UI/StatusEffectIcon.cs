@@ -4,15 +4,23 @@ using UnityEngine.UI;
 
 public class StatusEffectIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public StatusEffect StatusEffect;
+    public StatusEffectInstance StatusEffectInstance;
     public Image StatusEffectImage;
     private TooltipData tooltipData;
 
-    public void AssignStatusEffect(StatusEffect statusEffect)
+    public void AssignStatusEffect(StatusEffectInstance statusEffectInstance)
     {
-        StatusEffect = statusEffect;
-        StatusEffectImage.sprite = statusEffect.StatusSprite;
-        tooltipData = new TooltipData(StatusEffect.StatusEffectName, "", StatusEffect.StatusDescription, "");
+        StatusEffectInstance = statusEffectInstance;
+        UpdateStatusEffectInfo();
+    }
+
+    public void UpdateStatusEffectInfo()
+    {
+        if (StatusEffectInstance == null)
+            return;
+
+        StatusEffectImage.sprite = StatusEffectInstance.StatusEffect.StatusSprite;
+        tooltipData = new TooltipData(StatusEffectInstance.StatusEffect.StatusEffectName, StatusEffectInstance.RemainingNumberOfTurns.ToString() + " turns remaining", StatusEffectInstance.StatusEffect.StatusDescription, "");
     }
 
     public void OnPointerEnter(PointerEventData eventData)

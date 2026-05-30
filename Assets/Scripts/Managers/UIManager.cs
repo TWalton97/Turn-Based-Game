@@ -50,6 +50,7 @@ public class UIManager : MonoBehaviour
             currentlySelectedUnit.OnDisplayedManaChanged -= UpdateContextMenu;
             currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
             currentlySelectedUnit.OnClientDie -= ClearContextMenu;
+            currentlySelectedUnit.statusEffectController.ClientOnStatusEffectsProcced -= UpdateStatusEffectIcons;
         }
 
         currentlySelectedUnit = controller;
@@ -68,6 +69,7 @@ public class UIManager : MonoBehaviour
         currentlySelectedUnit.OnDisplayedManaChanged += UpdateContextMenu;
         currentlySelectedUnit.OnDisplayedHealthChanged += UpdateContextMenu;
         currentlySelectedUnit.OnClientDie += ClearContextMenu;
+        currentlySelectedUnit.statusEffectController.ClientOnStatusEffectsProcced += UpdateStatusEffectIcons;
 
         UpdateContextMenu();
         ContextMenuParent.SetActive(true);
@@ -80,6 +82,7 @@ public class UIManager : MonoBehaviour
             currentlySelectedUnit.OnDisplayedManaChanged -= UpdateContextMenu;
             currentlySelectedUnit.OnDisplayedHealthChanged -= UpdateContextMenu;
             currentlySelectedUnit.OnClientDie -= ClearContextMenu;
+            currentlySelectedUnit.statusEffectController.ClientOnStatusEffectsProcced -= UpdateStatusEffectIcons;
 
             currentlySelectedUnit = null;
         }
@@ -106,6 +109,14 @@ public class UIManager : MonoBehaviour
         {
             StatusEffectIcons[i].AssignStatusEffect(currentlySelectedUnit.statusEffectController.ActiveStatusEffects[i]);
             StatusEffectIcons[i].gameObject.SetActive(true);
+        }
+    }
+
+    private void UpdateStatusEffectIcons()
+    {
+        foreach (StatusEffectIcon statusEffectIcon in StatusEffectIcons)
+        {
+            statusEffectIcon.UpdateStatusEffectInfo();
         }
     }
 

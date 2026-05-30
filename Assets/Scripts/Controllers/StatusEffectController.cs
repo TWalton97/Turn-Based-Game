@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +7,11 @@ using UnityEngine;
 public class StatusEffectController : MonoBehaviour
 {
     private UnitController unitController;
-    public List<StatusEffect> ActiveStatusEffects = new();
+    public List<StatusEffectInstance> ActiveStatusEffects = new();
     public List<string> StatusEffectNames;
+
+    public Action ServerOnStatusEffectsProcced;
+    public Action ClientOnStatusEffectsProcced;
 
     private void Awake()
     {
@@ -16,41 +20,52 @@ public class StatusEffectController : MonoBehaviour
 
     public void ServerProcStatusEffects(ActivationTime activationTime)
     {
-        List<StatusEffect> statusEffects = ActiveStatusEffects.Where(t => t.ActivationTime == activationTime).ToList();
-        foreach (StatusEffect statusEffect in statusEffects)
+        List<StatusEffectInstance> statusEffectInstances = ActiveStatusEffects.Where(t => t.StatusEffect.ActivationTime == activationTime).ToList();
+        foreach (StatusEffectInstance statusEffectInstance in statusEffectInstances)
         {
-            statusEffect.ServerExecuteEffect(unitController);
+            statusEffectInstance.ServerActivateStatusEffect(unitController);
         }
+        ServerOnStatusEffectsProcced?.Invoke();
     }
 
     public IEnumerator ClientProcStatusEffects(ActivationTime activationTime)
     {
-        List<StatusEffect> statusEffects = ActiveStatusEffects.Where(t => t.ActivationTime == activationTime).ToList();
-        foreach (StatusEffect statusEffect in statusEffects)
+        List<StatusEffectInstance> statusEffectInstances = ActiveStatusEffects.Where(t => t.StatusEffect.ActivationTime == activationTime).ToList();
+        foreach (StatusEffectInstance statusEffectInstance in statusEffectInstances)
         {
-            statusEffect.ClientExecuteEffect(unitController);
-            yield return new WaitForSeconds(1f);
+            statusEffectInstance.ClientActivateStatusEffect(unitController);
+            if (statusEffectInstance.RemainingNumberOfTurns <= 0)
+                RemoveStatusEffect(statusEffectInstance.StatusEffect);
+            yield return new WaitForSeconds(0.7f);
         }
+        ClientOnStatusEffectsProcced?.Invoke();
     }
 
     public void AddStatusEffect(StatusEffect statusEffect)
     {
-        ActiveStatusEffects.Add(statusEffect);
+        StatusEffectInstance existingStatusEffectInstance = ActiveStatusEffects.Find(t => t.StatusEffect == statusEffect);
+        if (existingStatusEffectInstance != null)
+        {
+            existingStatusEffectInstance.RemainingNumberOfTurns = statusEffect.NumberOfTurns;
+            return;
+        }
+
+        ActiveStatusEffects.Add(new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns));
         StatusEffectNames.Add(statusEffect.StatusEffectName);
     }
 
     public void RemoveStatusEffect(StatusEffect statusEffect)
     {
-        if (!ActiveStatusEffects.Contains(statusEffect))
+        if (!ActiveStatusEffects.Where(t => t.StatusEffect == statusEffect).Any())
             return;
 
-        ActiveStatusEffects.Remove(statusEffect);
+        ActiveStatusEffects.Remove(ActiveStatusEffects.Where(t => t.StatusEffect == statusEffect).First());
         StatusEffectNames.Remove(statusEffect.StatusEffectName);
     }
 
-    public List<StatusEffect> ReturnStatusEffectsOfType(BuffType buffType)
+    public List<StatusEffectInstance> ReturnStatusEffectInstancesOfType(BuffType buffType)
     {
-        List<StatusEffect> statusEffects = ActiveStatusEffects.Where(t => t.BuffType == buffType).ToList();
-        return statusEffects;
+        List<StatusEffectInstance> statusEffectInstances = ActiveStatusEffects.Where(t => t.StatusEffect.BuffType == buffType).ToList();
+        return statusEffectInstances;
     }
 }
