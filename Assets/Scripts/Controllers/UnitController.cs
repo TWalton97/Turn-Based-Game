@@ -7,12 +7,13 @@ using Unity.Netcode;
 using System.Linq;
 using Unity.Netcode.Components;
 using UnityEditor.PackageManager;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public string UnitName;
 
-    public UnitStats UnitStats;
+    public UnitAttributes UnitStats;
     public CombatStats CombatStats;
 
     public ClassStatPresetSO UnitData;
@@ -50,7 +51,9 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public StatusEffectController statusEffectController { get; private set; }
     private Vector3 startPos;
 
-    public Dictionary<Attribute, Action<float>> statSetters;
+    public List<StatModifier> StatModifiers;
+    public Dictionary<StatType, float> CachedStats;
+    public bool CachedStatsDirty = true;
 
     private void Awake()
     {
@@ -60,17 +63,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         enemyController = GetComponent<EnemyController>();
         statusEffectController = GetComponent<StatusEffectController>();
-
-        statSetters = new Dictionary<Attribute, Action<float>>
-        {
-            { Attribute.STR, v => UnitStats.Strength += (int)v },
-            { Attribute.DEX, v => UnitStats.Dexterity += (int)v },
-            { Attribute.CON, v => UnitStats.Constitution += (int)v },
-            { Attribute.INT, v => UnitStats.Intelligence += (int)v },
-            { Attribute.FTH, v => UnitStats.Faith += (int)v },
-            { Attribute.CHA, v => UnitStats.Charisma += (int)v },
-            { Attribute.LCK, v => UnitStats.Luck += (int)v },
-        };
 
         TurnManager.OnServerTurnStarted += ServerTurnInitialization;
         TurnManager.OnServerActionPhaseStarted += ServerBeginActionPhase;
@@ -98,7 +90,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         }
 
         ApplyClassPresetStats();
-        RecalculateCombatStats();
+        RecalculateAllStats();
     }
 
     public override void OnNetworkDespawn()
@@ -267,6 +259,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         if (!ServerIsAlive.Value) return;
 
+        Debug.Log($"Increasing CurrentMana.Value for {gameObject.name} from {CurrentMana.Value} to {CurrentMana.Value + amount}");
         CurrentMana.Value = Mathf.Clamp(CurrentMana.Value + amount, 0, MaxMana);
 
         if (syncDisplayMana)
@@ -415,32 +408,104 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         DisableHighlight();
     }
 
-    public void RecalculateCombatStats()
+    public void RecalculateAllStats()
     {
-        CombatStats.InitiativeMin = 1 + (UnitStats.Dexterity * 0.2f);
-        CombatStats.InitiativeMax = 6 + (UnitStats.Dexterity * 0.3f);
+        CachedStatsDirty = false;
 
-        CombatStats.CritChance = 10.0f + (0.5f * UnitStats.Luck) + (0.2f * UnitStats.Dexterity);
-        CombatStats.CritDamage = 50.0f + UnitStats.Luck + (0.5f * UnitStats.Dexterity);
+        var stats = new Dictionary<StatType, float>();
 
-        CombatStats.BlockChance = 10.0f + (0.5f * UnitStats.Constitution) + (0.2f * UnitStats.Strength);
-        CombatStats.BlockDamageReduction = 50.0f + (0.2f * UnitStats.Constitution);
+        // BASE ATTRIBUTES
+        stats[StatType.STR] = UnitStats.Strength;
+        stats[StatType.DEX] = UnitStats.Dexterity;
+        stats[StatType.CON] = UnitStats.Constitution;
+        stats[StatType.INT] = UnitStats.Intelligence;
+        stats[StatType.FTH] = UnitStats.Faith;
+        stats[StatType.CHA] = UnitStats.Charisma;
+        stats[StatType.LCK] = UnitStats.Luck;
 
-        CombatStats.DodgeChance = 10.0f + (0.5f * UnitStats.Luck) + (0.2f * UnitStats.Dexterity);
+        // INITIATIVE
+        stats[StatType.InitiativeMin] =
+            1f + (stats[StatType.DEX] * 0.2f);
 
-        CombatStats.Aggro = 100.0f + UnitStats.Constitution - UnitStats.Charisma;
+        stats[StatType.InitiativeMax] =
+            6f + (stats[StatType.DEX] * 0.3f);
 
-        CombatStats.EnergyGain = 0.5f * UnitStats.Intelligence;
+        // CRIT
+        stats[StatType.CritChance] =
+            10f +
+            (0.5f * stats[StatType.LCK]) +
+            (0.2f * stats[StatType.DEX]);
 
-        CombatStats.LuckyDrop = 0.5f * UnitStats.Luck;
+        stats[StatType.CritDamage] =
+            50f +
+            stats[StatType.LCK] +
+            (0.5f * stats[StatType.DEX]);
 
-        CombatStats.OutgoingHealing = 100.0f + 0.5f * UnitStats.Faith;
-        CombatStats.IncomingHealing = 100.0f + 0.5f * UnitStats.Faith;
+        // BLOCK
+        stats[StatType.BlockChance] =
+            10f +
+            (0.5f * stats[StatType.CON]) +
+            (0.2f * stats[StatType.STR]);
+
+        stats[StatType.BlockDamageReduction] =
+            50f +
+            (0.2f * stats[StatType.CON]);
+
+        // DODGE
+        stats[StatType.DodgeChance] =
+            10f +
+            (0.5f * stats[StatType.LCK]) +
+            (0.2f * stats[StatType.DEX]);
+
+        // AGGRO
+        stats[StatType.Aggro] =
+            100f +
+            stats[StatType.CON] -
+            stats[StatType.CHA];
+
+        // ENERGY
+        stats[StatType.EnergyGain] =
+            0.5f * stats[StatType.INT];
+
+        // LOOT
+        stats[StatType.LuckyDrop] =
+            0.5f * stats[StatType.LCK];
+
+        // HEALING
+        stats[StatType.OutgoingHealing] =
+            100f + (0.5f * stats[StatType.FTH]);
+
+        stats[StatType.IncomingHealing] =
+            100f + (0.5f * stats[StatType.FTH]);
+
+        // APPLY MODIFIERS
+        ApplyModifiers(stats);
+
+        CachedStats = stats;
+    }
+
+    private void ApplyModifiers(Dictionary<StatType, float> stats)
+    {
+        foreach (var mod in StatModifiers)
+        {
+            if (!stats.ContainsKey(mod.stat))
+                continue;
+
+            stats[mod.stat] += mod.value;
+        }
+    }
+
+    public float GetStatType(StatType stat)
+    {
+        if (CachedStatsDirty)
+            RecalculateAllStats();
+
+        return CachedStats.TryGetValue(stat, out var value) ? value : 0f;
     }
 }
 
 [Serializable]
-public class UnitStats
+public class UnitAttributes
 {
     public int Strength;
     public int Dexterity;

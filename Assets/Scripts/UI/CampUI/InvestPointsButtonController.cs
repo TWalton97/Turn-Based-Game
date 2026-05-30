@@ -29,7 +29,7 @@ public class InvestPointsButtonController : MonoBehaviour
     }
 }
 
-public enum Attribute
+public enum StatType
 {
     STR,
     DEX,
@@ -37,5 +37,19 @@ public enum Attribute
     INT,
     FTH,
     CHA,
-    LCK
+    LCK,
+
+    InitiativeMin,
+    InitiativeMax,
+    CritChance,
+    CritDamage,
+    BlockChance,
+    BlockDamageReduction,
+    DodgeChance,
+    Aggro,
+    Lifesteal,
+    EnergyGain,
+    LuckyDrop,
+    IncomingHealing,
+    OutgoingHealing
 }

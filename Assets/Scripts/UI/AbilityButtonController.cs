@@ -42,6 +42,7 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
                 }
                 else
                 {
+                    Debug.Log($"Cannot use ability {Ability.AbilityName} because it costs {Ability.ManaCost} and the user has {controller.CurrentMana.Value}");
                     CannotUseText.text = $"Not enough mana";
                 }
             }

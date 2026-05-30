@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SkillpointSwitch : MonoBehaviour
 {
-    public Attribute Attribute;
+    public StatType Attribute;
     public int CurrentlyInvestedPoints;
     public TextMeshProUGUI CurrentlyInvestedPointsText;
     private SkillpointsMenu skillpointsMenu;

@@ -14,16 +14,16 @@ public static class CombatResolver
         if (resolvedPower < 0)
         {
             float heal = resolvedPower
-            + (abilityEffect.StrengthScaling * attacker.UnitStats.Strength)
-            + (abilityEffect.DexterityScaling * attacker.UnitStats.Dexterity)
-            + (abilityEffect.IntelligenceScaling * attacker.UnitStats.Intelligence);
+            + (abilityEffect.StrengthScaling * attacker.GetStatType(StatType.STR))
+            + (abilityEffect.DexterityScaling * attacker.GetStatType(StatType.DEX))
+            + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.INT));
             result.Dodged = false;
             result.Damage = Mathf.Round(heal * 10f / 10f);
             return result;
         }
 
         //First we check if the unit dodges
-        bool dodged = Random.Range(0f, 100f) < target.CombatStats.DodgeChance;
+        bool dodged = Random.Range(0f, 100f) < target.GetStatType(StatType.DodgeChance);
         if (dodged)
         {
             result.Dodged = true;
@@ -32,25 +32,25 @@ public static class CombatResolver
 
         //If it isn't dodged, we calculate the damage
         float damage = resolvedPower
-        + (abilityEffect.StrengthScaling * attacker.UnitStats.Strength)
-        + (abilityEffect.DexterityScaling * attacker.UnitStats.Dexterity)
-        + (abilityEffect.IntelligenceScaling * attacker.UnitStats.Intelligence);
+        + (abilityEffect.StrengthScaling * attacker.GetStatType(StatType.STR))
+        + (abilityEffect.DexterityScaling * attacker.GetStatType(StatType.STR))
+        + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.STR));
 
         //Roll if it's a block
-        bool blocked = Random.Range(0f, 100f) < target.CombatStats.BlockChance;
+        bool blocked = Random.Range(0f, 100f) < target.GetStatType(StatType.BlockChance);
         if (blocked)
         {
-            damage *= 1 - (target.CombatStats.BlockDamageReduction / 100);
+            damage *= 1 - (attacker.GetStatType(StatType.BlockDamageReduction) / 100);
             result.Damage = Mathf.Round(damage * 10f / 10f);
             return result;
         }
 
         //If it isn't blocked, we roll for a crit
-        bool crit = Random.Range(0f, 100f) < attacker.CombatStats.CritChance;
+        bool crit = Random.Range(0f, 100f) < attacker.GetStatType(StatType.CritChance);
         if (crit)
         {
             result.Crit = true;
-            damage *= 1 + (attacker.CombatStats.CritDamage / 100);
+            damage *= 1 + (attacker.GetStatType(StatType.CritDamage) / 100);
         }
 
         result.DamageType = abilityEffect.DamageType;

@@ -88,7 +88,7 @@ public class TurnManager : NetworkBehaviour
             initiativeList.Add(new InitiativeEntry
             {
                 unit = unit,
-                roll = Mathf.Round(UnityEngine.Random.Range(unit.CombatStats.InitiativeMin, unit.CombatStats.InitiativeMax) * 10f) / 10f
+                roll = Mathf.Round(UnityEngine.Random.Range(unit.GetStatType(StatType.InitiativeMin), unit.GetStatType(StatType.InitiativeMax)) * 10f) / 10f
             });
         }
 
@@ -97,7 +97,7 @@ public class TurnManager : NetworkBehaviour
             initiativeList.Add(new InitiativeEntry
             {
                 unit = unit,
-                roll = Mathf.Round(UnityEngine.Random.Range(unit.CombatStats.InitiativeMin, unit.CombatStats.InitiativeMax) * 10f) / 10f
+                roll = Mathf.Round(UnityEngine.Random.Range(unit.GetStatType(StatType.InitiativeMin), unit.GetStatType(StatType.InitiativeMax)) * 10f) / 10f
             });
         }
 

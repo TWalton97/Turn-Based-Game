@@ -13,8 +13,10 @@ public class EquipmentItemSO : ItemSO
 [System.Serializable]
 public class StatModifier
 {
-    public Attribute attribute;
+    public StatType stat;
     public float value;
+
+    public string sourceId;
 }
 
 public enum EquipmentSlot

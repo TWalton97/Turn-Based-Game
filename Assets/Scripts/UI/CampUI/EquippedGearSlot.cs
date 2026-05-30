@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,14 +40,16 @@ public class EquippedGearSlot : MonoBehaviour
         EquipmentItemSO equipmentItemSO = item.Item as EquipmentItemSO;
         foreach (var mod in equipmentItemSO.statModifiers)
         {
-            if (controller.statSetters.TryGetValue(mod.attribute, out var apply))
+            controller.StatModifiers.Add(new StatModifier
             {
-                apply(mod.value);
-            }
+                stat = mod.stat,
+                value = mod.value,
+                sourceId = item.id,
+            });
         }
+        controller.CachedStatsDirty = true;
 
         controller.GetComponent<PlayerDataController>().EquippedItems.Add(item);
-        controller.RecalculateCombatStats();
 
         CampManager.instance.PopulatePlayerStatsPanel();
         CampManager.instance.PopulateItemList();
@@ -59,16 +62,12 @@ public class EquippedGearSlot : MonoBehaviour
 
         UnitController controller = CampManager.instance.TrackedUnitController;
         EquipmentItemSO equipmentItemSO = EquippedItem.Item as EquipmentItemSO;
-        foreach (var mod in equipmentItemSO.statModifiers)
-        {
-            if (controller.statSetters.TryGetValue(mod.attribute, out var apply))
-            {
-                apply(-mod.value);
-            }
-        }
+        //Remove all stat modifiers from the controller that have this id
+
+        controller.StatModifiers.RemoveAll(t => t.sourceId == EquippedItem.id);
+        controller.CachedStatsDirty = true;
 
         controller.GetComponent<PlayerDataController>().EquippedItems.Remove(EquippedItem);
-        controller.RecalculateCombatStats();
 
         EquippedItem = null;
         EquipmentName.text = startingName;

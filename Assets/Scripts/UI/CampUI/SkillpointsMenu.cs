@@ -34,31 +34,32 @@ public class SkillpointsMenu : MonoBehaviour
         {
             switch (SkillpointSwitches[i].Attribute)
             {
-                case Attribute.STR:
+                case StatType.STR:
                     controller.UnitStats.Strength += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
-                case Attribute.DEX:
+                case StatType.DEX:
                     controller.UnitStats.Dexterity += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
-                case Attribute.CON:
+                case StatType.CON:
                     controller.UnitStats.Constitution += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
-                case Attribute.INT:
+                case StatType.INT:
                     controller.UnitStats.Intelligence += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
-                case Attribute.FTH:
+                case StatType.FTH:
                     controller.UnitStats.Faith += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
-                case Attribute.CHA:
+                case StatType.CHA:
                     controller.UnitStats.Charisma += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
-                case Attribute.LCK:
+                case StatType.LCK:
                     controller.UnitStats.Luck += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
             }
             SkillpointSwitches[i].Reset();
         }
-        controller.RecalculateCombatStats();
+        controller.RecalculateAllStats();
+        controller.CachedStatsDirty = true;
         CampManager.instance.PopulatePlayerStatsPanel();
         investPointsButtonController.UpdateText(playerStats.AvailableStatPoints);
     }

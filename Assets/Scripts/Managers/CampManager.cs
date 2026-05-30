@@ -156,25 +156,25 @@ public class CampManager : MonoBehaviour
         sb.AppendLine($"Energy: {controller.MaxMana}");
         sb.AppendLine($"Level: {playerStats.Level} ({playerStats.CurrentExp}/{30})");
         sb.AppendLine();
-        sb.AppendLine($"STR: {controller.UnitStats.Strength}");
-        sb.AppendLine($"DEX: {controller.UnitStats.Dexterity}");
-        sb.AppendLine($"CON: {controller.UnitStats.Constitution}");
-        sb.AppendLine($"INT: {controller.UnitStats.Intelligence}");
-        sb.AppendLine($"FTH: {controller.UnitStats.Faith}");
-        sb.AppendLine($"LCK: {controller.UnitStats.Luck}");
+        sb.AppendLine($"STR: {controller.GetStatType(StatType.STR)}");
+        sb.AppendLine($"DEX: {controller.GetStatType(StatType.DEX)}");
+        sb.AppendLine($"CON: {controller.GetStatType(StatType.CON)}");
+        sb.AppendLine($"INT: {controller.GetStatType(StatType.INT)}");
+        sb.AppendLine($"FTH: {controller.GetStatType(StatType.FTH)}");
+        sb.AppendLine($"LCK: {controller.GetStatType(StatType.LCK)}");
 
-        sb.AppendLine($"Initiative: {controller.CombatStats.InitiativeMin} - {controller.CombatStats.InitiativeMax}");
-        sb.AppendLine($"Crit Chance: {controller.CombatStats.CritChance}%");
-        sb.AppendLine($"Crit Damage: {controller.CombatStats.CritDamage}%");
-        sb.AppendLine($"Block Chance: {controller.CombatStats.BlockChance}%");
-        sb.AppendLine($"Block Damage Reduction: {controller.CombatStats.BlockDamageReduction}%");
-        sb.AppendLine($"Dodge Chance: {controller.CombatStats.DodgeChance}%");
-        sb.AppendLine($"Aggro: {controller.CombatStats.Aggro}%");
-        sb.AppendLine($"Lifesteal: {controller.CombatStats.Lifesteal}%");
-        sb.AppendLine($"Energy Gain: {controller.CombatStats.EnergyGain}%");
-        sb.AppendLine($"Lucky Drop: {controller.CombatStats.LuckyDrop}%");
-        sb.AppendLine($"Incoming Healing: {controller.CombatStats.IncomingHealing}%");
-        sb.AppendLine($"Outgoing Healing: {controller.CombatStats.OutgoingHealing}%");
+        sb.AppendLine($"Initiative: {controller.GetStatType(StatType.InitiativeMin)} - {controller.GetStatType(StatType.InitiativeMax)}");
+        sb.AppendLine($"Crit Chance: {controller.GetStatType(StatType.CritChance)}%");
+        sb.AppendLine($"Crit Damage: {controller.GetStatType(StatType.CritDamage)}%");
+        sb.AppendLine($"Block Chance: {controller.GetStatType(StatType.BlockChance)}%");
+        sb.AppendLine($"Block Damage Reduction: {controller.GetStatType(StatType.BlockDamageReduction)}%");
+        sb.AppendLine($"Dodge Chance: {controller.GetStatType(StatType.DodgeChance)}%");
+        sb.AppendLine($"Aggro: {controller.GetStatType(StatType.Aggro)}%");
+        sb.AppendLine($"Lifesteal: {controller.GetStatType(StatType.Lifesteal)}%");
+        sb.AppendLine($"Energy Gain: {controller.GetStatType(StatType.EnergyGain)}%");
+        sb.AppendLine($"Lucky Drop: {controller.GetStatType(StatType.LuckyDrop)}%");
+        sb.AppendLine($"Incoming Healing: {controller.GetStatType(StatType.IncomingHealing)}%");
+        sb.AppendLine($"Outgoing Healing: {controller.GetStatType(StatType.OutgoingHealing)}%");
 
         PlayerStatsPanel.text = sb.ToString();
 

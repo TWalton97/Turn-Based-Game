@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3081c99b418efed4e9299b7ec2a599e4, type: 3}
-  m_Name: ClothBoots
+  m_Name: RatHideHood
   m_EditorClassIdentifier: 
-  ItemName: Cloth Boots
-  Description: A pair of cloth boots
-  ItemInformation: '+2 INT
+  ItemName: Rat Hide Hood
+  Description: A hood made of rat hide
+  ItemInformation: '+2 DEX
 
-    +2 FTH'
-  GoldValue: 12
+    +1.5% Crit Chance'
+  GoldValue: 15
   Stackable: 0
-  EquipmentSlot: 3
+  EquipmentSlot: 0
   statModifiers:
-  - stat: 0
+  - stat: 1
     value: 2
     sourceId: 
-  - stat: 0
-    value: 2
+  - stat: 9
+    value: 1.5
     sourceId: 
