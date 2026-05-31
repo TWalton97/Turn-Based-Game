@@ -20,7 +20,7 @@ public class SpawnManager : NetworkBehaviour
 
     public void BindNetworkEvents()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
+        //NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
     }
 
     void OnDisable()
@@ -28,10 +28,10 @@ public class SpawnManager : NetworkBehaviour
         if (NetworkManager.Singleton == null)
             return;
 
-        NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
+        //NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
     }
 
-    private void HandleClientConnected(ulong clientId)
+    public void HandleClientConnected(ulong clientId)
     {
         SpawnUnitForPlayer(clientId);
     }
@@ -62,9 +62,9 @@ public class SpawnManager : NetworkBehaviour
         unitObj.transform.rotation = slot.UnitHolder.transform.rotation;
 
         UnitController unit = unitObj.GetComponent<UnitController>();
-        unit.Level = 1;
-
         netObj.SpawnWithOwnership(clientId);
+
+        unit.Level.Value = 1;
 
         slot.BindUnitToSlot(unit);
     }
@@ -77,14 +77,14 @@ public class SpawnManager : NetworkBehaviour
         BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(unit.UnitTeam);
         UnitController controller = Instantiate(unit, slot.UnitHolder);
 
-        controller.Level = level;
-
         NetworkObject netObj = controller.GetComponent<NetworkObject>();
 
         controller.transform.position = slot.UnitHolder.position;
         controller.transform.rotation = slot.UnitHolder.transform.rotation;
 
         netObj.Spawn();
+
+        controller.Level.Value = level;
         slot.BindUnitToSlot(controller);
     }
 }

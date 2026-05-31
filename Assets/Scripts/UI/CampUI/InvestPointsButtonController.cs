@@ -6,7 +6,7 @@ using UnityEngine;
 public class InvestPointsButtonController : MonoBehaviour
 {
     private TextMeshProUGUI InvestPointsText;
-    public GameObject SpendSkillPointsMenu;
+    public SkillpointsMenu SpendSkillPointsMenu;
 
     void Awake()
     {
@@ -20,12 +20,13 @@ public class InvestPointsButtonController : MonoBehaviour
 
     private void UpdateText()
     {
-        UpdateText(CampManager.instance.playerDataController.PlayerStats.AvailableStatPoints);
+        UpdateText(CampManager.instance.playerDataController.PlayerStats.Value.AvailableStatPoints);
     }
 
     public void ToggleSpendSkillpointsMenu()
     {
-        SpendSkillPointsMenu.SetActive(!SpendSkillPointsMenu.activeSelf);
+        SpendSkillPointsMenu.gameObject.SetActive(!SpendSkillPointsMenu.gameObject.activeSelf);
+        SpendSkillPointsMenu.ResetSkillpointSwitches();
     }
 }
 

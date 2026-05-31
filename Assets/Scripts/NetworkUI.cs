@@ -6,6 +6,12 @@ public class NetworkUI : NetworkBehaviour
 {
     public int RequiredNumberOfPlayers;
 
+    void Awake()
+    {
+        QualitySettings.vSyncCount = 1;
+        Application.targetFrameRate = 60;
+    }
+
     public void StartHost()
     {
         SpawnManager.instance.BindNetworkEvents();
@@ -26,6 +32,11 @@ public class NetworkUI : NetworkBehaviour
             yield return null;
 
         Debug.Log("Server started");
+
+        foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            SpawnManager.instance.HandleClientConnected(id);
+        }
         yield return null;
     }
 

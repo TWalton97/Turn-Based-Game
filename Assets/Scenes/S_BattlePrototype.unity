@@ -16448,6 +16448,7 @@ MonoBehaviour:
   - {fileID: 1859624672593206805, guid: e91b782b0ea4d5746a9c14a85d088845, type: 3}
   - {fileID: 1859624672593206805, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
   Background: {fileID: 1342900617445200421, guid: 36a4675a39ad99d41a5b2a89389f2db1, type: 3}
+  NumberOfReadyVotes: 0
 --- !u!114 &958336431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26237,7 +26238,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 958336430}
         m_TargetAssemblyTypeName: ProgressionManager, Assembly-CSharp
-        m_MethodName: LoadNextRoom
+        m_MethodName: VoteReady
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -29742,7 +29743,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65370cfa5f7853841aaf1a54053e08cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpendSkillPointsMenu: {fileID: 1716534384}
+  SpendSkillPointsMenu: {fileID: 1716534389}
 --- !u!1001 &1838112975
 PrefabInstance:
   m_ObjectHideFlags: 0

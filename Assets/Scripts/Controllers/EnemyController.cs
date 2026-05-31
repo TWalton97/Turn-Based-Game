@@ -32,7 +32,7 @@ public class EnemyController : NetworkBehaviour
     {
         if (newValue == false)
         {
-            BattleManager.instance.DistributeExpToPlayers(ExpValue);
+            BattleManager.instance.DistributeExp(ExpValue);
             BattleManager.instance.DistributeItemsToPlayer(AvailableDrops[Random.Range(0, AvailableDrops.Count)]);
         }
     }

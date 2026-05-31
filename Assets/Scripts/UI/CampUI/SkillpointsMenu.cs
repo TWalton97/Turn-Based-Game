@@ -16,7 +16,7 @@ public class SkillpointsMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        AvailableSkillpoints = CampManager.instance.playerDataController.PlayerStats.AvailableStatPoints;
+        AvailableSkillpoints = CampManager.instance.playerDataController.PlayerStats.Value.AvailableStatPoints;
         UpdateText();
     }
 
@@ -28,7 +28,7 @@ public class SkillpointsMenu : MonoBehaviour
     public void ConfirmChanges()
     {
         UnitController controller = CampManager.instance.TrackedUnitController;
-        PlayerStats playerStats = CampManager.instance.playerDataController.PlayerStats;
+        PlayerStats playerStats = CampManager.instance.playerDataController.PlayerStats.Value;
         playerStats.AvailableStatPoints = AvailableSkillpoints;
         for (int i = 0; i < SkillpointSwitches.Length - 1; i++)
         {
@@ -56,11 +56,19 @@ public class SkillpointsMenu : MonoBehaviour
                     controller.UnitStats.Luck += SkillpointSwitches[i].CurrentlyInvestedPoints;
                     break;
             }
-            SkillpointSwitches[i].Reset();
         }
+        ResetSkillpointSwitches();
         controller.RecalculateAllStats();
         controller.CachedStatsDirty = true;
         CampManager.instance.PopulatePlayerStatsPanel();
         investPointsButtonController.UpdateText(playerStats.AvailableStatPoints);
+    }
+
+    public void ResetSkillpointSwitches()
+    {
+        foreach (SkillpointSwitch skillpointSwitch in SkillpointSwitches)
+        {
+            skillpointSwitch.Reset();
+        }
     }
 }

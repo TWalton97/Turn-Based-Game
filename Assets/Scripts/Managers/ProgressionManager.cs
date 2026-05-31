@@ -7,10 +7,6 @@ using UnityEngine;
 
 public class ProgressionManager : NetworkBehaviour
 {
-    //Progression manager handles moving from scene to scene
-    //This includes loading in the rooms, event menus, or camps
-    //Combat -> Camp -> Event -> Camp
-
     public static ProgressionManager instance;
 
     public static RoomData CurrentRoomData;
@@ -46,6 +42,9 @@ public class ProgressionManager : NetworkBehaviour
     public GameObject Background;
 
     private HashSet<ulong> readyClients = new();
+
+    public int NumberOfReadyVotes = 0;
+    bool hasVoted = false;
 
     public void Awake()
     {
@@ -83,6 +82,9 @@ public class ProgressionManager : NetworkBehaviour
     {
         if (CurrentRoomData != null)
             UnloadCombatRoom();
+
+        hasVoted = false;
+        NumberOfReadyVotes = 0;
 
         foreach (UnitController unit in BattleManager.instance.FriendlyUnits)
         {
@@ -217,6 +219,31 @@ public class ProgressionManager : NetworkBehaviour
         {
             LoadNextRoom();
         }
+    }
+
+    public void VoteReady()
+    {
+        if (!hasVoted)
+        {
+            hasVoted = true;
+            RequestCampReadyVoteServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestCampReadyVoteServerRpc(ServerRpcParams rpcParams = default)
+    {
+        NumberOfReadyVotes++;
+        CountReadyVotes();
+    }
+
+    private void CountReadyVotes()
+    {
+        if (!IsServer)
+            return;
+
+        if (NumberOfReadyVotes == NetworkManager.Singleton.ConnectedClients.Count)
+            LoadNextRoom();
     }
 
     private bool AllClientsReady()

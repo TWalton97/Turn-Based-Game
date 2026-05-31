@@ -109,6 +109,9 @@ public class UIManager : MonoBehaviour
 
     private void RefreshStatusIcons()
     {
+        if (currentlySelectedUnit == null)
+            return;
+
         var statuses = currentlySelectedUnit.statusEffectController.ActiveStatusEffects;
 
         for (int i = 0; i < StatusEffectIcons.Count; i++)

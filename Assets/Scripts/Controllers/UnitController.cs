@@ -18,7 +18,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public NetworkVariable<float> CurrentHealth;
     public float DisplayedHealth;
 
-    public int Level;
+    public NetworkVariable<int> Level;
 
     public int MaxMana = 5;
     public NetworkVariable<int> CurrentMana;
@@ -101,7 +101,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void UnlockStartingAbilities()
     {
-        List<AbilityUnlock> abilityUnlocks = UnitData.AbilityUnlocks.Where(t => t.LevelToUnlock <= Level).ToList();
+        List<AbilityUnlock> abilityUnlocks = UnitData.AbilityUnlocks.Where(t => t.LevelToUnlock <= Level.Value).ToList();
 
         foreach (AbilityUnlock abilityUnlock in abilityUnlocks)
         {
@@ -147,7 +147,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         MaxHealth = UnitData.MaxHealth;
 
         RecalculateAllStats();
-        
+
         CurrentHealth.Value = MaxHealth;
         DisplayedHealth = MaxHealth;
 

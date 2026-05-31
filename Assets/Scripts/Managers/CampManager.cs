@@ -163,7 +163,7 @@ public class CampManager : MonoBehaviour
     public void PopulatePlayerStatsPanel()
     {
         UnitController controller = TrackedUnitController;
-        PlayerStats playerStats = playerDataController.PlayerStats;
+        PlayerStats playerStats = playerDataController.PlayerStats.Value;
         StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"HP: {controller.CurrentHealth}/{controller.MaxHealth}");

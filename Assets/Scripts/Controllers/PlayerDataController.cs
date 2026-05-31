@@ -4,17 +4,12 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Unity.Netcode;
 
-public class PlayerDataController : MonoBehaviour
+public class PlayerDataController : NetworkBehaviour
 {
-    //Stores information specific to the player
-    //Inventory items
-    //Level and exp
-    //Stat points
-    //Gold
-
     public UnitController UnitController;
-    public PlayerStats PlayerStats;
+    public NetworkVariable<PlayerStats> PlayerStats;
     public List<InventoryEntry> InventoryItems;
     public List<InventoryEntry> EquippedItems;
 
@@ -30,27 +25,27 @@ public class PlayerDataController : MonoBehaviour
 
     private void AssignStatsFromClassPreset()
     {
-        PlayerStats.CurrentExp = 0;
-        PlayerStats.AvailableStatPoints = 0;
-        PlayerStats.Gold = 0;
+        PlayerStats.Value.CurrentExp = 0;
+        PlayerStats.Value.AvailableStatPoints = 0;
+        PlayerStats.Value.Gold = 0;
     }
 
-    public void AddExp(int amount)
+    public void ServerAddExp(int amount)
     {
-        PlayerStats.CurrentExp += amount;
-        if (PlayerStats.CurrentExp >= ExperienceValues.ExpToNextLevel[UnitController.Level])
+        PlayerStats.Value.CurrentExp += amount;
+        if (PlayerStats.Value.CurrentExp >= ExperienceValues.ExpToNextLevel[UnitController.Level.Value])
         {
-            PlayerStats.CurrentExp -= ExperienceValues.ExpToNextLevel[UnitController.Level];
-            UnitController.Level += 1;
+            PlayerStats.Value.CurrentExp -= ExperienceValues.ExpToNextLevel[UnitController.Level.Value];
+            UnitController.Level.Value += 1;
             CheckAbilityUnlocks();
-            PlayerStats.AvailableStatPoints += 3;
-            AddExp(0);
+            PlayerStats.Value.AvailableStatPoints += 3;
+            ServerAddExp(0);
         }
     }
 
     private void CheckAbilityUnlocks()
     {
-        List<AbilityUnlock> abilitiesToUnlock = UnitController.UnitData.AbilityUnlocks.Where(t => t.LevelToUnlock == UnitController.Level).ToList();
+        List<AbilityUnlock> abilitiesToUnlock = UnitController.UnitData.AbilityUnlocks.Where(t => t.LevelToUnlock == UnitController.Level.Value).ToList();
         foreach (AbilityUnlock abilityUnlock in abilitiesToUnlock)
         {
             if (abilityUnlock.AbilityUnlockType == AbilityUnlockType.AutoGrant && abilityUnlock.AbilityToUnlock.Count > 0)

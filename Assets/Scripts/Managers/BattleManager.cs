@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
-public class BattleManager : MonoBehaviour
+public class BattleManager : NetworkBehaviour
 {
     public static BattleManager instance;
 
@@ -62,15 +63,19 @@ public class BattleManager : MonoBehaviour
         return null;
     }
 
-    public void DistributeExpToPlayers(int amount)
+
+    public void DistributeExp(int amount)
     {
+        if (!IsServer)
+            return;
+
         foreach (UnitController controller in FriendlyUnits)
         {
             if (controller.ServerIsAlive.Value)
             {
                 if (controller.TryGetComponent(out PlayerDataController dataController))
                 {
-                    dataController.AddExp(amount);
+                    dataController.ServerAddExp(amount);
                 }
             }
         }
