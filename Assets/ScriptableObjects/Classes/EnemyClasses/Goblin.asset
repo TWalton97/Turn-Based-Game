@@ -17,13 +17,17 @@ MonoBehaviour:
   MaxMana: 5
   AbilityUnlocks:
   - LevelToUnlock: 0
-    AbilityToUnlock: {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+    AbilityUnlockType: 0
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
   - LevelToUnlock: 0
-    AbilityToUnlock: {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
-  - LevelToUnlock: 1
-    AbilityToUnlock: {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
-  - LevelToUnlock: 2
-    AbilityToUnlock: {fileID: 11400000, guid: b98642cb307048b4daf337fef52fe607, type: 2}
+    AbilityUnlockType: 0
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
+  - LevelToUnlock: 0
+    AbilityUnlockType: 0
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
   Strength: 0
   Dexterity: -1
   Constitution: 1

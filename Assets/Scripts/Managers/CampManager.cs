@@ -30,6 +30,7 @@ public class CampManager : MonoBehaviour
     //Stats Panel
     public TextMeshProUGUI PlayerStatsPanel;
     public TextMeshProUGUI InvestPointsButton;
+    public TextMeshProUGUI UnlockAbilitiesButton;
 
     //Equipped Gear
     public List<EquippedGearSlot> EquippedGearSlots;
@@ -72,7 +73,7 @@ public class CampManager : MonoBehaviour
             playerDataController.OnInventoryUpdated -= PopulateItemList;
     }
 
-    private void PopulateAbilityList()
+    public void PopulateAbilityList()
     {
         foreach (Transform child in AbilityEntriesParent)
         {
@@ -179,6 +180,7 @@ public class CampManager : MonoBehaviour
         PlayerStatsPanel.text = sb.ToString();
 
         InvestPointsButton.text = $"Invest Points ({playerStats.AvailableStatPoints})";
+        UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";
     }
 
     public void TryEquipItem(CampItemEntry entry)

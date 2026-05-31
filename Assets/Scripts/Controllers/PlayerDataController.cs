@@ -13,12 +13,14 @@ public class PlayerDataController : MonoBehaviour
     //Stat points
     //Gold
 
-    private UnitController UnitController;
+    public UnitController UnitController;
     public PlayerStats PlayerStats;
     public List<InventoryEntry> InventoryItems;
     public List<InventoryEntry> EquippedItems;
 
     public Action OnInventoryUpdated;
+
+    public List<AbilityUnlock> PendingAbilityUnlocks;
 
     void Awake()
     {
@@ -40,10 +42,31 @@ public class PlayerDataController : MonoBehaviour
         {
             PlayerStats.CurrentExp -= ExperienceValues.ExpToNextLevel[UnitController.Level];
             UnitController.Level += 1;
-            UnitController.UnlockAbilities();
+            CheckAbilityUnlocks();
             PlayerStats.AvailableStatPoints += 3;
             AddExp(0);
         }
+    }
+
+    private void CheckAbilityUnlocks()
+    {
+        List<AbilityUnlock> abilitiesToUnlock = UnitController.UnitData.AbilityUnlocks.Where(t => t.LevelToUnlock == UnitController.Level).ToList();
+        foreach (AbilityUnlock abilityUnlock in abilitiesToUnlock)
+        {
+            if (abilityUnlock.AbilityUnlockType == AbilityUnlockType.AutoGrant && abilityUnlock.AbilityToUnlock.Count > 0)
+            {
+                UnitController.UnlockAbility(abilityUnlock.AbilityToUnlock[0]);
+            }
+            else
+            {
+                PendingAbilityUnlocks.Add(abilityUnlock);
+            }
+        }
+    }
+
+    public void RemovePendingAbilityUnlock(AbilityUnlock pendingAbilityUnlock)
+    {
+        PendingAbilityUnlocks.Remove(pendingAbilityUnlock);
     }
 
     public void AddItemToInventory(ItemSO item)
@@ -162,5 +185,13 @@ public static class ExperienceValues
 public class AbilityUnlock
 {
     public int LevelToUnlock;
-    public BaseAbility AbilityToUnlock;
+    public AbilityUnlockType AbilityUnlockType;
+    public List<BaseAbility> AbilityToUnlock;
+}
+
+[Serializable]
+public enum AbilityUnlockType
+{
+    AutoGrant,
+    Choice
 }

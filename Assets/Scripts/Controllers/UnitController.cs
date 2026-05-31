@@ -87,7 +87,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         BattleManager.instance.RegisterUnit(this);
 
-        UnlockAbilities();
+        UnlockStartingAbilities();
         ApplyClassPresetStats();
         RecalculateAllStats();
     }
@@ -99,15 +99,23 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         BattleManager.instance.UnregisterUnit(this);
     }
 
-    public void UnlockAbilities()
+    public void UnlockStartingAbilities()
     {
-        foreach (AbilityUnlock abilityUnlock in UnitData.AbilityUnlocks)
+        List<AbilityUnlock> abilityUnlocks = UnitData.AbilityUnlocks.Where(t => t.LevelToUnlock <= Level).ToList();
+
+        foreach (AbilityUnlock abilityUnlock in abilityUnlocks)
         {
-            if (abilityUnlock.LevelToUnlock <= Level && !BaseAbilities.Contains(abilityUnlock.AbilityToUnlock))
-            {
-                BaseAbilities.Add(abilityUnlock.AbilityToUnlock);
-            }
+            if (abilityUnlock.AbilityUnlockType == AbilityUnlockType.AutoGrant && abilityUnlock.AbilityToUnlock.Count > 0)
+                UnlockAbility(abilityUnlock.AbilityToUnlock[0]);
         }
+    }
+
+    public void UnlockAbility(BaseAbility ability)
+    {
+        if (BaseAbilities.Contains(ability))
+            return;
+
+        BaseAbilities.Add(ability);
         InitializeAbilityRuntimeInstances();
     }
 
@@ -128,12 +136,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void ApplyClassPresetStats()
     {
-        MaxHealth = UnitData.MaxHealth;
-        CurrentHealth.Value = MaxHealth;
-        DisplayedHealth = MaxHealth;
-
-        MaxMana = UnitData.MaxMana;
-
         UnitStats.Strength = UnitData.Strength;
         UnitStats.Dexterity = UnitData.Dexterity;
         UnitStats.Constitution = UnitData.Constitution;
@@ -141,6 +143,15 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         UnitStats.Faith = UnitData.Faith;
         UnitStats.Charisma = UnitData.Charisma;
         UnitStats.Luck = UnitData.Luck;
+
+        MaxHealth = UnitData.MaxHealth;
+
+        RecalculateAllStats();
+        
+        CurrentHealth.Value = MaxHealth;
+        DisplayedHealth = MaxHealth;
+
+        MaxMana = UnitData.MaxMana;
     }
 
     public void ServerRegenerateResources()
@@ -461,6 +472,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         CachedStatsDirty = false;
 
         var stats = new Dictionary<StatType, float>();
+
+        MaxHealth = UnitData.MaxHealth + (UnitStats.Constitution * 2);
 
         // BASE ATTRIBUTES
         stats[StatType.STR] = UnitStats.Strength;
