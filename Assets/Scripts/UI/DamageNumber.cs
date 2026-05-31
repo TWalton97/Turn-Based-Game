@@ -55,10 +55,10 @@ public class DamageNumber : MonoBehaviour
         Initialize();
     }
 
-    public void SetDodgeText()
+    public void SetTextByString(string text)
     {
         transform.position += Random.insideUnitSphere * 0.3f;
-        DamageText.text = "Dodged";
+        DamageText.text = text;
 
         Initialize();
     }

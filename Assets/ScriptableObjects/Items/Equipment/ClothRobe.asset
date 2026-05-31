@@ -21,7 +21,9 @@ MonoBehaviour:
   Stackable: 0
   EquipmentSlot: 1
   statModifiers:
-  - attribute: 3
+  - stat: 3
     value: 5
-  - attribute: 4
+    sourceId: 
+  - stat: 4
     value: 5
+    sourceId: 

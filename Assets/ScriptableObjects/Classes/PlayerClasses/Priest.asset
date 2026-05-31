@@ -13,8 +13,21 @@ MonoBehaviour:
   m_Name: Priest
   m_EditorClassIdentifier: 
   ClassName: Priest
-  MaxHealth: 150
+  MaxHealth: 50
   MaxMana: 5
+  AbilityUnlocks:
+  - LevelToUnlock: 0
+    AbilityToUnlock: {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+  - LevelToUnlock: 0
+    AbilityToUnlock: {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
+  - LevelToUnlock: 0
+    AbilityToUnlock: {fileID: 11400000, guid: 7d8e5f7a47187504882a8beb186cd789, type: 2}
+  - LevelToUnlock: 2
+    AbilityToUnlock: {fileID: 11400000, guid: ee80ccb0bb83f6c42b1fb592907e0221, type: 2}
+  - LevelToUnlock: 3
+    AbilityToUnlock: {fileID: 11400000, guid: b23ef7dd4f22c4d4f916f76b8aab0343, type: 2}
+  - LevelToUnlock: 4
+    AbilityToUnlock: {fileID: 11400000, guid: 58b1ce5a1f03a9d4f8571fc97188d510, type: 2}
   Strength: 0
   Dexterity: 0
   Constitution: 0

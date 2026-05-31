@@ -18,14 +18,22 @@ public class DamageNumberManager : MonoBehaviour
     {
         DamageNumber damageNumber = Instantiate(DamageNumberPrefab);
         damageNumber.transform.position = position + Vector3.up;
-        
+
         if (result.Dodged)
         {
-            damageNumber.SetDodgeText();
+            damageNumber.SetTextByString("Dodged");
         }
         else
         {
             damageNumber.SetText(result);
         }
+    }
+
+    public void SpawnStunnedTextAtPosition(Vector3 position)
+    {
+        DamageNumber damageNumber = Instantiate(DamageNumberPrefab);
+        damageNumber.transform.position = position + Vector3.up;
+
+        damageNumber.SetTextByString("Stunned");
     }
 }

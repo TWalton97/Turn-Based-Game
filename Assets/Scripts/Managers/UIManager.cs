@@ -95,6 +95,9 @@ public class UIManager : MonoBehaviour
 
     private void UpdateContextMenu()
     {
+        if (currentlySelectedUnit == null)
+            ClearContextMenu();
+
         ContextMenuUnitName.text = currentlySelectedUnit.UnitName;
 
         ContextMenuHealthBarFill.fillAmount = currentlySelectedUnit.DisplayedHealth / currentlySelectedUnit.MaxHealth;

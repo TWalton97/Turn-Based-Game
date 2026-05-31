@@ -10,28 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67a198f927bd177499d847de2a155688, type: 3}
-  m_Name: Warrior
+  m_Name: Bandit
   m_EditorClassIdentifier: 
-  ClassName: Warrior
-  MaxHealth: 80
+  ClassName: Bandit
+  MaxHealth: 18
   MaxMana: 5
   AbilityUnlocks:
   - LevelToUnlock: 0
     AbilityToUnlock: {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
   - LevelToUnlock: 0
     AbilityToUnlock: {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
-  - LevelToUnlock: 0
-    AbilityToUnlock: {fileID: 11400000, guid: 354640637653c7f4696242a7a985f961, type: 2}
+  - LevelToUnlock: 1
+    AbilityToUnlock: {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
   - LevelToUnlock: 2
-    AbilityToUnlock: {fileID: 11400000, guid: d8cbd032d0e5b724481a33fca3f8e9db, type: 2}
-  - LevelToUnlock: 3
-    AbilityToUnlock: {fileID: 11400000, guid: b98642cb307048b4daf337fef52fe607, type: 2}
-  - LevelToUnlock: 4
     AbilityToUnlock: {fileID: 11400000, guid: 1e9e7bfca9b32dd4ebec2b7f4c169da3, type: 2}
-  Strength: 3
-  Dexterity: 0
-  Constitution: 0
-  Intelligence: 0
-  Faith: 0
-  Charisma: 0
+  Strength: -3
+  Dexterity: -3
+  Constitution: -4
+  Intelligence: -6
+  Faith: -4
+  Charisma: -2
   Luck: 0

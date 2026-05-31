@@ -30,14 +30,7 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
 
     public void ConsumeCost(UnitController controller)
     {
-        if (controller.enemyController == null)
-        {
-            controller.ServerUpdateMana(-ManaCost, true);
-        }
-        else
-        {
-            controller.ServerUpdateMana(-ManaCost);
-        }
+        controller.ServerUpdateMana(-ManaCost);
     }
 }
 

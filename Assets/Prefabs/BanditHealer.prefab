@@ -109,38 +109,29 @@ MonoBehaviour:
     Faith: 0
     Charisma: 0
     Luck: 0
-  CombatStats:
-    InitiativeMin: 0
-    InitiativeMax: 0
-    CritChance: 0
-    CritDamage: 0
-    BlockChance: 0
-    BlockDamageReduction: 0
-    DodgeChance: 0
-    Aggro: 0
-    Lifesteal: 0
-    EnergyGain: 0
-    LuckyDrop: 0
-    IncomingHealing: 0
-    OutgoingHealing: 0
-  UnitData: {fileID: 11400000, guid: 622cfe8c60dcd1245afa85b00913ea0a, type: 2}
+  UnitData: {fileID: 11400000, guid: 16a2d8091e9d253429021b4e58bb4220, type: 2}
   MaxHealth: 26
   CurrentHealth:
     m_InternalValue: 0
   DisplayedHealth: 0
+  Level: 0
   MaxMana: 5
   CurrentMana:
     m_InternalValue: 0
   DisplayedMana: 0
-  IsAlive:
+  ServerIsAlive:
     m_InternalValue: 0
+  ClientIsAlive: 0
+  ActionPhaseStarted: 0
   UnitTeam: 1
-  BaseAbilities:
-  - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
-  - {fileID: 11400000, guid: 7d8e5f7a47187504882a8beb186cd789, type: 2}
-  - {fileID: 11400000, guid: b23ef7dd4f22c4d4f916f76b8aab0343, type: 2}
+  BaseAbilities: []
   RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
+  ServerIsStunned: 0
+  ClientIsStunned: 0
+  StatModifiers: []
+  StateModifiers: []
+  CachedStatsDirty: 1
 --- !u!114 &7367418481594108555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,5 +191,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b1ccf784e09f0e47990e147f6b43f64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ActiveStatusEffects: []
   StatusEffectNames: []

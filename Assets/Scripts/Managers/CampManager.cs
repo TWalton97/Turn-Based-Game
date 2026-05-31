@@ -154,7 +154,7 @@ public class CampManager : MonoBehaviour
 
         sb.AppendLine($"HP: {controller.CurrentHealth}/{controller.MaxHealth}");
         sb.AppendLine($"Energy: {controller.MaxMana}");
-        sb.AppendLine($"Level: {playerStats.Level} ({playerStats.CurrentExp}/{30})");
+        sb.AppendLine($"Level: {controller.Level} ({playerStats.CurrentExp}/{30})");
         sb.AppendLine();
         sb.AppendLine($"STR: {controller.GetStatType(StatType.STR)}");
         sb.AppendLine($"DEX: {controller.GetStatType(StatType.DEX)}");

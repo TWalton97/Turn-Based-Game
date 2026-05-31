@@ -1,8 +1,7 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public static class CombatResolver
@@ -20,13 +19,13 @@ public static class CombatResolver
             result.DamageType = abilityEffect.DamageType;
             result.Dodged = false;
             result.Damage = heal;
-            result.Damage *= 1 + Random.Range(-0.1f, 0.1f);
+            result.Damage *= 1 + UnityEngine.Random.Range(-0.1f, 0.1f);
             result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
             return result;
         }
 
         //First we check if the unit dodges
-        bool dodged = Random.Range(0f, 100f) < target.GetStatType(StatType.DodgeChance);
+        bool dodged = UnityEngine.Random.Range(0f, 100f) < target.GetStatType(StatType.DodgeChance);
         if (dodged)
         {
             result.Dodged = true;
@@ -40,7 +39,7 @@ public static class CombatResolver
         + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.INT));
 
         //Roll if it's a block
-        bool blocked = Random.Range(0f, 100f) < target.GetStatType(StatType.BlockChance);
+        bool blocked = UnityEngine.Random.Range(0f, 100f) < target.GetStatType(StatType.BlockChance);
         if (blocked)
         {
             damage *= 1 - (target.GetStatType(StatType.BlockDamageReduction) / 100);
@@ -49,7 +48,7 @@ public static class CombatResolver
         }
 
         //If it isn't blocked, we roll for a crit
-        bool crit = Random.Range(0f, 100f) < attacker.GetStatType(StatType.CritChance);
+        bool crit = UnityEngine.Random.Range(0f, 100f) < attacker.GetStatType(StatType.CritChance);
         if (crit)
         {
             result.Crit = true;
@@ -62,7 +61,7 @@ public static class CombatResolver
 
         result.DamageType = abilityEffect.DamageType;
         result.Damage = damage;
-        result.Damage *= 1 + Random.Range(-0.1f, 0.1f);
+        result.Damage *= 1 + UnityEngine.Random.Range(-0.1f, 0.1f);
         result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
         return result;
     }
@@ -110,9 +109,15 @@ public static class CombatResolver
                 if (effect.StatusToApply != null)
                 {
                     float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
-                    abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply, resolvedStatusPower);
+                    string statusEffectId = Guid.NewGuid().ToString();
+                    abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply, statusEffectId, resolvedStatusPower);
+                    abilityEffectResults[p].ApplyStatusEffect = true;
+                    abilityEffectResults[p].StatusEffectId = statusEffectId;
                 }
-
+                else
+                {
+                    abilityEffectResults[p].StatusEffectId = "-1";
+                }        
                 //For each hit, we create a hit result
                 for (int i = 0; i < effect.NumberOfHits; i++)
                 {
@@ -207,6 +212,7 @@ public class AbilityEffectResult : INetworkSerializable
     public bool AnyDodged;
 
     public bool ApplyStatusEffect;
+    public string StatusEffectId;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -221,6 +227,7 @@ public class AbilityEffectResult : INetworkSerializable
         serializer.SerializeValue(ref AnyDodged);
 
         serializer.SerializeValue(ref ApplyStatusEffect);
+        serializer.SerializeValue(ref StatusEffectId);
     }
 }
 

@@ -114,6 +114,7 @@ MonoBehaviour:
   CurrentHealth:
     m_InternalValue: 0
   DisplayedHealth: 0
+  Level: 0
   MaxMana: 5
   CurrentMana:
     m_InternalValue: 0
@@ -123,19 +124,13 @@ MonoBehaviour:
   ClientIsAlive: 0
   ActionPhaseStarted: 0
   UnitTeam: 0
-  BaseAbilities:
-  - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
-  - {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
-  - {fileID: 11400000, guid: 354640637653c7f4696242a7a985f961, type: 2}
-  - {fileID: 11400000, guid: 7d8e5f7a47187504882a8beb186cd789, type: 2}
-  - {fileID: 11400000, guid: f6e308f811fc34a46942a4198a489c5f, type: 2}
-  - {fileID: 11400000, guid: b23ef7dd4f22c4d4f916f76b8aab0343, type: 2}
-  - {fileID: 11400000, guid: ccc04db49e729fc4c85690c40ca3a41c, type: 2}
-  - {fileID: 11400000, guid: ee80ccb0bb83f6c42b1fb592907e0221, type: 2}
-  - {fileID: 11400000, guid: e4dde0684ee6e674e9a64be3b8bbd66f, type: 2}
+  BaseAbilities: []
   RuntimeAbilityInstances: []
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
+  ServerIsStunned: 0
+  ClientIsStunned: 0
   StatModifiers: []
+  StateModifiers: []
   CachedStatsDirty: 1
 --- !u!136 &3498775540722136037
 CapsuleCollider:
@@ -164,7 +159,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerStats:
-    Level: 0
     CurrentExp: 0
     AvailableStatPoints: 0
     Gold: 0

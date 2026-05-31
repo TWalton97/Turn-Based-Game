@@ -28,7 +28,6 @@ public class PlayerDataController : MonoBehaviour
 
     private void AssignStatsFromClassPreset()
     {
-        PlayerStats.Level = 1;
         PlayerStats.CurrentExp = 0;
         PlayerStats.AvailableStatPoints = 0;
         PlayerStats.Gold = 0;
@@ -37,10 +36,11 @@ public class PlayerDataController : MonoBehaviour
     public void AddExp(int amount)
     {
         PlayerStats.CurrentExp += amount;
-        if (PlayerStats.CurrentExp >= ExperienceValues.ExpToNextLevel[PlayerStats.Level])
+        if (PlayerStats.CurrentExp >= ExperienceValues.ExpToNextLevel[UnitController.Level])
         {
-            PlayerStats.CurrentExp -= ExperienceValues.ExpToNextLevel[PlayerStats.Level];
-            PlayerStats.Level += 1;
+            PlayerStats.CurrentExp -= ExperienceValues.ExpToNextLevel[UnitController.Level];
+            UnitController.Level += 1;
+            UnitController.UnlockAbilities();
             PlayerStats.AvailableStatPoints += 3;
             AddExp(0);
         }
@@ -145,7 +145,6 @@ public class InventoryEntry
 [Serializable]
 public class PlayerStats
 {
-    public int Level;
     public int CurrentExp;
     public int AvailableStatPoints;
     public int Gold;
@@ -157,4 +156,11 @@ public static class ExperienceValues
     {
         0, 15, 25, 45, 70, 100,
     };
+}
+
+[Serializable]
+public class AbilityUnlock
+{
+    public int LevelToUnlock;
+    public BaseAbility AbilityToUnlock;
 }

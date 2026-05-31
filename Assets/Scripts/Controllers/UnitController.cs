@@ -6,8 +6,6 @@ using UnityEngine.EventSystems;
 using Unity.Netcode;
 using System.Linq;
 using Unity.Netcode.Components;
-using UnityEditor.PackageManager;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -19,6 +17,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public float MaxHealth = 30;
     public NetworkVariable<float> CurrentHealth;
     public float DisplayedHealth;
+
+    public int Level;
 
     public int MaxMana = 5;
     public NetworkVariable<int> CurrentMana;
@@ -46,13 +46,19 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public Action OnClientDie;
     public Action OnServerDie;
 
+    public bool ServerIsStunned;
+    public bool ClientIsStunned;
+
     public EnemyController enemyController { get; private set; }
     public StatusEffectController statusEffectController { get; private set; }
     private Vector3 startPos;
 
     public List<StatModifier> StatModifiers;
     public Dictionary<StatType, float> CachedStats;
+    public List<StateModifier> StateModifiers;
     public bool CachedStatsDirty = true;
+
+    private int nextTurnManaRegen;
 
     private void Awake()
     {
@@ -81,13 +87,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         BattleManager.instance.RegisterUnit(this);
 
-        for (int i = 0; i < BaseAbilities.Count; i++)
-        {
-            RuntimeAbilityInstance runtimeAbilityInstance = new();
-            runtimeAbilityInstance.Ability = BaseAbilities[i];
-            RuntimeAbilityInstances.Add(runtimeAbilityInstance);
-        }
-
+        UnlockAbilities();
         ApplyClassPresetStats();
         RecalculateAllStats();
     }
@@ -99,10 +99,31 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         BattleManager.instance.UnregisterUnit(this);
     }
 
-    public void SyncManaValues(UnitController controller)
+    public void UnlockAbilities()
     {
-        //DisplayedMana = CurrentMana.Value;
-        //OnDisplayedManaChanged?.Invoke();
+        foreach (AbilityUnlock abilityUnlock in UnitData.AbilityUnlocks)
+        {
+            if (abilityUnlock.LevelToUnlock <= Level && !BaseAbilities.Contains(abilityUnlock.AbilityToUnlock))
+            {
+                BaseAbilities.Add(abilityUnlock.AbilityToUnlock);
+            }
+        }
+        InitializeAbilityRuntimeInstances();
+    }
+
+    public void InitializeAbilityRuntimeInstances()
+    {
+        HashSet<BaseAbility> existing = new HashSet<BaseAbility>(RuntimeAbilityInstances.Select(r => r.Ability));
+
+        foreach (BaseAbility ability in BaseAbilities)
+        {
+            if (!existing.Contains(ability))
+            {
+                RuntimeAbilityInstance runtimeAbilityInstance = new();
+                runtimeAbilityInstance.Ability = ability;
+                RuntimeAbilityInstances.Add(runtimeAbilityInstance);
+            }
+        }
     }
 
     public void ApplyClassPresetStats()
@@ -124,13 +145,13 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void ServerRegenerateResources()
     {
-        //TODO: determine how many resources to restore
-        ServerUpdateMana(CalculateManaRegen());
+        nextTurnManaRegen = CalculateManaRegen();
+        ServerUpdateMana(nextTurnManaRegen);
     }
 
     public void ClientRegenerateResources()
     {
-        ClientUpdateMana(CalculateManaRegen());
+        ClientUpdateMana(nextTurnManaRegen);
     }
 
     private IEnumerator ClientStartTurn(UnitController controller)
@@ -157,6 +178,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         statusEffectController.ServerProcStatusEffects(ActivationTime.StartOfTurn);
         statusEffectController.ServerProcStatusEffects(ActivationTime.OnApplication);
+        statusEffectController.ServerReduceRemainingTurnTimer();
         //Beginning of turn status effects modify health values
     }
 
@@ -166,9 +188,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         StartCoroutine(ClientStartTurn(controller));
-        statusEffectController.ClientProcStatusEffects(ActivationTime.StartOfTurn);
         statusEffectController.ClientProcStatusEffects(ActivationTime.OnApplication);
-        statusEffectController.ReduceRemainingTurnTimer();
+        statusEffectController.ClientReduceRemainingTurnTimer();
         //Beginning of turn status effects display
     }
 
@@ -181,6 +202,12 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         ServerRegenerateResources();
+
+        if (StateModifiers.Exists(s => s.stateTag == UnitStateTags.Stunned))
+        {
+            TurnManager.instance.ServerMoveToNextTurn();
+            return;
+        }
 
         if (enemyController == null)
             return;
@@ -195,6 +222,14 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         ClientRegenerateResources();
+
+        if (StateModifiers.Exists(s => s.stateTag == UnitStateTags.Stunned))
+        {
+            DamageNumberManager.instance.SpawnStunnedTextAtPosition(controller.transform.position);
+            TurnManager.instance.RequestClientTurnAdvance();
+            return;
+        }
+
         ActionPhaseStarted = true;
         TurnManager.OnRefreshUI?.Invoke(controller);
         //Enable UI
@@ -263,14 +298,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         }
     }
 
-    public void ServerUpdateMana(int amount, bool syncDisplayMana = false)
+    public void ServerUpdateMana(int amount)
     {
         if (!ServerIsAlive.Value) return;
 
         CurrentMana.Value = Mathf.Clamp(CurrentMana.Value + amount, 0, MaxMana);
-
-        if (syncDisplayMana)
-            ClientUpdateMana(amount);
     }
 
     public void ClientUpdateMana(int amount)
@@ -323,6 +355,15 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         for (int p = 0; p < abilityResult.AbilityEffectResults.Length; p++)
         {
+            if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
+            {
+                List<StatusEffectInstance> instancesWithId = statusEffectController.ActiveStatusEffects.Where(t => t.statusEffectId == abilityResult.AbilityEffectResults[p].StatusEffectId).ToList();
+                foreach (StatusEffectInstance instance in instancesWithId)
+                {
+                    instance.StatusEffect.ClientOnApplication(this, instance);
+                }
+            }
+
             for (int o = 0; o < abilityResult.AbilityEffectResults[p].TargetResults.Length; o++)
             {
                 UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.AbilityEffectResults[p].TargetResults[o].TargetId);
@@ -566,4 +607,10 @@ public class CombatStats
     public float LuckyDrop;
     public float IncomingHealing;
     public float OutgoingHealing;
+}
+
+public enum UnitStateTags
+{
+    Stunned,
+    Silenced,
 }

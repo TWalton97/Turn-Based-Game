@@ -61,14 +61,15 @@ public class SpawnManager : NetworkBehaviour
         unitObj.transform.position = slot.UnitHolder.position;
         unitObj.transform.rotation = slot.UnitHolder.transform.rotation;
 
-        netObj.SpawnWithOwnership(clientId);
-
         UnitController unit = unitObj.GetComponent<UnitController>();
+        unit.Level = 1;
+
+        netObj.SpawnWithOwnership(clientId);
 
         slot.BindUnitToSlot(unit);
     }
 
-    public void SpawnUnit(UnitController unit)
+    public void SpawnUnit(UnitController unit, int level = 1)
     {
         if (!IsServer)
             return;
@@ -76,8 +77,7 @@ public class SpawnManager : NetworkBehaviour
         BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(unit.UnitTeam);
         UnitController controller = Instantiate(unit, slot.UnitHolder);
 
-        //controller.ApplyClassPresetStats();
-        //controller.RecalculateCombatStats();
+        controller.Level = level;
 
         NetworkObject netObj = controller.GetComponent<NetworkObject>();
 

@@ -11,15 +11,19 @@ public class StatusEffectInstance
     public int RemainingNumberOfTurns;
     public float StatusEffectPower;
 
-    public string id;
+    public bool isServerExpired = false;
 
-    public StatusEffectInstance(UnitController _unitControler, StatusEffect _statusEffect, int _numberOfTurns, float _statusEffectPower)
+    public bool clientOnApplicationCompleted = false;
+
+    public string statusEffectId;
+
+    public StatusEffectInstance(UnitController _unitControler, StatusEffect _statusEffect, int _numberOfTurns, float _statusEffectPower, string _statusEffectId)
     {
         UnitController = _unitControler;
         StatusEffect = _statusEffect;
         RemainingNumberOfTurns = _numberOfTurns;
         StatusEffectPower = _statusEffectPower;
-        id = Guid.NewGuid().ToString();
+        statusEffectId = _statusEffectId;
     }
 
     public void ServerExecuteEffect(UnitController controller)

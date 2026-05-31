@@ -25,6 +25,9 @@ public class StatusEffectController : MonoBehaviour
         List<StatusEffectInstance> statusEffectInstances = ActiveStatusEffects.Where(t => t.StatusEffect.ActivationTime == activationTime).ToList();
         foreach (StatusEffectInstance statusEffectInstance in statusEffectInstances)
         {
+            if (statusEffectInstance.isServerExpired)
+                return;
+
             statusEffectInstance.ServerExecuteEffect(unitController);
         }
         ServerOnStatusEffectsProcced?.Invoke();
@@ -35,13 +38,30 @@ public class StatusEffectController : MonoBehaviour
         List<StatusEffectInstance> statusEffectInstances = ActiveStatusEffects.Where(t => t.StatusEffect.ActivationTime == activationTime).ToList();
         foreach (StatusEffectInstance statusEffectInstance in statusEffectInstances)
         {
+            if (!statusEffectInstance.clientOnApplicationCompleted)
+            {
+                statusEffectInstance.clientOnApplicationCompleted = true;
+                statusEffectInstance.StatusEffect.ClientOnApplication(unitController, statusEffectInstance);
+            }
+
             statusEffectInstance.ClientExecuteEffect(unitController);
             yield return new WaitForSeconds(0.7f);
         }
         ClientOnStatusEffectsProcced?.Invoke();
     }
 
-    public void ReduceRemainingTurnTimer()
+    public void ServerReduceRemainingTurnTimer()
+    {
+        for (int i = ActiveStatusEffects.Count - 1; i >= 0; i--)
+        {
+            if (ActiveStatusEffects[i].RemainingNumberOfTurns - 1 <= 0)
+            {
+                ActiveStatusEffects[i].isServerExpired = true;
+            }
+        }
+    }
+
+    public void ClientReduceRemainingTurnTimer()
     {
         for (int i = ActiveStatusEffects.Count - 1; i >= 0; i--)
         {
@@ -54,7 +74,7 @@ public class StatusEffectController : MonoBehaviour
         }
     }
 
-    public void AddStatusEffect(StatusEffect statusEffect, float statusEffectPower = 1)
+    public void AddStatusEffect(StatusEffect statusEffect, string statusEffectId, float statusEffectPower = 1)
     {
         StatusEffectInstance existingStatusEffectInstance = ActiveStatusEffects.Find(t => t.StatusEffect == statusEffect);
         if (existingStatusEffectInstance != null)
@@ -65,12 +85,14 @@ public class StatusEffectController : MonoBehaviour
             return;
         }
 
-        StatusEffectInstance statusEffectInstance = new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower);
+        StatusEffectInstance statusEffectInstance = new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower, statusEffectId);
 
         statusEffect.ServerOnApplication(unitController, statusEffectInstance);
-        
+
         if (statusEffect.NumberOfTurns == 0)
-            return;
+            statusEffectInstance.isServerExpired = true;
+
+        
 
         ActiveStatusEffects.Add(statusEffectInstance);
         StatusEffectNames.Add(statusEffect.StatusEffectName);

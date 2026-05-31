@@ -13,14 +13,14 @@ public class BuffStatusEffect : StatusEffect
         {
             if (mod.stat == StatType.CurrentMana)
             {
-                controller.ServerUpdateMana((int)mod.value, true);
+                controller.ServerUpdateMana((int)mod.value);
             }
             else
                 controller.StatModifiers.Add(new StatModifier
                 {
                     stat = mod.stat,
                     value = mod.value,
-                    sourceId = instance.id
+                    sourceId = instance.statusEffectId
                 });
             instance.StatusEffectPower = mod.value;
         }
@@ -29,7 +29,13 @@ public class BuffStatusEffect : StatusEffect
 
     public override void ClientOnApplication(UnitController controller, StatusEffectInstance instance)
     {
-
+        foreach (StatModifier mod in StatModifiers)
+        {
+            if (mod.stat == StatType.CurrentMana)
+            {
+                controller.ClientUpdateMana((int)mod.value);
+            }
+        }
     }
 
     public override void ServerExecuteEffect(UnitController controller, StatusEffectInstance instance)
@@ -44,7 +50,7 @@ public class BuffStatusEffect : StatusEffect
 
     public override void ServerRemoveStatus(UnitController controller, StatusEffectInstance instance)
     {
-        controller.StatModifiers.RemoveAll(t => t.sourceId == instance.id);
+        controller.StatModifiers.RemoveAll(t => t.sourceId == instance.statusEffectId);
         controller.CachedStatsDirty = true;
     }
 

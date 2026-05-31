@@ -22,6 +22,7 @@ public class ProgressionManager : NetworkBehaviour
     private List<RoomData> RemainingRoomData = new();
 
     public int RoomIndex = -1;
+    private int TotalCombatRoomsCompleted = 0;
     public TextMeshProUGUI RoomCountText;
 
     public enum RoomType
@@ -107,7 +108,7 @@ public class ProgressionManager : NetworkBehaviour
         {
             for (int i = 0; i < 2; i++)
             {
-                SpawnManager.instance.SpawnUnit(AvailableEnemies[UnityEngine.Random.Range(0, AvailableEnemies.Count)]);
+                SpawnManager.instance.SpawnUnit(AvailableEnemies[UnityEngine.Random.Range(0, AvailableEnemies.Count)], TotalCombatRoomsCompleted);
             }
         }
 
@@ -134,6 +135,7 @@ public class ProgressionManager : NetworkBehaviour
             }
         }
 
+        TotalCombatRoomsCompleted++;
         BattleManager.instance.RemoveAllEnemies();
         CurrentRoomData = null;
     }

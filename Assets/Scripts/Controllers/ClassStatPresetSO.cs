@@ -9,6 +9,8 @@ public class ClassStatPresetSO : ScriptableObject
     public int MaxHealth;
     public int MaxMana = 5;
 
+    public List<AbilityUnlock> AbilityUnlocks;
+
     public int Strength;
     public int Dexterity;
     public int Constitution;
