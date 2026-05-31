@@ -42,8 +42,11 @@ public static class CombatResolver
         bool blocked = UnityEngine.Random.Range(0f, 100f) < target.GetStatType(StatType.BlockChance);
         if (blocked)
         {
+            result.DamageType = abilityEffect.DamageType;
             damage *= 1 - (target.GetStatType(StatType.BlockDamageReduction) / 100);
             result.Damage = damage;
+            result.Damage *= 1 + UnityEngine.Random.Range(-0.1f, 0.1f);
+            result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
             return result;
         }
 
@@ -117,7 +120,7 @@ public static class CombatResolver
                 else
                 {
                     abilityEffectResults[p].StatusEffectId = "-1";
-                }        
+                }
                 //For each hit, we create a hit result
                 for (int i = 0; i < effect.NumberOfHits; i++)
                 {
@@ -316,6 +319,14 @@ public static class EffectConditionEvaluator
 
                 value = scaledValue * Mathf.Sign(effect.DamageAmount);
             }
+        }
+        else if (effect.EffectScalingType == EffectScalingType.BasedOnAttributeScaling)
+        {
+            float scaledValue = value
+            + (effect.StrengthScaling * ctx.user.GetStatType(StatType.STR))
+            + (effect.DexterityScaling * ctx.user.GetStatType(StatType.DEX))
+            + (effect.IntelligenceScaling * ctx.user.GetStatType(StatType.INT));
+            return scaledValue;
         }
 
         return value;

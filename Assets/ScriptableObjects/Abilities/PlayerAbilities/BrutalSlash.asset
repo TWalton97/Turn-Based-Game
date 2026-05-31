@@ -13,12 +13,14 @@ MonoBehaviour:
   m_Name: BrutalSlash
   m_EditorClassIdentifier: 
   AbilityName: Brutal Slash
-  AbilityDescription: Deals 4 + Strength as damage to a single target
+  AbilityDescription: Deals damage to a single enemy, scaling massively with your
+    Strength
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 0
-  Cooldown: 0
+  Cooldown: 2
   MovesToTarget: 1
+  AbilityAnimationDelay: 2
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}

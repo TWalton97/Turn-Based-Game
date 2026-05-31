@@ -13,12 +13,11 @@ MonoBehaviour:
   m_Name: Cleave
   m_EditorClassIdentifier: 
   AbilityName: Cleave
-  AbilityDescription: Swings your sword in a wide arc, damaging all enemies for 9
-    physical damage
+  AbilityDescription: Deals damage to all enemies
   ManaCost: 2
   TeamTargeting: 1
-  TargetType: 1
-  Cooldown: 0
+  TargetType: 3
+  Cooldown: 3
   MovesToTarget: 1
   AbilityAnimationDelay: 2
   UsesProjectile: 0

@@ -56,6 +56,11 @@ public class StatusEffectController : MonoBehaviour
         {
             if (ActiveStatusEffects[i].RemainingNumberOfTurns - 1 <= 0)
             {
+                if (ActiveStatusEffects[i].StatusEffect.ActivationTime == ActivationTime.OnExpire)
+                {
+                    ActiveStatusEffects[i].ServerExecuteEffect(unitController);
+                }
+
                 ActiveStatusEffects[i].isServerExpired = true;
             }
         }
@@ -69,9 +74,15 @@ public class StatusEffectController : MonoBehaviour
 
             if (ActiveStatusEffects[i].RemainingNumberOfTurns <= 0)
             {
+                if (ActiveStatusEffects[i].StatusEffect.ActivationTime == ActivationTime.OnExpire)
+                {
+                    ActiveStatusEffects[i].ClientExecuteEffect(unitController);
+                }
+
                 RemoveStatusEffect(ActiveStatusEffects[i].StatusEffect);
             }
         }
+        OnStatusEffectsChanged?.Invoke();
     }
 
     public void AddStatusEffect(StatusEffect statusEffect, string statusEffectId, float statusEffectPower = 1)
@@ -92,7 +103,7 @@ public class StatusEffectController : MonoBehaviour
         if (statusEffect.NumberOfTurns == 0)
             statusEffectInstance.isServerExpired = true;
 
-        
+
 
         ActiveStatusEffects.Add(statusEffectInstance);
         StatusEffectNames.Add(statusEffect.StatusEffectName);

@@ -23,6 +23,7 @@ public class CampManager : MonoBehaviour
     public List<CampItemEntry> CampItemEntries;
 
     //Details Panel
+    public RectTransform DetailPanelRectTransform;
     public TextMeshProUGUI DetailsTitle;
     public TextMeshProUGUI DetailsInfo;
     public TextMeshProUGUI DetailsStats;
@@ -75,6 +76,9 @@ public class CampManager : MonoBehaviour
 
     public void PopulateAbilityList()
     {
+        if (TrackedUnitController.RuntimeAbilityInstances.Count == 0)
+            return;
+
         foreach (Transform child in AbilityEntriesParent)
         {
             Destroy(child.gameObject);
@@ -89,9 +93,16 @@ public class CampManager : MonoBehaviour
             entry.AssignAbilityToButton(abilityInstance.Ability);
             entry.GetComponent<Button>().onClick.AddListener(() =>
             {
-                PopulateDetailsPanel(abilityInstance.Ability.AbilityName, abilityInstance.Ability.AbilityDescription, abilityInstance.Ability.abilityEffects[0].DamageAmount.ToString());
+                PopulateDetailsPanel(abilityInstance.Ability.AbilityName,
+                abilityInstance.Ability.AbilityDescription,
+                entry.GenerateAbilityDescription());
             });
         }
+
+        CampAbilityEntry firstEntry = CampAbilityEntries[0];
+        PopulateDetailsPanel(CampAbilityEntries[0].Ability.AbilityName,
+        CampAbilityEntries[0].Ability.AbilityDescription,
+        CampAbilityEntries[0].GenerateAbilityDescription());
     }
 
     public void PopulateItemList()
@@ -114,8 +125,8 @@ public class CampManager : MonoBehaviour
                 itemEntry.InspectButton.onClick.AddListener(() =>
                 {
                     PopulateDetailsPanel(itemEntry.InventoryEntry.Item.ItemName,
-                    itemEntry.InventoryEntry.Item.ItemInformation,
-                    itemEntry.InventoryEntry.Item.Description);
+                    itemEntry.InventoryEntry.Item.Description,
+                    itemEntry.GenerateItemDescription());
                 });
             }
         }
@@ -126,6 +137,8 @@ public class CampManager : MonoBehaviour
         DetailsTitle.text = title;
         DetailsInfo.text = info;
         DetailsStats.text = stats;
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(DetailPanelRectTransform);
     }
 
     public void PopulateCraftingMenu()

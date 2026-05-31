@@ -31,4 +31,25 @@ public class CampItemEntry : MonoBehaviour
             });
         }
     }
+
+    public string GenerateItemDescription()
+    {
+        string description = "";
+        switch (InventoryEntry.Item)
+        {
+            case BattleItemSO:
+                description = InventoryEntry.Item.ItemInformation;
+                description += "\n" + "\n" + InventoryEntry.Item.GoldValue + " gold";
+                break;
+            case EquipmentItemSO:
+                description = InventoryEntry.Item.ItemInformation;
+                description += "\n" + "\n" + InventoryEntry.Item.GoldValue + " gold";
+                break;
+            case ResourceItemSO:
+                description = InventoryEntry.Item.GoldValue + " gold";
+                break;
+        }
+
+        return description;
+    }
 }

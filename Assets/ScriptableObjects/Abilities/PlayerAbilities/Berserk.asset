@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Berserk
   m_EditorClassIdentifier: 
   AbilityName: Berserk
-  AbilityDescription: Become enraged, increasing damage dealt by 25% and damage received
-    by 15% for 3 turns
+  AbilityDescription: Gain increased outgoing damage and increasing incoming damage
+    for 3 turns
   ManaCost: 0
   TeamTargeting: 0
   TargetType: 4

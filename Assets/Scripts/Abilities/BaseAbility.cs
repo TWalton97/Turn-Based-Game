@@ -122,6 +122,8 @@ public enum EffectScalingType
     BasedOnPreviousDamage,
     BasedOnPreviousHealing,
     BasedOnCritCount,
+
+    BasedOnAttributeScaling,
 }
 
 [System.Serializable]

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: LesserHealingPotion
   m_EditorClassIdentifier: 
   ItemName: Lesser Healing Potion
-  Description: Heals a small amount of health when used
-  ItemInformation: 15 health
+  Description: A small healing potion
+  ItemInformation: Restores 15 health
   GoldValue: 10
   Stackable: 1
   ability: {fileID: 11400000, guid: 38f4f2bccc3b0e84688d330ee5490b2b, type: 2}

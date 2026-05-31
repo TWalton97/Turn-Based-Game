@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Vampiric Strike
   m_EditorClassIdentifier: 
   AbilityName: Vampiric Strike
-  AbilityDescription: Strikes a single unit for 6 damage, healing yourself for the
-    same amount
+  AbilityDescription: Deals damage to a single enemy and heal yourself for the same
+    amount
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 0
-  Cooldown: 1
+  Cooldown: 3
   MovesToTarget: 1
+  AbilityAnimationDelay: 2
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}

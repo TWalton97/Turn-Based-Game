@@ -9,7 +9,8 @@ public class UnlockAbilitiesMenu : MonoBehaviour
     public List<CampAbilityEntry> AbilityUnlockEntries;
     public BaseAbility CurrentlySelectedAbility;
 
-    public Transform AbilityUnlocksParent;
+    public RectTransform AbilityUnlocksParent;
+    public RectTransform DetailsPanelRectTransform;
 
     private UnitController unitController;
     private PlayerDataController playerDataController;
@@ -56,10 +57,18 @@ public class UnlockAbilitiesMenu : MonoBehaviour
             entry.AssignAbilityToButton(ability);
             entry.GetComponent<Button>().onClick.AddListener(() =>
             {
-                PopulateAbilityUnlockDetailsPanel(ability.AbilityName, ability.AbilityDescription, ability.abilityEffects[0].DamageAmount.ToString());
+                PopulateAbilityUnlockDetailsPanel(ability.AbilityName,
+                ability.AbilityDescription,
+                entry.GenerateAbilityDescription());
                 CurrentlySelectedAbility = entry.Ability;
             });
         }
+
+        CampAbilityEntry firstEntry = AbilityUnlockEntries[0];
+        PopulateAbilityUnlockDetailsPanel(AbilityUnlockEntries[0].Ability.AbilityName,
+        AbilityUnlockEntries[0].Ability.AbilityDescription,
+        AbilityUnlockEntries[0].GenerateAbilityDescription());
+        CurrentlySelectedAbility = firstEntry.Ability;
     }
 
     public void ConfirmSelection()
@@ -93,5 +102,7 @@ public class UnlockAbilitiesMenu : MonoBehaviour
         DetailsTitle.text = title;
         DetailsInfo.text = info;
         DetailsStats.text = stats;
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(DetailsPanelRectTransform);
     }
 }

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: ArcaneOvercharge
   m_EditorClassIdentifier: 
   AbilityName: Arcane Overcharge
-  AbilityDescription: Instantly gain 4 mana, but have -100% energy gain for 2 turns
+  AbilityDescription: Gain a burst of mana, but greatly reduced energy gain for 2
+    turns
   ManaCost: 0
   TeamTargeting: 0
   TargetType: 4

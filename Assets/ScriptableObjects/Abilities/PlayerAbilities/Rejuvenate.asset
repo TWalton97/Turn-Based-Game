@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rejuvenate
   m_EditorClassIdentifier: 
   AbilityName: Rejuvenate
-  AbilityDescription: Applies rejuvenation to an ally for 3 turns
+  AbilityDescription: Heals an ally every turn for 3 turns
   ManaCost: 1
   TeamTargeting: 0
   TargetType: 0

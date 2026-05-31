@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PowerSurge
   m_EditorClassIdentifier: 
   AbilityName: Power Surge
-  AbilityDescription: Increases your energy gain by 100% for 3 turns
+  AbilityDescription: Increases your energy gain for 3 turns
   ManaCost: 1
   TeamTargeting: 0
   TargetType: 4
