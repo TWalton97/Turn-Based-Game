@@ -10,7 +10,7 @@ public static class CombatResolver
     {
         HitResult result = new HitResult();
 
-        if (resolvedPower < 0)
+        if (abilityEffect.DamageType == DamageType.Heal)
         {
             float heal = resolvedPower
             + (abilityEffect.StrengthScaling * attacker.GetStatType(StatType.STR))
@@ -113,12 +113,15 @@ public static class CombatResolver
                 {
                     float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
                     string statusEffectId = Guid.NewGuid().ToString();
-                    abilityEffectTargets[o].statusEffectController.AddStatusEffect(effect.StatusToApply, statusEffectId, resolvedStatusPower);
                     abilityEffectResults[p].ApplyStatusEffect = true;
+                    abilityEffectResults[p].StatusEffectName = effect.StatusToApply.StatusEffectName;
+                    abilityEffectResults[p].StatusEffectResolvedPower = resolvedStatusPower;
                     abilityEffectResults[p].StatusEffectId = statusEffectId;
                 }
                 else
                 {
+                    abilityEffectResults[p].StatusEffectName = "";
+                    abilityEffectResults[p].StatusEffectResolvedPower = 0;
                     abilityEffectResults[p].StatusEffectId = "-1";
                 }
                 //For each hit, we create a hit result
@@ -215,6 +218,8 @@ public class AbilityEffectResult : INetworkSerializable
     public bool AnyDodged;
 
     public bool ApplyStatusEffect;
+    public string StatusEffectName;
+    public float StatusEffectResolvedPower;
     public string StatusEffectId;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -230,6 +235,8 @@ public class AbilityEffectResult : INetworkSerializable
         serializer.SerializeValue(ref AnyDodged);
 
         serializer.SerializeValue(ref ApplyStatusEffect);
+        serializer.SerializeValue(ref StatusEffectName);
+        serializer.SerializeValue(ref StatusEffectResolvedPower);
         serializer.SerializeValue(ref StatusEffectId);
     }
 }

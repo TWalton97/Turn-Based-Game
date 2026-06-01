@@ -24,6 +24,9 @@ public class StatusEffectIcon : MonoBehaviour, IPointerEnterHandler, IPointerExi
         if (StatusEffectInstance == null)
             return;
 
+        if (StatusEffectInstance.StatusEffect == null)
+            return;
+
         StatusEffectImage.sprite = StatusEffectInstance.StatusEffect.StatusSprite;
         tooltipData = new TooltipData(
             StatusEffectInstance.StatusEffect.StatusEffectName,

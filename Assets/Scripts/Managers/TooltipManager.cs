@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TooltipManager : MonoBehaviour
 {
     public static TooltipManager instance;
 
-    public GameObject TooltipParentObject;
+    public RectTransform TooltipParentObject;
     public TextMeshProUGUI TooltipTitleText;
     public TextMeshProUGUI TooltipCostText;
     public TextMeshProUGUI TooltipDescriptionText;
@@ -40,12 +41,13 @@ public class TooltipManager : MonoBehaviour
         TooltipCostText.text = data.TooltipCost;
         TooltipDescriptionText.text = data.TooltipDescription;
         TooltipCooldownText.text = data.TooltipCooldown;
-        TooltipParentObject.SetActive(true);
+        TooltipParentObject.gameObject.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(TooltipParentObject);
     }
 
     public void DisableTooltip()
     {
-        TooltipParentObject.SetActive(false);
+        TooltipParentObject.gameObject.SetActive(false);
     }
 
     private void DisableTooltip(MonoBehaviour source)

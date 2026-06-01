@@ -44,6 +44,8 @@ public class CampManager : MonoBehaviour
     private List<CraftingEntry> createdCraftingEntries = new();
     private bool recipeEntriesCreated = false;
 
+    public TextMeshProUGUI ReadyButtonText;
+
     void Awake()
     {
         if (instance == null)
@@ -52,11 +54,6 @@ public class CampManager : MonoBehaviour
 
     public void PopulateCampUI(UnitController unitController)
     {
-        //Populate ability list
-        //Populate inventory
-        //Populate equipped gear
-        //Populate stats
-
         TrackedUnitController = unitController;
         playerDataController = unitController.GetComponent<PlayerDataController>();
 
@@ -64,14 +61,39 @@ public class CampManager : MonoBehaviour
         PopulateItemList();
         PopulatePlayerStatsPanel();
         PopulateCraftingMenu();
+        UpdateReadyButtonText(0, 0);
 
         playerDataController.OnInventoryUpdated += PopulateItemList;
+        ProgressionManager.instance.NumberOfReadyVotes.OnValueChanged += UpdateReadyButtonText;
+
+        TrackedUnitController.Strength.OnValueChanged += OnStatsChanged;
+        TrackedUnitController.Dexterity.OnValueChanged += OnStatsChanged;
+        TrackedUnitController.Constitution.OnValueChanged += OnStatsChanged;
+        TrackedUnitController.Intelligence.OnValueChanged += OnStatsChanged;
+        TrackedUnitController.Faith.OnValueChanged += OnStatsChanged;
+        TrackedUnitController.Charisma.OnValueChanged += OnStatsChanged;
+        TrackedUnitController.Luck.OnValueChanged += OnStatsChanged;
     }
 
     void OnDestroy()
     {
         if (playerDataController != null)
             playerDataController.OnInventoryUpdated -= PopulateItemList;
+
+        ProgressionManager.instance.NumberOfReadyVotes.OnValueChanged -= UpdateReadyButtonText;
+
+        TrackedUnitController.Strength.OnValueChanged -= OnStatsChanged;
+        TrackedUnitController.Dexterity.OnValueChanged -= OnStatsChanged;
+        TrackedUnitController.Constitution.OnValueChanged -= OnStatsChanged;
+        TrackedUnitController.Intelligence.OnValueChanged -= OnStatsChanged;
+        TrackedUnitController.Faith.OnValueChanged -= OnStatsChanged;
+        TrackedUnitController.Charisma.OnValueChanged -= OnStatsChanged;
+        TrackedUnitController.Luck.OnValueChanged -= OnStatsChanged;
+    }
+
+    public void UpdateReadyButtonText(int oldValue, int newValue)
+    {
+        ReadyButtonText.text = $"Ready ({ProgressionManager.instance.NumberOfReadyVotes.Value})";
     }
 
     public void PopulateAbilityList()
@@ -160,15 +182,22 @@ public class CampManager : MonoBehaviour
         }
     }
 
+    public void OnStatsChanged(int oldValue, int newValue)
+    {
+        PopulatePlayerStatsPanel();
+    }
+
     public void PopulatePlayerStatsPanel()
     {
         UnitController controller = TrackedUnitController;
-        PlayerStats playerStats = playerDataController.PlayerStats.Value;
         StringBuilder sb = new StringBuilder();
 
-        sb.AppendLine($"HP: {controller.CurrentHealth}/{controller.MaxHealth}");
+        if (controller.CachedStatsDirty)
+            controller.RecalculateAllStats();
+
+        sb.AppendLine($"HP: {controller.CurrentHealth.Value}/{controller.MaxHealth}");
         sb.AppendLine($"Energy: {controller.MaxMana}");
-        sb.AppendLine($"Level: {controller.Level} ({playerStats.CurrentExp}/{30})");
+        sb.AppendLine($"Level: {controller.Level.Value} ({playerDataController.CurrentExp.Value}/{30})");
         sb.AppendLine();
         sb.AppendLine($"STR: {controller.GetStatType(StatType.STR)}");
         sb.AppendLine($"DEX: {controller.GetStatType(StatType.DEX)}");
@@ -192,7 +221,7 @@ public class CampManager : MonoBehaviour
 
         PlayerStatsPanel.text = sb.ToString();
 
-        InvestPointsButton.text = $"Invest Points ({playerStats.AvailableStatPoints})";
+        InvestPointsButton.text = $"Invest Points ({playerDataController.AvailableStatPoints.Value})";
         UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";
     }
 

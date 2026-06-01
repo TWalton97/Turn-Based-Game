@@ -11,7 +11,13 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 {
     public string UnitName;
 
-    public UnitAttributes UnitStats;
+    public NetworkVariable<int> Strength;
+    public NetworkVariable<int> Dexterity;
+    public NetworkVariable<int> Constitution;
+    public NetworkVariable<int> Intelligence;
+    public NetworkVariable<int> Faith;
+    public NetworkVariable<int> Charisma;
+    public NetworkVariable<int> Luck;
 
     public ClassStatPresetSO UnitData;
     public float MaxHealth = 30;
@@ -80,8 +86,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public override void OnNetworkSpawn()
     {
-        base.OnNetworkSpawn();
-
         ServerIsAlive.Value = true;
         ClientIsAlive = true;
 
@@ -89,7 +93,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         UnlockStartingAbilities();
         ApplyClassPresetStats();
-        RecalculateAllStats();
     }
 
     public override void OnNetworkDespawn()
@@ -136,21 +139,25 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void ApplyClassPresetStats()
     {
-        UnitStats.Strength = UnitData.Strength;
-        UnitStats.Dexterity = UnitData.Dexterity;
-        UnitStats.Constitution = UnitData.Constitution;
-        UnitStats.Intelligence = UnitData.Intelligence;
-        UnitStats.Faith = UnitData.Faith;
-        UnitStats.Charisma = UnitData.Charisma;
-        UnitStats.Luck = UnitData.Luck;
-
-        MaxHealth = UnitData.MaxHealth;
+        if (IsServer)
+        {
+            Strength.Value = UnitData.Strength;
+            Dexterity.Value = UnitData.Dexterity;
+            Constitution.Value = UnitData.Constitution;
+            Intelligence.Value = UnitData.Intelligence;
+            Faith.Value = UnitData.Faith;
+            Charisma.Value = UnitData.Charisma;
+            Luck.Value = UnitData.Luck;
+        }
 
         RecalculateAllStats();
 
-        CurrentHealth.Value = MaxHealth;
-        DisplayedHealth = MaxHealth;
+        if (IsServer)
+        {
+            CurrentHealth.Value = MaxHealth;
+        }
 
+        DisplayedHealth = MaxHealth;
         MaxMana = UnitData.MaxMana;
     }
 
@@ -368,11 +375,21 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         {
             if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
             {
-                List<StatusEffectInstance> instancesWithId = statusEffectController.ActiveStatusEffects.Where(t => t.statusEffectId == abilityResult.AbilityEffectResults[p].StatusEffectId).ToList();
-                foreach (StatusEffectInstance instance in instancesWithId)
+                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.TargetId);
+                if (!IsServer)
                 {
+                    StatusEffect status = StatusDatabase.GetStatusByName(abilityResult.AbilityEffectResults[p].StatusEffectName);
+                    target.statusEffectController.AddStatusEffect(status, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
+                }
+
+                StatusEffectInstance instance = target.statusEffectController.ActiveStatusEffects.Find(t => t.statusEffectId == abilityResult.AbilityEffectResults[p].StatusEffectId);
+                if (instance != null)
+                {
+                    instance.isAppliedOnClient = true;
                     instance.StatusEffect.ClientOnApplication(this, instance);
                 }
+
+                target.statusEffectController.OnStatusEffectsChanged?.Invoke();
             }
 
             for (int o = 0; o < abilityResult.AbilityEffectResults[p].TargetResults.Length; o++)
@@ -469,20 +486,23 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void RecalculateAllStats()
     {
+        if (!CachedStatsDirty)
+            return;
+
         CachedStatsDirty = false;
 
         var stats = new Dictionary<StatType, float>();
 
-        MaxHealth = UnitData.MaxHealth + (UnitStats.Constitution * 2);
+        MaxHealth = UnitData.MaxHealth + (Constitution.Value * 2);
 
         // BASE ATTRIBUTES
-        stats[StatType.STR] = UnitStats.Strength;
-        stats[StatType.DEX] = UnitStats.Dexterity;
-        stats[StatType.CON] = UnitStats.Constitution;
-        stats[StatType.INT] = UnitStats.Intelligence;
-        stats[StatType.FTH] = UnitStats.Faith;
-        stats[StatType.CHA] = UnitStats.Charisma;
-        stats[StatType.LCK] = UnitStats.Luck;
+        stats[StatType.STR] = Strength.Value;
+        stats[StatType.DEX] = Dexterity.Value;
+        stats[StatType.CON] = Constitution.Value;
+        stats[StatType.INT] = Intelligence.Value;
+        stats[StatType.FTH] = Faith.Value;
+        stats[StatType.CHA] = Charisma.Value;
+        stats[StatType.LCK] = Luck.Value;
 
         // INITIATIVE
         stats[StatType.InitiativeMin] =
@@ -575,52 +595,86 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         float energyGain = GetStatType(StatType.EnergyGain);
 
-        int manaRegen = 1;
+        float totalMana = 1f + (energyGain / 100f);
 
-        // Guaranteed extra mana
-        manaRegen += Mathf.FloorToInt(energyGain / 100f);
+        int guaranteedMana = Mathf.FloorToInt(totalMana);
+        float chanceForExtra = (totalMana - guaranteedMana) * 100f;
 
-        // Chance for one additional mana
-        float remainder = energyGain % 100f;
-
-        if (UnityEngine.Random.Range(0f, 100f) < remainder)
+        if (UnityEngine.Random.Range(0f, 100f) < chanceForExtra)
         {
-            manaRegen++;
+            guaranteedMana++;
         }
 
-        return manaRegen;
+        return guaranteedMana;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestConfirmSkillpointChangesServerRpc(ulong unitId, StatAllocation statAllocation, ServerRpcParams rpcParams = default)
+    {
+        ulong clientId = rpcParams.Receive.SenderClientId;
+        UnitController controller = NetworkUtilities.GetUnitControllerById(unitId);
+        NetworkObject unitObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[unitId];
+        PlayerDataController playerDataController = controller.GetComponent<PlayerDataController>();
+
+        if (unitObj.OwnerClientId != clientId)
+        {
+            Debug.LogWarning($"Client attempting to send a request for a unit they do not own");
+            return;
+        }
+
+        int totalPoints = 0;
+        for (int i = 0; i < statAllocation.statChanges.Length; i++)
+        {
+            totalPoints += statAllocation.statChanges[i].amount;
+        }
+
+        if (totalPoints > playerDataController.AvailableStatPoints.Value)
+        {
+            Debug.LogWarning($"Unit with it {unitId} is trying to spend more skillpoints than they have");
+            return;
+        }
+
+        foreach (var change in statAllocation.statChanges)
+        {
+            switch (change.statType)
+            {
+                case StatType.STR:
+                    controller.Strength.Value += change.amount;
+                    break;
+
+                case StatType.DEX:
+                    controller.Dexterity.Value += change.amount;
+                    break;
+
+                case StatType.CON:
+                    controller.Constitution.Value += change.amount;
+                    break;
+
+                case StatType.INT:
+                    controller.Intelligence.Value += change.amount;
+                    break;
+
+                case StatType.FTH:
+                    controller.Faith.Value += change.amount;
+                    break;
+
+                case StatType.CHA:
+                    controller.Charisma.Value += change.amount;
+                    break;
+
+                case StatType.LCK:
+                    controller.Luck.Value += change.amount;
+                    break;
+            }
+        }
+
+        playerDataController.AvailableStatPoints.Value -= totalPoints;
+
+        controller.CachedStatsDirty = true;
+        controller.RecalculateAllStats();
     }
 }
 
-[Serializable]
-public class UnitAttributes
-{
-    public int Strength;
-    public int Dexterity;
-    public int Constitution;
-    public int Intelligence;
-    public int Faith;
-    public int Charisma;
-    public int Luck;
-}
-
-[Serializable]
-public class CombatStats
-{
-    public float InitiativeMin;
-    public float InitiativeMax;
-    public float CritChance;
-    public float CritDamage;
-    public float BlockChance;
-    public float BlockDamageReduction;
-    public float DodgeChance;
-    public float Aggro;
-    public float Lifesteal;
-    public float EnergyGain;
-    public float LuckyDrop;
-    public float IncomingHealing;
-    public float OutgoingHealing;
-}
 
 public enum UnitStateTags
 {

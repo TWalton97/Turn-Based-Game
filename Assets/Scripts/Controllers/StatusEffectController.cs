@@ -8,7 +8,6 @@ public class StatusEffectController : MonoBehaviour
 {
     private UnitController unitController;
     public List<StatusEffectInstance> ActiveStatusEffects = new();
-    public List<string> StatusEffectNames;
 
     public Action ServerOnStatusEffectsProcced;
     public Action ClientOnStatusEffectsProcced;
@@ -70,6 +69,8 @@ public class StatusEffectController : MonoBehaviour
     {
         for (int i = ActiveStatusEffects.Count - 1; i >= 0; i--)
         {
+            if (!ActiveStatusEffects[i].isAppliedOnClient)
+                continue;
             ActiveStatusEffects[i].RemainingNumberOfTurns--;
 
             if (ActiveStatusEffects[i].RemainingNumberOfTurns <= 0)
@@ -100,13 +101,10 @@ public class StatusEffectController : MonoBehaviour
 
         statusEffect.ServerOnApplication(unitController, statusEffectInstance);
 
-        if (statusEffect.NumberOfTurns == 0)
+        if (statusEffectInstance.RemainingNumberOfTurns == 0)
             statusEffectInstance.isServerExpired = true;
 
-
-
         ActiveStatusEffects.Add(statusEffectInstance);
-        StatusEffectNames.Add(statusEffect.StatusEffectName);
 
         OnStatusEffectsChanged?.Invoke();
     }
@@ -122,7 +120,6 @@ public class StatusEffectController : MonoBehaviour
         }
 
         ActiveStatusEffects.Remove(ActiveStatusEffects.Where(t => t.StatusEffect == statusEffect).First());
-        StatusEffectNames.Remove(statusEffect.StatusEffectName);
 
         OnStatusEffectsChanged?.Invoke();
     }

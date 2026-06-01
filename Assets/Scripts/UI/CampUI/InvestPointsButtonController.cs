@@ -20,7 +20,7 @@ public class InvestPointsButtonController : MonoBehaviour
 
     private void UpdateText()
     {
-        UpdateText(CampManager.instance.playerDataController.PlayerStats.Value.AvailableStatPoints);
+        UpdateText(CampManager.instance.playerDataController.AvailableStatPoints.Value);
     }
 
     public void ToggleSpendSkillpointsMenu()

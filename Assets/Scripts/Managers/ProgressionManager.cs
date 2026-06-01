@@ -43,7 +43,7 @@ public class ProgressionManager : NetworkBehaviour
 
     private HashSet<ulong> readyClients = new();
 
-    public int NumberOfReadyVotes = 0;
+    public NetworkVariable<int> NumberOfReadyVotes;
     bool hasVoted = false;
 
     public void Awake()
@@ -84,7 +84,9 @@ public class ProgressionManager : NetworkBehaviour
             UnloadCombatRoom();
 
         hasVoted = false;
-        NumberOfReadyVotes = 0;
+
+        if (IsServer)
+            NumberOfReadyVotes.Value = 0;
 
         foreach (UnitController unit in BattleManager.instance.FriendlyUnits)
         {
@@ -233,7 +235,7 @@ public class ProgressionManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void RequestCampReadyVoteServerRpc(ServerRpcParams rpcParams = default)
     {
-        NumberOfReadyVotes++;
+        NumberOfReadyVotes.Value++;
         CountReadyVotes();
     }
 
@@ -242,9 +244,10 @@ public class ProgressionManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-        if (NumberOfReadyVotes == NetworkManager.Singleton.ConnectedClients.Count)
+        if (NumberOfReadyVotes.Value == NetworkManager.Singleton.ConnectedClients.Count)
             LoadNextRoom();
     }
+
 
     private bool AllClientsReady()
     {

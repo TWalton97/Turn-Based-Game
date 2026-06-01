@@ -120,7 +120,15 @@ public class EnemyController : NetworkBehaviour
 
     private List<UnitController> GetValidTargets(RuntimeAbilityInstance ability)
     {
-        List<UnitController> targets =
+        List<UnitController> targets = new();
+
+        if (ability.Ability.TargetType == TargetType.Self)
+        {
+            targets.Add(unitController);
+            return targets;
+        }
+
+        targets =
         ability.Ability.TeamTargeting == Team.Enemy
         ? BattleManager.instance.FriendlyUnits
         : BattleManager.instance.EnemyUnits;

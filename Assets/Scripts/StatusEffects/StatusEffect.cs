@@ -1,4 +1,3 @@
-using Unity.Netcode;
 using UnityEngine;
 
 [System.Serializable]
@@ -21,6 +20,11 @@ public abstract class StatusEffect : ScriptableObject
     public abstract void ServerRemoveStatus(UnitController controller, StatusEffectInstance instance);
 
     public abstract string ConstructDescriptionString(StatusEffectInstance statusEffectInstance);
+
+    protected virtual void OnEnable()
+    {
+        StatusDatabase.RegisterStatusEffect(this);
+    }
 }
 
 public enum BuffType

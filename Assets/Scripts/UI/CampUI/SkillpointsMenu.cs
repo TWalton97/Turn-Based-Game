@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 public class SkillpointsMenu : MonoBehaviour
@@ -16,7 +18,7 @@ public class SkillpointsMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        AvailableSkillpoints = CampManager.instance.playerDataController.PlayerStats.Value.AvailableStatPoints;
+        AvailableSkillpoints = CampManager.instance.playerDataController.AvailableStatPoints.Value;
         UpdateText();
     }
 
@@ -28,40 +30,16 @@ public class SkillpointsMenu : MonoBehaviour
     public void ConfirmChanges()
     {
         UnitController controller = CampManager.instance.TrackedUnitController;
-        PlayerStats playerStats = CampManager.instance.playerDataController.PlayerStats.Value;
-        playerStats.AvailableStatPoints = AvailableSkillpoints;
-        for (int i = 0; i < SkillpointSwitches.Length - 1; i++)
+        StatAllocation statAllocation = new StatAllocation();
+        statAllocation.statChanges = new StatChange[7];
+        for (int i = 0; i < SkillpointSwitches.Length; i++)
         {
-            switch (SkillpointSwitches[i].Attribute)
-            {
-                case StatType.STR:
-                    controller.UnitStats.Strength += SkillpointSwitches[i].CurrentlyInvestedPoints;
-                    break;
-                case StatType.DEX:
-                    controller.UnitStats.Dexterity += SkillpointSwitches[i].CurrentlyInvestedPoints;
-                    break;
-                case StatType.CON:
-                    controller.UnitStats.Constitution += SkillpointSwitches[i].CurrentlyInvestedPoints;
-                    break;
-                case StatType.INT:
-                    controller.UnitStats.Intelligence += SkillpointSwitches[i].CurrentlyInvestedPoints;
-                    break;
-                case StatType.FTH:
-                    controller.UnitStats.Faith += SkillpointSwitches[i].CurrentlyInvestedPoints;
-                    break;
-                case StatType.CHA:
-                    controller.UnitStats.Charisma += SkillpointSwitches[i].CurrentlyInvestedPoints;
-                    break;
-                case StatType.LCK:
-                    controller.UnitStats.Luck += SkillpointSwitches[i].CurrentlyInvestedPoints;
-                    break;
-            }
+            statAllocation.statChanges[i] = new StatChange();
+            statAllocation.statChanges[i].statType = SkillpointSwitches[i].Attribute;
+            statAllocation.statChanges[i].amount = SkillpointSwitches[i].CurrentlyInvestedPoints;
         }
+        controller.RequestConfirmSkillpointChangesServerRpc(controller.NetworkObjectId, statAllocation);
         ResetSkillpointSwitches();
-        controller.RecalculateAllStats();
-        controller.CachedStatsDirty = true;
-        CampManager.instance.PopulatePlayerStatsPanel();
-        investPointsButtonController.UpdateText(playerStats.AvailableStatPoints);
     }
 
     public void ResetSkillpointSwitches()
@@ -70,5 +48,27 @@ public class SkillpointsMenu : MonoBehaviour
         {
             skillpointSwitch.Reset();
         }
+    }
+}
+
+public class StatAllocation : INetworkSerializable
+{
+    public StatChange[] statChanges;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref statChanges);
+    }
+}
+
+public class StatChange : INetworkSerializable
+{
+    public StatType statType;
+    public int amount;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref statType);
+        serializer.SerializeValue(ref amount);
     }
 }

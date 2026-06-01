@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -61,9 +62,11 @@ public class UIManager : MonoBehaviour
             icon.gameObject.SetActive(false);
         }
 
-        for (int i = 0; i < currentlySelectedUnit.statusEffectController.ActiveStatusEffects.Count; i++)
+        List<StatusEffectInstance> statusEffectInstances = currentlySelectedUnit.statusEffectController.ActiveStatusEffects.Where(t => t.isAppliedOnClient).ToList();
+
+        for (int i = 0; i < statusEffectInstances.Count; i++)
         {
-            StatusEffectIcons[i].AssignStatusEffect(currentlySelectedUnit.statusEffectController.ActiveStatusEffects[i]);
+            StatusEffectIcons[i].AssignStatusEffect(statusEffectInstances[i]);
             StatusEffectIcons[i].gameObject.SetActive(true);
         }
 

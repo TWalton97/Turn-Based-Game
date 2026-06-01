@@ -14,11 +14,9 @@ public class NetworkUI : NetworkBehaviour
 
     public void StartHost()
     {
-        SpawnManager.instance.BindNetworkEvents();
-
         NetworkManager.Singleton.StartHost();
 
-        StartCoroutine(WaitForServer());
+        //StartCoroutine(WaitForServer());
     }
 
     public void StartClient()

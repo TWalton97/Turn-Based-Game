@@ -16,23 +16,23 @@ public class SpawnManager : NetworkBehaviour
     {
         if (instance == null)
             instance = this;
+
+        NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
     }
 
-    public void BindNetworkEvents()
-    {
-        //NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
-    }
-
-    void OnDisable()
+    public override void OnDestroy()
     {
         if (NetworkManager.Singleton == null)
             return;
 
-        //NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
+        NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
     }
 
     public void HandleClientConnected(ulong clientId)
     {
+        if (!NetworkManager.Singleton.IsServer)
+            return;
+
         SpawnUnitForPlayer(clientId);
     }
 
@@ -62,6 +62,7 @@ public class SpawnManager : NetworkBehaviour
         unitObj.transform.rotation = slot.UnitHolder.transform.rotation;
 
         UnitController unit = unitObj.GetComponent<UnitController>();
+        
         netObj.SpawnWithOwnership(clientId);
 
         unit.Level.Value = 1;

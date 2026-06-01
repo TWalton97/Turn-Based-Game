@@ -10,12 +10,12 @@ public class DamageStatusEffect : StatusEffect
 
     public override void ServerOnApplication(UnitController controller, StatusEffectInstance instance)
     {
-        
+
     }
 
     public override void ClientOnApplication(UnitController controller, StatusEffectInstance instance)
     {
-        
+
     }
     public override void ServerExecuteEffect(UnitController controller, StatusEffectInstance instance)
     {

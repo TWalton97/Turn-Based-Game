@@ -9,7 +9,9 @@ using Unity.Netcode;
 public class PlayerDataController : NetworkBehaviour
 {
     public UnitController UnitController;
-    public NetworkVariable<PlayerStats> PlayerStats;
+    public NetworkVariable<int> CurrentExp;
+    public NetworkVariable<int> AvailableStatPoints;
+    public NetworkVariable<int> Gold;
     public List<InventoryEntry> InventoryItems;
     public List<InventoryEntry> EquippedItems;
 
@@ -23,24 +25,40 @@ public class PlayerDataController : NetworkBehaviour
         AssignStatsFromClassPreset();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        UnitController.Level.OnValueChanged += OnLevelUpChanges;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        UnitController.Level.OnValueChanged -= OnLevelUpChanges;
+    }
+
     private void AssignStatsFromClassPreset()
     {
-        PlayerStats.Value.CurrentExp = 0;
-        PlayerStats.Value.AvailableStatPoints = 0;
-        PlayerStats.Value.Gold = 0;
+        CurrentExp.Value = 0;
+        AvailableStatPoints.Value = 0;
+        Gold.Value = 0;
     }
 
     public void ServerAddExp(int amount)
     {
-        PlayerStats.Value.CurrentExp += amount;
-        if (PlayerStats.Value.CurrentExp >= ExperienceValues.ExpToNextLevel[UnitController.Level.Value])
+        CurrentExp.Value += amount;
+        if (CurrentExp.Value >= ExperienceValues.ExpToNextLevel[UnitController.Level.Value])
         {
-            PlayerStats.Value.CurrentExp -= ExperienceValues.ExpToNextLevel[UnitController.Level.Value];
+            CurrentExp.Value -= ExperienceValues.ExpToNextLevel[UnitController.Level.Value];
             UnitController.Level.Value += 1;
-            CheckAbilityUnlocks();
-            PlayerStats.Value.AvailableStatPoints += 3;
+            AvailableStatPoints.Value += 3;
             ServerAddExp(0);
         }
+    }
+
+    public void OnLevelUpChanges(int oldValue, int newValue)
+    {
+        CheckAbilityUnlocks();
     }
 
     private void CheckAbilityUnlocks()
@@ -158,14 +176,6 @@ public class InventoryEntry
     public int Quantity;
 
     public string id;
-}
-
-[Serializable]
-public class PlayerStats
-{
-    public int CurrentExp;
-    public int AvailableStatPoints;
-    public int Gold;
 }
 
 public static class ExperienceValues

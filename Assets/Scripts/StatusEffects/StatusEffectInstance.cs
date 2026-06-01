@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class StatusEffectInstance
 {
     public StatusEffect StatusEffect;
@@ -12,6 +13,7 @@ public class StatusEffectInstance
     public float StatusEffectPower;
 
     public bool isServerExpired = false;
+    public bool isAppliedOnClient = false;
 
     public bool clientOnApplicationCompleted = false;
 
@@ -24,6 +26,7 @@ public class StatusEffectInstance
         RemainingNumberOfTurns = _numberOfTurns;
         StatusEffectPower = _statusEffectPower;
         statusEffectId = _statusEffectId;
+        isAppliedOnClient = false;
     }
 
     public void ServerExecuteEffect(UnitController controller)

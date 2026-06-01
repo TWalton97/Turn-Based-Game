@@ -16445,10 +16445,9 @@ MonoBehaviour:
   CurrentRoomIndex: 0
   AvailableEnemies:
   - {fileID: 1859624672593206805, guid: df20a2b68b3ad094e823742f3ba5d5bc, type: 3}
-  - {fileID: 1859624672593206805, guid: e91b782b0ea4d5746a9c14a85d088845, type: 3}
-  - {fileID: 1859624672593206805, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
   Background: {fileID: 1342900617445200421, guid: 36a4675a39ad99d41a5b2a89389f2db1, type: 3}
-  NumberOfReadyVotes: 0
+  NumberOfReadyVotes:
+    m_InternalValue: 0
 --- !u!114 &958336431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16500,7 +16499,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 696cc0468498cf8469a468daa03e9e86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TooltipParentObject: {fileID: 713790388}
+  TooltipParentObject: {fileID: 713790389}
   TooltipTitleText: {fileID: 786187888}
   TooltipCostText: {fileID: 1574505587}
   TooltipDescriptionText: {fileID: 1564008534}
@@ -16573,6 +16572,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 617a934724219474eaac9bce38c4f321, type: 2}
   CraftingEntriesParent: {fileID: 964138278}
   CraftingEntryPrefab: {fileID: 5453653390508399583, guid: 55c2ee4340c0e5849935ab9a6c1137f1, type: 3}
+  ReadyButtonText: {fileID: 1713036360}
 --- !u!114 &958336436
 MonoBehaviour:
   m_ObjectHideFlags: 0
