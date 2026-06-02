@@ -10,4 +10,9 @@ public abstract class ItemSO : ScriptableObject
 
     public int GoldValue;
     public bool Stackable = true;
+
+    protected virtual void OnEnable()
+    {
+        ItemDatabase.RegisterItem(this);
+    }
 }

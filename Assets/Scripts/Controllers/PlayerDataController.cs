@@ -82,7 +82,7 @@ public class PlayerDataController : NetworkBehaviour
         PendingAbilityUnlocks.Remove(pendingAbilityUnlock);
     }
 
-    public void AddItemToInventory(ItemSO item)
+    public void ServerAddItemToInventory(ItemSO item, string itemId = "-1")
     {
         InventoryEntry existingEntry = InventoryItems.Find(entry => entry.Item == item);
 
@@ -92,11 +92,15 @@ public class PlayerDataController : NetworkBehaviour
         }
         else
         {
+            if (itemId == "-1")
+            {
+                itemId = Guid.NewGuid().ToString();
+            }
             InventoryItems.Add(new InventoryEntry
             {
                 Item = item,
                 Quantity = 1,
-                id = Guid.NewGuid().ToString()
+                id = itemId,
             });
         }
         OnInventoryUpdated?.Invoke();
@@ -105,6 +109,27 @@ public class PlayerDataController : NetworkBehaviour
     public void RemoveItemFromInventory(ItemSO item)
     {
         InventoryEntry existingEntry = InventoryItems.Find(entry => entry.Item == item);
+        if (existingEntry == null)
+            return;
+
+        if (existingEntry != null)
+        {
+            existingEntry.Quantity -= 1;
+        }
+
+        if (existingEntry.Quantity <= 0)
+        {
+            InventoryItems.Remove(existingEntry);
+        }
+
+        OnInventoryUpdated?.Invoke();
+    }
+
+    public void RemoveItemFromInventory(string itemId)
+    {
+        InventoryEntry existingEntry = InventoryItems.Find(entry => entry.id == itemId);
+        if (existingEntry == null)
+            return;
 
         if (existingEntry != null)
         {
@@ -128,7 +153,7 @@ public class PlayerDataController : NetworkBehaviour
     public InventoryEntry FindInventoryEntryByID(string id)
     {
         InventoryEntry entry = InventoryItems.Find(x => x.id == id);
-        return null;
+        return entry;
     }
 
     public bool IsItemEquipped(string id)

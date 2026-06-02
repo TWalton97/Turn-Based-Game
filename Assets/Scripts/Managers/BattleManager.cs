@@ -91,7 +91,7 @@ public class BattleManager : NetworkBehaviour
                 {
                     for (int i = 0; i < UnityEngine.Random.Range(1, 3); i++)
                     {
-                        dataController.AddItemToInventory(item);
+                        dataController.ServerAddItemToInventory(item);
                     }
                 }
             }

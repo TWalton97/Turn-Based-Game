@@ -11,6 +11,7 @@ public class CampItemEntry : MonoBehaviour
 
     public Button MainButton;
     public Button InspectButton;
+    public Button TransferButton;
 
     public void AssignItem(InventoryEntry inventoryEntry)
     {

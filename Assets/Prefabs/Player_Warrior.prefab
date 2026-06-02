@@ -102,20 +102,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   UnitName: Warrior
-  UnitStats:
-    Strength: 0
-    Dexterity: 0
-    Constitution: 0
-    Intelligence: 0
-    Faith: 0
-    Charisma: 0
-    Luck: 0
+  Strength:
+    m_InternalValue: 0
+  Dexterity:
+    m_InternalValue: 0
+  Constitution:
+    m_InternalValue: 0
+  Intelligence:
+    m_InternalValue: 0
+  Faith:
+    m_InternalValue: 0
+  Charisma:
+    m_InternalValue: 0
+  Luck:
+    m_InternalValue: 0
   UnitData: {fileID: 11400000, guid: dc23714d03f23a5478d97a3e6724cdd7, type: 2}
   MaxHealth: 32
   CurrentHealth:
     m_InternalValue: 0
   DisplayedHealth: 0
-  Level: 0
+  Level:
+    m_InternalValue: 0
   MaxMana: 5
   CurrentMana:
     m_InternalValue: 0
@@ -159,12 +166,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fc77f6e09970ca4787702359c03cedf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerStats:
-    CurrentExp: 0
-    AvailableStatPoints: 6
-    Gold: 0
-  InventoryItems: []
+  UnitController: {fileID: 0}
+  CurrentExp:
+    m_InternalValue: 0
+  AvailableStatPoints:
+    m_InternalValue: 0
+  Gold:
+    m_InternalValue: 0
+  InventoryItems:
+  - Item: {fileID: 11400000, guid: e9bca2c93664ab944b5ded30e8c5485e, type: 2}
+    Quantity: 1
+    id: 1
   EquippedItems: []
+  PendingAbilityUnlocks: []
 --- !u!114 &2220474873611023449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,4 +233,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b1ccf784e09f0e47990e147f6b43f64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StatusEffectNames: []
+  ActiveStatusEffects: []

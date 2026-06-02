@@ -64,7 +64,7 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if (playerDataController.HasItemsForRecipe(Recipe))
         {
             playerDataController.TryRemoveItemsForRecipe(Recipe);
-            playerDataController.AddItemToInventory(Recipe.CraftingOutput);
+            playerDataController.ServerAddItemToInventory(Recipe.CraftingOutput);
         }
     }
 
