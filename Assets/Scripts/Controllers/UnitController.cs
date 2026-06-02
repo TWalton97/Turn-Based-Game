@@ -163,13 +163,12 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void ServerRegenerateResources()
     {
-        nextTurnManaRegen = CalculateManaRegen();
-        ServerUpdateMana(nextTurnManaRegen);
+        ServerUpdateMana(CalculateManaRegen());
     }
 
     public void ClientRegenerateResources()
     {
-        ClientUpdateMana(nextTurnManaRegen);
+        ClientUpdateMana(CalculateManaRegen());
     }
 
     private IEnumerator ClientStartTurn(UnitController controller)
@@ -634,6 +633,9 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
         }
 
+        playerDataController.AvailableStatPoints.Value -= totalPoints;
+
+
         foreach (var change in statAllocation.statChanges)
         {
             switch (change.statType)
@@ -667,8 +669,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
                     break;
             }
         }
-
-        playerDataController.AvailableStatPoints.Value -= totalPoints;
 
         controller.CachedStatsDirty = true;
         controller.RecalculateAllStats();

@@ -26,33 +26,42 @@ public class StashController : NetworkBehaviour
         PlayerDataController dataController = controller.GetComponent<PlayerDataController>();
         InventoryEntry inventoryEntry = dataController.FindInventoryEntryByID(itemInstanceId);
 
-        Debug.Log($"Trying to find inventory entry with id {itemInstanceId}");
-
         if (inventoryEntry == null)
         {
             Debug.LogWarning($"Item does not exist in unit's inventory");
             return;
         }
 
-        StashEntry stashEntry = new();
-        stashEntry.itemName = inventoryEntry.Item.ItemName;
-        stashEntry.instanceId = inventoryEntry.id;
-        stashEntries.Add(stashEntry);
+        bool foundStack = false;
+
+        for (int i = 0; i < stashEntries.Count; i++)
+        {
+            if (stashEntries[i].itemName == inventoryEntry.Item.ItemName && stashEntries[i].stackable)
+            {
+                StashEntry stashEntry = stashEntries[i];
+                stashEntry.quantity++;
+                stashEntries[i] = stashEntry;
+                Debug.Log($"Found stash entry for {inventoryEntry.Item.ItemName}, increasing quantity to {stashEntry.quantity}");
+
+                foundStack = true;
+                break;
+            }
+        }
+
+        if (!foundStack)
+        {
+            StashEntry stashEntry = new();
+            stashEntry.itemName = inventoryEntry.Item.ItemName;
+            stashEntry.instanceId = inventoryEntry.id;
+            stashEntry.stackable = inventoryEntry.Item.Stackable;
+            stashEntry.quantity = 1;
+
+            stashEntries.Add(stashEntry);
+
+            Debug.Log($"No stash entry exists with item {inventoryEntry.Item.ItemName}, creating one");
+        }
 
         dataController.RemoveItemFromInventory(itemInstanceId);
-        RemoveItemFromTargetInventoryClientRpc(unitId, itemInstanceId);
-    }
-
-    [ClientRpc]
-    private void RemoveItemFromTargetInventoryClientRpc(ulong unitId, string itemId)
-    {
-        if (IsServer)
-            return;
-
-        UnitController controller = NetworkUtilities.GetUnitControllerById(unitId);
-        PlayerDataController dataController = controller.GetComponent<PlayerDataController>();
-
-        dataController.RemoveItemFromInventory(itemId);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -61,48 +70,29 @@ public class StashController : NetworkBehaviour
         UnitController controller = NetworkUtilities.GetUnitControllerById(unitId);
         PlayerDataController dataController = controller.GetComponent<PlayerDataController>();
 
-        StashEntry entry;
-        if (TryFindStashEntryById(itemInstanceId, out entry))
-        {
-            ItemSO item = ItemDatabase.GetItemByName(entry.itemName.ToString());
-            dataController.ServerAddItemToInventory(item, itemInstanceId);
-            MoveItemToTargetInventoryClientRpc(unitId, entry.itemName.ToString(), itemInstanceId);
-            stashEntries.Remove(entry);
-        }
-        else
-        {
-            Debug.LogWarning($"Could not find stash entry with id {itemInstanceId}");
-        }
-    }
-
-    [ClientRpc]
-    public void MoveItemToTargetInventoryClientRpc(ulong unitId, string itemName, string itemInstanceId)
-    {
-        if (IsServer)
-            return;
-
-        UnitController controller = NetworkUtilities.GetUnitControllerById(unitId);
-        PlayerDataController dataController = controller.GetComponent<PlayerDataController>();
-
-        ItemSO item = ItemDatabase.GetItemByName(itemName.ToString());
-        dataController.ServerAddItemToInventory(item, itemInstanceId);
-    }
-
-    private bool TryFindStashEntryById(string instanceId, out StashEntry entry)
-    {
-        FixedString64Bytes id = instanceId;
-
         for (int i = 0; i < stashEntries.Count; i++)
         {
-            if (stashEntries[i].instanceId == id)
+            if (stashEntries[i].instanceId == itemInstanceId)
             {
-                entry = stashEntries[i];
-                return true;
+
+                ItemSO item = ItemDatabase.GetItemByName(stashEntries[i].itemName.ToString());
+                Debug.Log($"Found stash entry for {item.ItemName}, decreasing quantity to {stashEntries[i].quantity - 1}");
+                dataController.ServerAddItemToInventory(item, itemInstanceId);
+
+                StashEntry stashEntry = stashEntries[i];
+                stashEntry.quantity--;
+                if (stashEntry.quantity <= 0)
+                {
+                    Debug.Log($"Remaining quantity for {item.ItemName} is 0, removing stash entry");
+                    stashEntries.RemoveAt(i);
+                }
+                else
+                {
+                    stashEntries[i] = stashEntry;
+                }
+                break;
             }
         }
-
-        entry = default;
-        return false;
     }
 }
 
@@ -110,6 +100,8 @@ public struct StashEntry : INetworkSerializable, IEquatable<StashEntry>
 {
     public FixedString64Bytes itemName;
     public FixedString64Bytes instanceId;
+    public int quantity;
+    public bool stackable;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -118,17 +110,21 @@ public struct StashEntry : INetworkSerializable, IEquatable<StashEntry>
             var reader = serializer.GetFastBufferReader();
             reader.ReadValueSafe(out itemName);
             reader.ReadValueSafe(out instanceId);
+            reader.ReadValueSafe(out quantity);
+            reader.ReadValueSafe(out stackable);
         }
         else
         {
             var writer = serializer.GetFastBufferWriter();
             writer.WriteValueSafe(itemName);
             writer.WriteValueSafe(instanceId);
+            writer.WriteValueSafe(quantity);
+            writer.WriteValueSafe(stackable);
         }
     }
 
     public bool Equals(StashEntry other)
     {
-        return itemName == other.itemName && instanceId == other.instanceId;
+        return itemName == other.itemName && instanceId == other.instanceId && quantity == other.quantity && stackable == other.stackable;
     }
 }

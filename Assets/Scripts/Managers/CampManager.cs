@@ -80,6 +80,8 @@ public class CampManager : MonoBehaviour
         TrackedUnitController.Charisma.OnValueChanged += OnStatsChanged;
         TrackedUnitController.Luck.OnValueChanged += OnStatsChanged;
 
+        playerDataController.AvailableStatPoints.OnValueChanged += OnSkillPointsChanged;
+
         StashController.instance.stashEntries.OnListChanged += UpdateStashEntries;
     }
 
@@ -101,6 +103,8 @@ public class CampManager : MonoBehaviour
         TrackedUnitController.Charisma.OnValueChanged -= OnStatsChanged;
         TrackedUnitController.Luck.OnValueChanged -= OnStatsChanged;
 
+        playerDataController.AvailableStatPoints.OnValueChanged -= OnSkillPointsChanged;
+
         StashController.instance.stashEntries.OnListChanged -= UpdateStashEntries;
     }
 
@@ -111,6 +115,7 @@ public class CampManager : MonoBehaviour
 
     public void UpdateReadyButtonText(int oldValue, int newValue)
     {
+        ReadyButtonText.text = $"Ready ({newValue})";
     }
 
     public void PopulateAbilityList()
@@ -171,12 +176,17 @@ public class CampManager : MonoBehaviour
                     itemEntry.GenerateItemDescription());
                 });
 
+                //Change this to instead just send 1 quantity of this item
                 itemEntry.TransferButton.onClick.AddListener(() =>
                 {
                     StashController.instance.RequestMoveItemToStashServerRpc(TrackedUnitController.NetworkObjectId,
                     capturedItemEntry.InventoryEntry.id);
-                    CampItemEntries.Remove(capturedItemEntry);
-                    Destroy(capturedItemEntry.gameObject);
+                    capturedItemEntry.InventoryEntry.Quantity--;
+                    if (capturedItemEntry.InventoryEntry.Quantity <= 0)
+                    {
+                        CampItemEntries.Remove(capturedItemEntry);
+                        Destroy(capturedItemEntry.gameObject);
+                    }
                 });
             }
         }
@@ -198,7 +208,7 @@ public class CampManager : MonoBehaviour
             InventoryEntry inventoryEntry = new();
             inventoryEntry.Item = ItemDatabase.GetItemByName(StashController.instance.stashEntries[i].itemName.ToString());
             inventoryEntry.id = StashController.instance.stashEntries[i].instanceId.ToString();
-            inventoryEntry.Quantity = 1;
+            inventoryEntry.Quantity = StashController.instance.stashEntries[i].quantity;
             itemEntry.AssignItem(inventoryEntry);
 
             CampItemEntry capturedItemEntry = itemEntry;
@@ -250,7 +260,13 @@ public class CampManager : MonoBehaviour
 
     public void OnStatsChanged(int oldValue, int newValue)
     {
+        TrackedUnitController.CachedStatsDirty = true;
         PopulatePlayerStatsPanel();
+    }
+
+    public void OnSkillPointsChanged(int oldValue, int newValue)
+    {
+        InvestPointsButton.text = $"Invest Points ({newValue})";
     }
 
     public void PopulatePlayerStatsPanel()
@@ -287,7 +303,6 @@ public class CampManager : MonoBehaviour
 
         PlayerStatsPanel.text = sb.ToString();
 
-        InvestPointsButton.text = $"Invest Points ({playerDataController.AvailableStatPoints.Value})";
         UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";
     }
 
