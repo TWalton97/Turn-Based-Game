@@ -20,28 +20,29 @@ public class StashController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void RequestMoveItemToStashServerRpc(ulong unitId, string itemInstanceId)
+    public void RequestMoveItemToStashServerRpc(ulong unitId, FixedString64Bytes itemInstanceId)
     {
         UnitController controller = NetworkUtilities.GetUnitControllerById(unitId);
         PlayerDataController dataController = controller.GetComponent<PlayerDataController>();
         InventoryEntry inventoryEntry = dataController.FindInventoryEntryByID(itemInstanceId);
 
-        if (inventoryEntry == null)
+        if (inventoryEntry.quantity == 0)
         {
             Debug.LogWarning($"Item does not exist in unit's inventory");
             return;
         }
 
+        ItemSO item = ItemDatabase.GetItemByName(inventoryEntry.itemName.ToString());
+
         bool foundStack = false;
 
         for (int i = 0; i < stashEntries.Count; i++)
         {
-            if (stashEntries[i].itemName == inventoryEntry.Item.ItemName && stashEntries[i].stackable)
+            if (stashEntries[i].itemName == item.ItemName && stashEntries[i].stackable)
             {
                 StashEntry stashEntry = stashEntries[i];
                 stashEntry.quantity++;
                 stashEntries[i] = stashEntry;
-                Debug.Log($"Found stash entry for {inventoryEntry.Item.ItemName}, increasing quantity to {stashEntry.quantity}");
 
                 foundStack = true;
                 break;
@@ -51,21 +52,19 @@ public class StashController : NetworkBehaviour
         if (!foundStack)
         {
             StashEntry stashEntry = new();
-            stashEntry.itemName = inventoryEntry.Item.ItemName;
-            stashEntry.instanceId = inventoryEntry.id;
-            stashEntry.stackable = inventoryEntry.Item.Stackable;
+            stashEntry.itemName = item.ItemName;
+            stashEntry.instanceId = inventoryEntry.instanceId;
+            stashEntry.stackable = item.Stackable;
             stashEntry.quantity = 1;
 
             stashEntries.Add(stashEntry);
-
-            Debug.Log($"No stash entry exists with item {inventoryEntry.Item.ItemName}, creating one");
         }
 
-        dataController.RemoveItemFromInventory(itemInstanceId);
+        dataController.RemoveItemFromInventoryById(itemInstanceId);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void RequestMoveItemToInventoryServerRpc(ulong unitId, string itemInstanceId)
+    public void RequestMoveItemToInventoryServerRpc(ulong unitId, FixedString64Bytes itemInstanceId)
     {
         UnitController controller = NetworkUtilities.GetUnitControllerById(unitId);
         PlayerDataController dataController = controller.GetComponent<PlayerDataController>();
@@ -74,16 +73,13 @@ public class StashController : NetworkBehaviour
         {
             if (stashEntries[i].instanceId == itemInstanceId)
             {
-
                 ItemSO item = ItemDatabase.GetItemByName(stashEntries[i].itemName.ToString());
-                Debug.Log($"Found stash entry for {item.ItemName}, decreasing quantity to {stashEntries[i].quantity - 1}");
-                dataController.ServerAddItemToInventory(item, itemInstanceId);
+                dataController.ServerAddItemToInventory(item);
 
                 StashEntry stashEntry = stashEntries[i];
                 stashEntry.quantity--;
                 if (stashEntry.quantity <= 0)
                 {
-                    Debug.Log($"Remaining quantity for {item.ItemName} is 0, removing stash entry");
                     stashEntries.RemoveAt(i);
                 }
                 else

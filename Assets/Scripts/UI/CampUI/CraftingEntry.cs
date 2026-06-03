@@ -63,8 +63,7 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         if (playerDataController.HasItemsForRecipe(Recipe))
         {
-            playerDataController.TryRemoveItemsForRecipe(Recipe);
-            playerDataController.ServerAddItemToInventory(Recipe.CraftingOutput);
+            playerDataController.TryCraftItemServerRpc(Recipe.CraftingOutput.ItemName);
         }
     }
 
@@ -74,26 +73,25 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         CampManager.instance.PopulateDetailsPanel(Recipe.CraftingOutput.ItemName, Recipe.CraftingOutput.ItemInformation, Recipe.CraftingOutput.Description);
     }
 
-    public string BuildRecipeString(List<InventoryEntry> recipeItems)
+    public string BuildRecipeString(List<RecipeIngredient> recipeItems)
     {
         StringBuilder sb = new StringBuilder();
 
-        foreach (var entry in recipeItems)
+        foreach (var ingredient in recipeItems)
         {
-            int ownedQuantity = CampManager.instance.TrackedUnitController.GetComponent<PlayerDataController>().InventoryItems
-            .Where(x => x.Item == entry.Item)
-            .Sum(x => x.Quantity);
+            ItemSO item = ItemDatabase.GetItemByName(ingredient.item.ItemName.ToString());
+            int ownedQuantity = playerDataController.FindInventoryEntryByItem(item).quantity;
 
-            bool hasEnough = ownedQuantity >= entry.Quantity;
+            bool hasEnough = ownedQuantity >= ingredient.quantity;
 
             if (hasEnough)
             {
-                sb.AppendLine($"{entry.Item.ItemName} {entry.Quantity}");
+                sb.AppendLine($"{ingredient.item.ItemName} {ingredient.quantity}");
             }
             else
             {
                 sb.AppendLine(
-                    $"<color=red>{entry.Item.ItemName} {entry.Quantity}</color>"
+                    $"<color=red>{ingredient.item.ItemName} {ingredient.quantity}</color>"
                 );
             }
         }

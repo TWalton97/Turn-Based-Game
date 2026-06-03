@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -69,7 +70,6 @@ public class CampManager : MonoBehaviour
         PopulateStashList();
         UpdateReadyButtonText(0, 0);
 
-        playerDataController.OnInventoryUpdated += PopulateItemList;
         ProgressionManager.instance.NumberOfReadyVotes.OnValueChanged += UpdateReadyButtonText;
 
         TrackedUnitController.Strength.OnValueChanged += OnStatsChanged;
@@ -83,13 +83,11 @@ public class CampManager : MonoBehaviour
         playerDataController.AvailableStatPoints.OnValueChanged += OnSkillPointsChanged;
 
         StashController.instance.stashEntries.OnListChanged += UpdateStashEntries;
+        playerDataController.InventoryItems.OnListChanged += UpdateInventoryEntries;
     }
 
     void OnDestroy()
     {
-        if (playerDataController != null)
-            playerDataController.OnInventoryUpdated -= PopulateItemList;
-
         ProgressionManager.instance.NumberOfReadyVotes.OnValueChanged -= UpdateReadyButtonText;
 
         if (TrackedUnitController == null)
@@ -106,11 +104,17 @@ public class CampManager : MonoBehaviour
         playerDataController.AvailableStatPoints.OnValueChanged -= OnSkillPointsChanged;
 
         StashController.instance.stashEntries.OnListChanged -= UpdateStashEntries;
+        playerDataController.InventoryItems.OnListChanged -= UpdateInventoryEntries;
     }
 
     private void UpdateStashEntries(NetworkListEvent<StashEntry> changeEvent)
     {
         PopulateStashList();
+    }
+
+    private void UpdateInventoryEntries(NetworkListEvent<InventoryEntry> changeEvent)
+    {
+        PopulateItemList();
     }
 
     public void UpdateReadyButtonText(int oldValue, int newValue)
@@ -159,34 +163,28 @@ public class CampManager : MonoBehaviour
 
         for (int i = 0; i < playerDataController.InventoryItems.Count; i++)
         {
-            if (!playerDataController.IsItemEquipped(playerDataController.InventoryItems[i].id))
+            if (!playerDataController.IsItemEquipped(playerDataController.InventoryItems[i].instanceId))
             {
                 CampItemEntry itemEntry = Instantiate(CampItemEntry, ItemEntriesParent);
                 CampItemEntries.Add(itemEntry);
                 itemEntry.AssignItem(playerDataController.InventoryItems[i]);
-                if (!CollectedItems.Contains(playerDataController.InventoryItems[i].Item))
-                    CollectedItems.Add(playerDataController.InventoryItems[i].Item);
+                ItemSO item = ItemDatabase.GetItemByName(playerDataController.InventoryItems[i].itemName.ToString());
+                if (!CollectedItems.Contains(item))
+                    CollectedItems.Add(item);
 
-                CampItemEntry capturedItemEntry = itemEntry;
+                FixedString64Bytes itemId = playerDataController.InventoryItems[i].instanceId;
 
                 itemEntry.InspectButton.onClick.AddListener(() =>
                 {
-                    PopulateDetailsPanel(capturedItemEntry.InventoryEntry.Item.ItemName,
-                    capturedItemEntry.InventoryEntry.Item.Description,
+                    PopulateDetailsPanel(item.ItemName,
+                    item.Description,
                     itemEntry.GenerateItemDescription());
                 });
 
-                //Change this to instead just send 1 quantity of this item
                 itemEntry.TransferButton.onClick.AddListener(() =>
                 {
                     StashController.instance.RequestMoveItemToStashServerRpc(TrackedUnitController.NetworkObjectId,
-                    capturedItemEntry.InventoryEntry.id);
-                    capturedItemEntry.InventoryEntry.Quantity--;
-                    if (capturedItemEntry.InventoryEntry.Quantity <= 0)
-                    {
-                        CampItemEntries.Remove(capturedItemEntry);
-                        Destroy(capturedItemEntry.gameObject);
-                    }
+                    itemId);
                 });
             }
         }
@@ -206,26 +204,28 @@ public class CampManager : MonoBehaviour
             CampStashEntries.Add(itemEntry);
 
             InventoryEntry inventoryEntry = new();
-            inventoryEntry.Item = ItemDatabase.GetItemByName(StashController.instance.stashEntries[i].itemName.ToString());
-            inventoryEntry.id = StashController.instance.stashEntries[i].instanceId.ToString();
-            inventoryEntry.Quantity = StashController.instance.stashEntries[i].quantity;
+            inventoryEntry.itemName = StashController.instance.stashEntries[i].itemName;
+            inventoryEntry.instanceId = StashController.instance.stashEntries[i].instanceId.ToString();
+            inventoryEntry.quantity = StashController.instance.stashEntries[i].quantity;
+            inventoryEntry.stackable = StashController.instance.stashEntries[i].stackable;
+            inventoryEntry.equipped = false;
+
             itemEntry.AssignItem(inventoryEntry);
+            ItemSO item = ItemDatabase.GetItemByName(StashController.instance.stashEntries[i].itemName.ToString());
 
             CampItemEntry capturedItemEntry = itemEntry;
 
             itemEntry.InspectButton.onClick.AddListener(() =>
             {
-                PopulateDetailsPanel(capturedItemEntry.InventoryEntry.Item.ItemName,
-                capturedItemEntry.InventoryEntry.Item.Description,
+                PopulateDetailsPanel(item.ItemName,
+                item.Description,
                 itemEntry.GenerateItemDescription());
             });
 
             itemEntry.TransferButton.onClick.AddListener(() =>
             {
                 StashController.instance.RequestMoveItemToInventoryServerRpc(TrackedUnitController.NetworkObjectId,
-                capturedItemEntry.InventoryEntry.id);
-                CampItemEntries.Remove(capturedItemEntry);
-                Destroy(capturedItemEntry.gameObject);
+                capturedItemEntry.InventoryEntry.instanceId);
             });
         }
     }
@@ -308,12 +308,25 @@ public class CampManager : MonoBehaviour
 
     public void TryEquipItem(CampItemEntry entry)
     {
+        playerDataController.TryCraftItemServerRpc(entry.InventoryEntry.instanceId.ToString());
+    }
+
+    public void ConfirmEquipItem(string itemInstanceId, ulong senderId)
+    {
+        if (TrackedUnitController == null)
+            return;
+
+        if (TrackedUnitController.OwnerClientId != senderId)
+            return;
+
+        InventoryEntry entry = playerDataController.FindInventoryEntryByID(itemInstanceId.ToString());
+        ItemSO itemSO = ItemDatabase.GetItemByName(entry.itemName.ToString());
         foreach (EquippedGearSlot slot in EquippedGearSlots)
         {
-            EquipmentItemSO equipmentItemSO = entry.InventoryEntry.Item as EquipmentItemSO;
+            EquipmentItemSO equipmentItemSO = itemSO as EquipmentItemSO;
             if (slot.EquipmentSlot == equipmentItemSO.EquipmentSlot)
             {
-                slot.EquipItemToSlot(entry.InventoryEntry);
+                slot.EquipItemToSlot(entry);
                 PopulatePlayerStatsPanel();
             }
         }

@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_ClothHood
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: e9bca2c93664ab944b5ded30e8c5485e, type: 2}
-    Quantity: 2
-    id: 
+  - item: {fileID: 11400000, guid: e9bca2c93664ab944b5ded30e8c5485e, type: 2}
+    quantity: 2
   CraftingOutput: {fileID: 11400000, guid: 5816bf5310adf5c4799a1055d262dd78, type: 2}

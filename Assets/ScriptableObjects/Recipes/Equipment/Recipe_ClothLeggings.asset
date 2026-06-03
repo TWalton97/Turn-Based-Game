@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_ClothLeggings
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: e9bca2c93664ab944b5ded30e8c5485e, type: 2}
-    Quantity: 3
-    id: 
+  - item: {fileID: 11400000, guid: e9bca2c93664ab944b5ded30e8c5485e, type: 2}
+    quantity: 3
   CraftingOutput: {fileID: 11400000, guid: b0b282b2456256a46af28d253e6f44c7, type: 2}

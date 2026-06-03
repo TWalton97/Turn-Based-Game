@@ -16371,6 +16371,7 @@ MonoBehaviour:
   AllUnits: []
   FriendlyUnits: []
   EnemyUnits: []
+  ItemToDistribute: {fileID: 11400000, guid: e9bca2c93664ab944b5ded30e8c5485e, type: 2}
 --- !u!4 &958336426
 Transform:
   m_ObjectHideFlags: 0

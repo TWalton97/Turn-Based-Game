@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_IronLeggings
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
-    Quantity: 3
-    id: 
+  - item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
+    quantity: 3
   CraftingOutput: {fileID: 11400000, guid: 1f6e3607f0dd5cd48b259f5bf07a6937, type: 2}

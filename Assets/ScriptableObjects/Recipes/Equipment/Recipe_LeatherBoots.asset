@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_LeatherBoots
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
-    Quantity: 2
-    id: 
+  - item: {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
+    quantity: 2
   CraftingOutput: {fileID: 11400000, guid: e650b55219e215b4181752fec132c6fb, type: 2}

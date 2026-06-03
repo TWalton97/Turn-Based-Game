@@ -18,6 +18,7 @@ public class BattleManager : NetworkBehaviour
     {
         if (instance == null)
             instance = this;
+
     }
 
     public void RegisterUnit(UnitController controller)

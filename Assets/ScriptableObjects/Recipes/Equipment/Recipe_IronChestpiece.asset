@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_IronChestpiece
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
-    Quantity: 5
-    id: 
+  - item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
+    quantity: 5
   CraftingOutput: {fileID: 11400000, guid: e20cde7dea4ce2848b04313282092814, type: 2}

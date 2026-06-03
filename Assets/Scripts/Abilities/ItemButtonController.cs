@@ -13,7 +13,7 @@ public class ItemButtonController : AbilityButtonController, IPointerEnterHandle
         if (!Ability.CanUse(controller))
             return;
 
-        controller.GetComponent<PlayerDataController>().RemoveItemFromInventory(BattleItem);
+        controller.GetComponent<PlayerDataController>().RemoveItemFromInventoryByName(BattleItem.ItemName);
 
         if (Ability.TargetType == TargetType.Self)
         {

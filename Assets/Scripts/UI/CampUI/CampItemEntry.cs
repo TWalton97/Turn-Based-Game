@@ -13,22 +13,23 @@ public class CampItemEntry : MonoBehaviour
     public Button InspectButton;
     public Button TransferButton;
 
+    private ItemSO itemSO;
+
     public void AssignItem(InventoryEntry inventoryEntry)
     {
         InventoryEntry = inventoryEntry;
-        ItemName.text = InventoryEntry.Item.ItemName;
-        if (inventoryEntry.Item.Stackable)
+        itemSO = ItemDatabase.GetItemByName(inventoryEntry.itemName.ToString());
+        ItemName.text = itemSO.ItemName;
+        if (itemSO.Stackable)
         {
-            ItemName.text = InventoryEntry.Item.ItemName + "(x" + inventoryEntry.Quantity + ")";
+            ItemName.text = itemSO.ItemName + "(x" + inventoryEntry.quantity + ")";
         }
-        if (InventoryEntry.Item is EquipmentItemSO equipmentItemSO)
+        if (itemSO is EquipmentItemSO equipmentItemSO)
         {
             MainButton.enabled = true;
             MainButton.onClick.AddListener(() =>
             {
                 CampManager.instance.TryEquipItem(this);
-                CampManager.instance.CampItemEntries.Remove(this);
-                Destroy(gameObject);
             });
         }
     }
@@ -36,18 +37,18 @@ public class CampItemEntry : MonoBehaviour
     public string GenerateItemDescription()
     {
         string description = "";
-        switch (InventoryEntry.Item)
+        switch (itemSO)
         {
             case BattleItemSO:
-                description = InventoryEntry.Item.ItemInformation;
-                description += "\n" + "\n" + InventoryEntry.Item.GoldValue + " gold";
+                description = itemSO.ItemInformation;
+                description += "\n" + "\n" + itemSO.GoldValue + " gold";
                 break;
             case EquipmentItemSO:
-                description = InventoryEntry.Item.ItemInformation;
-                description += "\n" + "\n" + InventoryEntry.Item.GoldValue + " gold";
+                description = itemSO.ItemInformation;
+                description += "\n" + "\n" + itemSO.GoldValue + " gold";
                 break;
             case ResourceItemSO:
-                description = InventoryEntry.Item.GoldValue + " gold";
+                description = itemSO.GoldValue + " gold";
                 break;
         }
 

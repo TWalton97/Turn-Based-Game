@@ -31,7 +31,8 @@ public class ItemPanelController : PanelController
         int i = 0;
         foreach (InventoryEntry entry in dataController.InventoryItems)
         {
-            if (entry.Item is BattleItemSO battleItem)
+            ItemSO itemSO = ItemDatabase.GetItemByName(entry.itemName.ToString());
+            if (itemSO is BattleItemSO battleItem)
             {
                 abilityButtonControllers[i].BattleItem = battleItem;
                 abilityButtonControllers[i].EnableButton(controller, null, battleItem.ability);

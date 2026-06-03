@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_LeatherChestpiece
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
-    Quantity: 5
-    id: 
+  - item: {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
+    quantity: 5
   CraftingOutput: {fileID: 11400000, guid: 6dada5ab69a828f428f91c1b4f5b131d, type: 2}

@@ -4,16 +4,28 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Recipe")]
 public class RecipeSO : ScriptableObject
 {
-    public List<InventoryEntry> CraftingIngredients;
+    public List<RecipeIngredient> CraftingIngredients;
     public ItemSO CraftingOutput;
 
     public bool IsRecipeUnlocked(List<ItemSO> collectedItems)
     {
-        foreach (InventoryEntry entry in CraftingIngredients)
+        foreach (RecipeIngredient ingredient in CraftingIngredients)
         {
-            if (!collectedItems.Contains(entry.Item))
+            if (!collectedItems.Contains(ingredient.item))
                 return false;
         }
         return true;
     }
+
+    public void OnEnable()
+    {
+        RecipeDatabase.RegisterRecipe(this);
+    }
+}
+
+[System.Serializable]
+public class RecipeIngredient
+{
+    public ItemSO item;
+    public int quantity;
 }

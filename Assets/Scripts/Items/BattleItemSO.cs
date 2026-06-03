@@ -11,12 +11,12 @@ public class BattleItemSO : ItemSO, ICombatActionSource
     {
         PlayerDataController player = controller.GetComponent<PlayerDataController>();
         InventoryEntry entry = player.FindInventoryEntryByItem(this);
-        return entry != null;
+        return entry.quantity > 0;
     }
 
     public void ConsumeCost(UnitController controller)
     {
         PlayerDataController player = controller.GetComponent<PlayerDataController>();
-        player.RemoveItemFromInventory(this);
+        player.RemoveItemFromInventoryByName(this.ItemName);
     }
 }

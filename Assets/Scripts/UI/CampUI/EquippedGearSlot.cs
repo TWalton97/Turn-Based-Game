@@ -29,26 +29,26 @@ public class EquippedGearSlot : MonoBehaviour
 
     public void EquipItemToSlot(InventoryEntry item)
     {
-        if (ItemEquipped)
+        if (ItemEquipped != default)
             Unequip(false);
 
+        ItemSO itemSO = ItemDatabase.GetItemByName(item.itemName.ToString());
         EquippedItem = item;
-        EquipmentName.text = item.Item.ItemName;
+        EquipmentName.text = itemSO.ItemName;
         ItemEquipped = true;
 
         UnitController controller = CampManager.instance.TrackedUnitController;
-        EquipmentItemSO equipmentItemSO = item.Item as EquipmentItemSO;
+        EquipmentItemSO equipmentItemSO = itemSO as EquipmentItemSO;
         foreach (var mod in equipmentItemSO.statModifiers)
         {
             controller.StatModifiers.Add(new StatModifier
             {
                 stat = mod.stat,
                 value = mod.value,
-                sourceId = item.id,
+                sourceId = item.instanceId.ToString(),
             });
         }
         controller.CachedStatsDirty = true;
-
         controller.GetComponent<PlayerDataController>().EquippedItems.Add(item);
 
         CampManager.instance.PopulatePlayerStatsPanel();
@@ -60,16 +60,17 @@ public class EquippedGearSlot : MonoBehaviour
         if (!ItemEquipped)
             return;
 
+        ItemSO itemSO = ItemDatabase.GetItemByName(EquippedItem.itemName.ToString());
         UnitController controller = CampManager.instance.TrackedUnitController;
-        EquipmentItemSO equipmentItemSO = EquippedItem.Item as EquipmentItemSO;
+        EquipmentItemSO equipmentItemSO = itemSO as EquipmentItemSO;
         //Remove all stat modifiers from the controller that have this id
 
-        controller.StatModifiers.RemoveAll(t => t.sourceId == EquippedItem.id);
+        controller.StatModifiers.RemoveAll(t => t.sourceId == EquippedItem.instanceId);
         controller.CachedStatsDirty = true;
 
         controller.GetComponent<PlayerDataController>().EquippedItems.Remove(EquippedItem);
 
-        EquippedItem = null;
+        EquippedItem = default;
         EquipmentName.text = startingName;
         ItemEquipped = false;
 

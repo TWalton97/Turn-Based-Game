@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_IronBoots
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
-    Quantity: 2
-    id: 
+  - item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
+    quantity: 2
   CraftingOutput: {fileID: 11400000, guid: 17137251d4f848c4f8679b7143c69137, type: 2}

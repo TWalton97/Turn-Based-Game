@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Unity.Netcode;
+using Unity.Collections;
 
 public class PlayerDataController : NetworkBehaviour
 {
@@ -12,8 +13,8 @@ public class PlayerDataController : NetworkBehaviour
     public NetworkVariable<int> CurrentExp;
     public NetworkVariable<int> AvailableStatPoints;
     public NetworkVariable<int> Gold;
-    public List<InventoryEntry> InventoryItems;
-    public List<InventoryEntry> EquippedItems;
+    public NetworkList<InventoryEntry> InventoryItems;
+    public NetworkList<InventoryEntry> EquippedItems;
 
     public Action OnInventoryUpdated;
 
@@ -23,6 +24,9 @@ public class PlayerDataController : NetworkBehaviour
     {
         UnitController = GetComponent<UnitController>();
         AssignStatsFromClassPreset();
+
+        InventoryItems = new();
+        EquippedItems = new();
     }
 
     public override void OnNetworkSpawn()
@@ -82,63 +86,83 @@ public class PlayerDataController : NetworkBehaviour
         PendingAbilityUnlocks.Remove(pendingAbilityUnlock);
     }
 
-    public void ServerAddItemToInventory(ItemSO item, string itemId = "-1")
+    public void ServerAddItemToInventory(ItemSO item)
     {
-        InventoryEntry existingEntry = InventoryItems.Find(entry => entry.Item == item);
+        if (!IsServer)
+            return;
 
-        if (item.Stackable && existingEntry != null)
+
+        bool foundStack = false;
+        for (int i = 0; i < InventoryItems.Count; i++)
         {
-            existingEntry.Quantity += 1;
-        }
-        else
-        {
-            if (itemId == "-1")
+            if (InventoryItems[i].itemName == item.ItemName && InventoryItems[i].stackable)
             {
-                itemId = Guid.NewGuid().ToString();
+                InventoryEntry inventoryEntry = InventoryItems[i];
+                inventoryEntry.quantity++;
+                InventoryItems[i] = inventoryEntry;
+                foundStack = true;
+                break;
             }
-            InventoryItems.Add(new InventoryEntry
+        }
+
+        if (!foundStack)
+        {
+            InventoryEntry inventoryEntry = new();
+            inventoryEntry.itemName = item.ItemName;
+            inventoryEntry.instanceId = Guid.NewGuid().ToString();
+            inventoryEntry.quantity = 1;
+            inventoryEntry.stackable = item.Stackable;
+            inventoryEntry.equipped = false;
+            InventoryItems.Add(inventoryEntry);
+        }
+
+        OnInventoryUpdated?.Invoke();
+    }
+
+    public void RemoveItemFromInventoryById(FixedString64Bytes itemId)
+    {
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].instanceId == itemId)
             {
-                Item = item,
-                Quantity = 1,
-                id = itemId,
-            });
-        }
-        OnInventoryUpdated?.Invoke();
-    }
+                Debug.Log($"Removing {InventoryItems[i].itemName} from inventory");
+                InventoryEntry inventoryEntry = InventoryItems[i];
+                inventoryEntry.quantity--;
 
-    public void RemoveItemFromInventory(ItemSO item)
-    {
-        InventoryEntry existingEntry = InventoryItems.Find(entry => entry.Item == item);
-        if (existingEntry == null)
-            return;
-
-        if (existingEntry != null)
-        {
-            existingEntry.Quantity -= 1;
-        }
-
-        if (existingEntry.Quantity <= 0)
-        {
-            InventoryItems.Remove(existingEntry);
+                if (inventoryEntry.quantity <= 0)
+                {
+                    InventoryItems.RemoveAt(i);
+                }
+                else
+                {
+                    InventoryItems[i] = inventoryEntry;
+                }
+                break;
+            }
         }
 
         OnInventoryUpdated?.Invoke();
     }
 
-    public void RemoveItemFromInventory(string itemId)
+    public void RemoveItemFromInventoryByName(string itemName)
     {
-        InventoryEntry existingEntry = InventoryItems.Find(entry => entry.id == itemId);
-        if (existingEntry == null)
-            return;
-
-        if (existingEntry != null)
+        for (int i = 0; i < InventoryItems.Count; i++)
         {
-            existingEntry.Quantity -= 1;
-        }
+            if (InventoryItems[i].itemName == itemName)
+            {
+                InventoryEntry inventoryEntry = InventoryItems[i];
+                inventoryEntry.quantity--;
 
-        if (existingEntry.Quantity <= 0)
-        {
-            InventoryItems.Remove(existingEntry);
+                if (inventoryEntry.quantity <= 0)
+                {
+                    InventoryItems.RemoveAt(i);
+                }
+                else
+                {
+                    InventoryItems[i] = inventoryEntry;
+                }
+                break;
+            }
         }
 
         OnInventoryUpdated?.Invoke();
@@ -146,61 +170,193 @@ public class PlayerDataController : NetworkBehaviour
 
     public InventoryEntry FindInventoryEntryByItem(ItemSO item)
     {
-        InventoryEntry entry = InventoryItems.Find(x => x.Item == item);
-        return entry;
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].itemName == item.ItemName)
+            {
+                return InventoryItems[i];
+            }
+        }
+        return default;
     }
 
-    public InventoryEntry FindInventoryEntryByID(string id)
+    public InventoryEntry FindInventoryEntryByID(FixedString64Bytes id)
     {
-        InventoryEntry entry = InventoryItems.Find(x => x.id == id);
-        return entry;
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].instanceId == id)
+            {
+                return InventoryItems[i];
+            }
+        }
+        return default;
     }
 
-    public bool IsItemEquipped(string id)
+    public bool IsItemEquipped(FixedString64Bytes id)
     {
-        InventoryEntry entry = EquippedItems.Find(x => x.id == id);
-        return entry != null;
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].instanceId == id)
+            {
+                return InventoryItems[i].equipped;
+            }
+        }
+
+        Debug.LogWarning($"No item with id {id} found in inventory");
+        return false;
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void TryCraftItemServerRpc(FixedString64Bytes recipeOutputName)
+    {
+        RecipeSO recipeSO = RecipeDatabase.GetRecipeByName(recipeOutputName.ToString());
+        TryRemoveItemsForRecipe(recipeSO);
+        ServerAddItemToInventory(recipeSO.CraftingOutput);
+    }
+
+    //TODO: re-add recipes
     public bool HasItemsForRecipe(RecipeSO recipe)
     {
-        foreach (InventoryEntry entry in recipe.CraftingIngredients)
+        foreach (RecipeIngredient recipeIngredient in recipe.CraftingIngredients)
         {
-            InventoryEntry existingEntry = InventoryItems.Find(e => e.Item == entry.Item);
+            int total = 0;
 
-            if (existingEntry == null || existingEntry.Quantity < entry.Quantity)
+            for (int i = 0; i < InventoryItems.Count; i++)
             {
-                return false;
+                if (InventoryItems[i].itemName.ToString() == recipeIngredient.item.ItemName)
+                {
+                    total += InventoryItems[i].quantity;
+                }
             }
+
+            if (total < recipeIngredient.quantity)
+                return false;
         }
         return true;
     }
 
+    //TODO: re-add recipes
     public void TryRemoveItemsForRecipe(RecipeSO recipe)
     {
-        foreach (InventoryEntry entry in recipe.CraftingIngredients)
+        if (!IsServer)
+            return;
+
+        foreach (RecipeIngredient ingredient in recipe.CraftingIngredients)
         {
-            InventoryEntry existingEntry = InventoryItems.Find(e => e.Item == entry.Item);
+            int remainingToRemove = ingredient.quantity;
 
-            if (existingEntry != null && existingEntry.Quantity >= entry.Quantity)
+            for (int i = 0; i < InventoryItems.Count; i++)
             {
-                existingEntry.Quantity -= entry.Quantity;
-                if (existingEntry.Quantity == 0)
-                    InventoryItems.Remove(existingEntry);
+                if (InventoryItems[i].itemName.ToString() != ingredient.item.ItemName)
+                    continue;
 
-                OnInventoryUpdated?.Invoke();
+                InventoryEntry entry = InventoryItems[i];
+
+                int remove = Mathf.Min(entry.quantity, remainingToRemove);
+                entry.quantity -= remove;
+                remainingToRemove -= remove;
+
+                if (entry.quantity <= 0)
+                    InventoryItems.RemoveAt(i);
+                else
+                    InventoryItems[i] = entry;
+
+                if (remainingToRemove <= 0)
+                    break;
             }
         }
     }
+
+    public void SetEquipped(string id, bool equipped)
+    {
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].instanceId.ToString() == id)
+            {
+                InventoryEntry entry = InventoryItems[i];
+                entry.equipped = equipped;
+                InventoryItems[i] = entry;
+                break;
+            }
+        }
+
+        OnInventoryUpdated?.Invoke();
+    }
+
+    public void ApplyEquipmentStats(EquipmentItemSO equipmentItemSO, InventoryEntry entry)
+    {
+        foreach (var mod in equipmentItemSO.statModifiers)
+        {
+            UnitController.StatModifiers.Add(new StatModifier
+            {
+                stat = mod.stat,
+                value = mod.value,
+                sourceId = entry.instanceId.ToString(),
+            });
+        }
+        UnitController.CachedStatsDirty = true;
+        EquippedItems.Add(entry);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void EquipItemServerRpc(string itemInstanceId, ServerRpcParams rpcParams = default)
+    {
+        ulong clientId = rpcParams.Receive.SenderClientId;
+
+        InventoryEntry entry = FindInventoryEntryByID(itemInstanceId);
+
+        ItemSO item = ItemDatabase.GetItemByName(entry.itemName.ToString());
+        EquipmentItemSO equipment = item as EquipmentItemSO;
+
+        if (equipment == null)
+            return;
+
+        SetEquipped(itemInstanceId, true);
+
+        ApplyEquipmentStats(equipment, entry);
+    }
+
+    [ClientRpc]
+    public void UpdateEquippedItemUIClientRpc(string itemInstanceId, ulong senderId)
+    {
+        CampManager.instance.ConfirmEquipItem(itemInstanceId, senderId);
+    }
 }
 
-[Serializable]
-public class InventoryEntry
+public struct InventoryEntry : INetworkSerializable, IEquatable<InventoryEntry>
 {
-    public ItemSO Item;
-    public int Quantity;
+    public FixedString64Bytes itemName;
+    public FixedString64Bytes instanceId;
+    public int quantity;
+    public bool stackable;
+    public bool equipped;
 
-    public string id;
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        if (serializer.IsReader)
+        {
+            var reader = serializer.GetFastBufferReader();
+            reader.ReadValueSafe(out itemName);
+            reader.ReadValueSafe(out instanceId);
+            reader.ReadValueSafe(out quantity);
+            reader.ReadValueSafe(out stackable);
+            reader.ReadValueSafe(out equipped);
+        }
+        else
+        {
+            var writer = serializer.GetFastBufferWriter();
+            writer.WriteValueSafe(itemName);
+            writer.WriteValueSafe(instanceId);
+            writer.WriteValueSafe(quantity);
+            writer.WriteValueSafe(stackable);
+            writer.WriteValueSafe(equipped);
+        }
+    }
+
+    public bool Equals(InventoryEntry other)
+    {
+        return itemName == other.itemName && instanceId == other.instanceId && quantity == other.quantity && stackable == other.stackable && equipped == other.equipped;
+    }
 }
 
 public static class ExperienceValues

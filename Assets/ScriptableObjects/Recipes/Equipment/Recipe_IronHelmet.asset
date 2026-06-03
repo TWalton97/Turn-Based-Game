@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Recipe_IronHelmet
   m_EditorClassIdentifier: 
   CraftingIngredients:
-  - Item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
-    Quantity: 2
+  - item: {fileID: 11400000, guid: dd46b5d8c0136204ba2443fdea4221b3, type: 2}
+    quantity: 2
   CraftingOutput: {fileID: 11400000, guid: aed30b48ffb735048afa18b8efa5e228, type: 2}
