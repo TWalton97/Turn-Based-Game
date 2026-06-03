@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -218,9 +219,9 @@ public class AbilityEffectResult : INetworkSerializable
     public bool AnyDodged;
 
     public bool ApplyStatusEffect;
-    public string StatusEffectName;
+    public FixedString64Bytes StatusEffectName;
     public float StatusEffectResolvedPower;
-    public string StatusEffectId;
+    public FixedString64Bytes StatusEffectId;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {

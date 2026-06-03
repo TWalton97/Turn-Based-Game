@@ -14,11 +14,13 @@ public class BattleManager : NetworkBehaviour
     public List<UnitController> FriendlyUnits;
     public List<UnitController> EnemyUnits;
 
+    public ItemSO item1;
+    public ItemSO item2;
+
     private void Awake()
     {
         if (instance == null)
             instance = this;
-
     }
 
     public void RegisterUnit(UnitController controller)
@@ -30,6 +32,9 @@ public class BattleManager : NetworkBehaviour
 
         if (controller.UnitTeam == Team.Enemy)
             EnemyUnits.Add(controller);
+
+        DistributeItemsToPlayer(item1);
+        DistributeItemsToPlayer(item2);
     }
 
     public void UnregisterUnit(UnitController controller)

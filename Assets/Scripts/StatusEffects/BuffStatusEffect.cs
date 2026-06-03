@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Status Effects", menuName = "StatusEffects/Buff Status Effect")]
@@ -11,17 +13,20 @@ public class BuffStatusEffect : StatusEffect
     {
         foreach (StatModifier mod in StatModifiers)
         {
-            if (mod.stat == StatType.CurrentMana)
+            if (NetworkManager.Singleton.IsServer)
             {
-                controller.ServerUpdateMana((int)mod.value);
-            }
-            else
-                controller.StatModifiers.Add(new StatModifier
+                if (mod.stat == StatType.CurrentMana)
                 {
-                    stat = mod.stat,
-                    value = mod.value,
-                    sourceId = instance.statusEffectId
-                });
+                    controller.ServerUpdateMana((int)mod.value);
+                }
+                else
+                    controller.StatModifiers.Add(new StatModifier
+                    {
+                        stat = mod.stat,
+                        value = mod.value,
+                        sourceId = instance.statusEffectId
+                    });
+            }
             instance.StatusEffectPower = mod.value;
         }
         controller.CachedStatsDirty = true;
@@ -50,7 +55,13 @@ public class BuffStatusEffect : StatusEffect
 
     public override void ServerRemoveStatus(UnitController controller, StatusEffectInstance instance)
     {
-        controller.StatModifiers.RemoveAll(t => t.sourceId == instance.statusEffectId);
+        for (int i = controller.StatModifiers.Count - 1; i >= 0; i--)
+        {
+            if (controller.StatModifiers[i].sourceId == instance.statusEffectId)
+            {
+                controller.StatModifiers.RemoveAt(i);
+            }
+        }
         controller.CachedStatsDirty = true;
     }
 

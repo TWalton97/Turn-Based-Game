@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Netcode;
+using Unity.Collections;
 
 public class StatusEffectController : MonoBehaviour
 {
@@ -86,7 +88,7 @@ public class StatusEffectController : MonoBehaviour
         OnStatusEffectsChanged?.Invoke();
     }
 
-    public void AddStatusEffect(StatusEffect statusEffect, string statusEffectId, float statusEffectPower = 1)
+    public void AddStatusEffect(StatusEffect statusEffect, FixedString64Bytes statusEffectId, float statusEffectPower = 1)
     {
         StatusEffectInstance existingStatusEffectInstance = ActiveStatusEffects.Find(t => t.StatusEffect == statusEffect);
         if (existingStatusEffectInstance != null)

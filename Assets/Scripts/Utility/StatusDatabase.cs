@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public static class StatusDatabase
 {
-    public static Dictionary<string, StatusEffect> StatusEffects = new();
+    public static Dictionary<FixedString64Bytes, StatusEffect> StatusEffects = new();
 
-    public static StatusEffect GetStatusByName(string statusName)
+    public static StatusEffect GetStatusByName(FixedString64Bytes statusName)
     {
         return StatusEffects[statusName];
     }

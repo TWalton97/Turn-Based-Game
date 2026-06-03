@@ -29,7 +29,7 @@ public class CampItemEntry : MonoBehaviour
             MainButton.enabled = true;
             MainButton.onClick.AddListener(() =>
             {
-                CampManager.instance.TryEquipItem(this);
+                CampManager.instance.TryEquipItem(inventoryEntry);
             });
         }
     }

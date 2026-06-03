@@ -84,6 +84,7 @@ public class CampManager : MonoBehaviour
 
         StashController.instance.stashEntries.OnListChanged += UpdateStashEntries;
         playerDataController.InventoryItems.OnListChanged += UpdateInventoryEntries;
+        TrackedUnitController.StatModifiers.OnListChanged += UpdateStatsPanel;
     }
 
     void OnDestroy()
@@ -105,6 +106,7 @@ public class CampManager : MonoBehaviour
 
         StashController.instance.stashEntries.OnListChanged -= UpdateStashEntries;
         playerDataController.InventoryItems.OnListChanged -= UpdateInventoryEntries;
+        TrackedUnitController.StatModifiers.OnListChanged -= UpdateStatsPanel;
     }
 
     private void UpdateStashEntries(NetworkListEvent<StashEntry> changeEvent)
@@ -115,6 +117,12 @@ public class CampManager : MonoBehaviour
     private void UpdateInventoryEntries(NetworkListEvent<InventoryEntry> changeEvent)
     {
         PopulateItemList();
+        PopulateEquippedGearPanel();
+    }
+
+    private void UpdateStatsPanel(NetworkListEvent<StatModifier> changeEvent)
+    {
+        PopulatePlayerStatsPanel();
     }
 
     public void UpdateReadyButtonText(int oldValue, int newValue)
@@ -239,6 +247,35 @@ public class CampManager : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(DetailPanelRectTransform);
     }
 
+
+    public void PopulateEquippedGearPanel()
+    {
+        foreach (EquippedGearSlot equippedGearSlot in EquippedGearSlots)
+        {
+            equippedGearSlot.Reset();
+        }
+
+        //First we find which items are equipped
+        for (int i = 0; i < playerDataController.InventoryItems.Count; i++)
+        {
+            if (playerDataController.InventoryItems[i].equipped)
+            {
+                EquipmentItemSO equipmentItemSO = ItemDatabase.GetItemByName(playerDataController.InventoryItems[i].itemName.ToString()) as EquipmentItemSO;
+                if (equipmentItemSO == null)
+                    break;
+
+                for (int p = 0; p < EquippedGearSlots.Count; p++)
+                {
+                    if (EquippedGearSlots[p].EquipmentSlot == equipmentItemSO.EquipmentSlot)
+                    {
+                        EquippedGearSlots[p].EquipItemToSlot(equipmentItemSO);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     public void PopulateCraftingMenu()
     {
         if (!recipeEntriesCreated)
@@ -274,8 +311,7 @@ public class CampManager : MonoBehaviour
         UnitController controller = TrackedUnitController;
         StringBuilder sb = new StringBuilder();
 
-        if (controller.CachedStatsDirty)
-            controller.RecalculateAllStats();
+        controller.RecalculateAllStats();
 
         sb.AppendLine($"HP: {controller.CurrentHealth.Value}/{controller.MaxHealth}");
         sb.AppendLine($"Energy: {controller.MaxMana}");
@@ -306,29 +342,13 @@ public class CampManager : MonoBehaviour
         UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";
     }
 
-    public void TryEquipItem(CampItemEntry entry)
+    public void TryEquipItem(InventoryEntry entry)
     {
-        playerDataController.TryCraftItemServerRpc(entry.InventoryEntry.instanceId.ToString());
+        playerDataController.TryEquipItemServerRpc(entry.instanceId);
     }
 
-    public void ConfirmEquipItem(string itemInstanceId, ulong senderId)
+    public void TryUnequipItem(EquipmentItemSO equippedItem)
     {
-        if (TrackedUnitController == null)
-            return;
-
-        if (TrackedUnitController.OwnerClientId != senderId)
-            return;
-
-        InventoryEntry entry = playerDataController.FindInventoryEntryByID(itemInstanceId.ToString());
-        ItemSO itemSO = ItemDatabase.GetItemByName(entry.itemName.ToString());
-        foreach (EquippedGearSlot slot in EquippedGearSlots)
-        {
-            EquipmentItemSO equipmentItemSO = itemSO as EquipmentItemSO;
-            if (slot.EquipmentSlot == equipmentItemSO.EquipmentSlot)
-            {
-                slot.EquipItemToSlot(entry);
-                PopulatePlayerStatsPanel();
-            }
-        }
+        playerDataController.TryUnequipItemServerRpc(equippedItem.ItemName);
     }
 }

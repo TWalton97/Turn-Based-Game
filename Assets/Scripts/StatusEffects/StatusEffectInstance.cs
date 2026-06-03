@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
@@ -17,9 +18,9 @@ public class StatusEffectInstance
 
     public bool clientOnApplicationCompleted = false;
 
-    public string statusEffectId;
+    public FixedString64Bytes statusEffectId;
 
-    public StatusEffectInstance(UnitController _unitControler, StatusEffect _statusEffect, int _numberOfTurns, float _statusEffectPower, string _statusEffectId)
+    public StatusEffectInstance(UnitController _unitControler, StatusEffect _statusEffect, int _numberOfTurns, float _statusEffectPower, FixedString64Bytes _statusEffectId)
     {
         UnitController = _unitControler;
         StatusEffect = _statusEffect;

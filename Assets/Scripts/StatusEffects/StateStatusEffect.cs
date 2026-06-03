@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Status Effects", menuName = "StatusEffects/State Status Effect")]
@@ -49,5 +50,5 @@ public class StateStatusEffect : StatusEffect
 public class StateModifier
 {
     public UnitStateTags stateTag;
-    public string sourceId;
+    public FixedString64Bytes sourceId;
 }

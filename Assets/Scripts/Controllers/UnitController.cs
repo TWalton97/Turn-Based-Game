@@ -59,12 +59,10 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public StatusEffectController statusEffectController { get; private set; }
     private Vector3 startPos;
 
-    public List<StatModifier> StatModifiers;
+    public NetworkList<StatModifier> StatModifiers;
     public Dictionary<StatType, float> CachedStats;
     public List<StateModifier> StateModifiers;
     public bool CachedStatsDirty = true;
-
-    private int nextTurnManaRegen;
 
     private void Awake()
     {
@@ -82,6 +80,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         TurnManager.OnClientTurnStarted += ClientTurnInitialization;
         TurnManager.OnClientActionPhaseStarted += ClientBeginActionPhase;
         TurnManager.OnClientTurnEnded += ClientEndTurn;
+
+        StatModifiers = new();
     }
 
     public override void OnNetworkSpawn()
@@ -485,11 +485,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void RecalculateAllStats()
     {
-        if (!CachedStatsDirty)
-            return;
-
-        CachedStatsDirty = false;
-
         var stats = new Dictionary<StatType, float>();
 
         MaxHealth = UnitData.MaxHealth + (Constitution.Value * 2);
@@ -502,6 +497,9 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         stats[StatType.FTH] = Faith.Value;
         stats[StatType.CHA] = Charisma.Value;
         stats[StatType.LCK] = Luck.Value;
+
+        // APPLY MODIFIERS
+        ApplyAttributeModifiers(stats);
 
         // INITIATIVE
         stats[StatType.InitiativeMin] =
@@ -565,16 +563,33 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         stats[StatType.OutgoingDamage] =
             100f;
 
-        // APPLY MODIFIERS
-        ApplyModifiers(stats);
+        // APPLY EXTRA MODIFIERS
+        ApplyExtraModifiers(stats);
 
         CachedStats = stats;
     }
 
-    private void ApplyModifiers(Dictionary<StatType, float> stats)
+    private void ApplyExtraModifiers(Dictionary<StatType, float> stats)
     {
         foreach (var mod in StatModifiers)
         {
+            if (AttributeStats.Contains(mod.stat))
+                continue;
+
+            if (!stats.ContainsKey(mod.stat))
+                continue;
+
+            stats[mod.stat] += mod.value;
+        }
+    }
+
+    private void ApplyAttributeModifiers(Dictionary<StatType, float> stats)
+    {
+        foreach (var mod in StatModifiers)
+        {
+            if (!AttributeStats.Contains(mod.stat))
+                continue;
+
             if (!stats.ContainsKey(mod.stat))
                 continue;
 
@@ -673,6 +688,18 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         controller.CachedStatsDirty = true;
         controller.RecalculateAllStats();
     }
+
+    private readonly HashSet<StatType> AttributeStats = new()
+    {
+        StatType.STR,
+        StatType.DEX,
+        StatType.CON,
+        StatType.INT,
+        StatType.INT,
+        StatType.FTH,
+        StatType.CHA,
+        StatType.LCK
+    };
 }
 
 

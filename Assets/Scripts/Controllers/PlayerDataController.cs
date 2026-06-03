@@ -14,7 +14,6 @@ public class PlayerDataController : NetworkBehaviour
     public NetworkVariable<int> AvailableStatPoints;
     public NetworkVariable<int> Gold;
     public NetworkList<InventoryEntry> InventoryItems;
-    public NetworkList<InventoryEntry> EquippedItems;
 
     public Action OnInventoryUpdated;
 
@@ -26,7 +25,6 @@ public class PlayerDataController : NetworkBehaviour
         AssignStatsFromClassPreset();
 
         InventoryItems = new();
-        EquippedItems = new();
     }
 
     public override void OnNetworkSpawn()
@@ -125,7 +123,6 @@ public class PlayerDataController : NetworkBehaviour
         {
             if (InventoryItems[i].instanceId == itemId)
             {
-                Debug.Log($"Removing {InventoryItems[i].itemName} from inventory");
                 InventoryEntry inventoryEntry = InventoryItems[i];
                 inventoryEntry.quantity--;
 
@@ -202,7 +199,6 @@ public class PlayerDataController : NetworkBehaviour
             }
         }
 
-        Debug.LogWarning($"No item with id {id} found in inventory");
         return false;
     }
 
@@ -267,59 +263,108 @@ public class PlayerDataController : NetworkBehaviour
         }
     }
 
-    public void SetEquipped(string id, bool equipped)
-    {
-        for (int i = 0; i < InventoryItems.Count; i++)
-        {
-            if (InventoryItems[i].instanceId.ToString() == id)
-            {
-                InventoryEntry entry = InventoryItems[i];
-                entry.equipped = equipped;
-                InventoryItems[i] = entry;
-                break;
-            }
-        }
-
-        OnInventoryUpdated?.Invoke();
-    }
-
     public void ApplyEquipmentStats(EquipmentItemSO equipmentItemSO, InventoryEntry entry)
     {
+        if (!IsServer)
+            return;
+
         foreach (var mod in equipmentItemSO.statModifiers)
         {
             UnitController.StatModifiers.Add(new StatModifier
             {
                 stat = mod.stat,
                 value = mod.value,
-                sourceId = entry.instanceId.ToString(),
+                sourceId = entry.instanceId,
             });
         }
         UnitController.CachedStatsDirty = true;
-        EquippedItems.Add(entry);
+        UnitController.RecalculateAllStats();
+    }
+
+    public void RemoveEquipmentStats(InventoryEntry entry)
+    {
+        if (!IsServer)
+            return;
+
+        for (int i = UnitController.StatModifiers.Count - 1; i >= 0; i--)
+        {
+            if (UnitController.StatModifiers[i].sourceId == entry.instanceId)
+            {
+                UnitController.StatModifiers.RemoveAt(i);
+            }
+        }
+
+        UnitController.CachedStatsDirty = true;
+        UnitController.RecalculateAllStats();
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void EquipItemServerRpc(string itemInstanceId, ServerRpcParams rpcParams = default)
+    public void TryEquipItemServerRpc(FixedString64Bytes instanceId)
     {
-        ulong clientId = rpcParams.Receive.SenderClientId;
+        //Checking to make sure we're equipping a real item
+        EquipmentItemSO item = null;
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].instanceId == instanceId)
+            {
+                item = ItemDatabase.GetItemByName(InventoryItems[i].itemName.ToString()) as EquipmentItemSO;
+                break;
+            }
+        }
 
-        InventoryEntry entry = FindInventoryEntryByID(itemInstanceId);
-
-        ItemSO item = ItemDatabase.GetItemByName(entry.itemName.ToString());
-        EquipmentItemSO equipment = item as EquipmentItemSO;
-
-        if (equipment == null)
+        if (item == null)
+        {
+            Debug.LogWarning("Could not find item to equip");
             return;
+        }
 
-        SetEquipped(itemInstanceId, true);
+        //Checking if there's an equipped item of the same type and removing it
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].equipped)
+            {
+                EquipmentItemSO equipmentItem = ItemDatabase.GetItemByName(InventoryItems[i].itemName.ToString()) as EquipmentItemSO;
+                if (equipmentItem.EquipmentSlot == item.EquipmentSlot)
+                {
+                    InventoryEntry entryCopy = InventoryItems[i];
+                    entryCopy.equipped = false;
+                    InventoryItems[i] = entryCopy;
+                    RemoveEquipmentStats(entryCopy);
+                    break;
+                }
+            }
+        }
 
-        ApplyEquipmentStats(equipment, entry);
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].instanceId == instanceId)
+            {
+                InventoryEntry entryCopy = InventoryItems[i];
+                entryCopy.equipped = true;
+                InventoryItems[i] = entryCopy;
+                ApplyEquipmentStats(item, entryCopy);
+                break;
+            }
+        }
     }
 
-    [ClientRpc]
-    public void UpdateEquippedItemUIClientRpc(string itemInstanceId, ulong senderId)
+    [ServerRpc(RequireOwnership = false)]
+    public void TryUnequipItemServerRpc(FixedString64Bytes itemName)
     {
-        CampManager.instance.ConfirmEquipItem(itemInstanceId, senderId);
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].equipped)
+            {
+                if (InventoryItems[i].itemName == itemName)
+                {
+                    InventoryEntry entryCopy = InventoryItems[i];
+                    entryCopy.equipped = false;
+                    InventoryItems[i] = entryCopy;
+                    RemoveEquipmentStats(entryCopy);
+                    break;
+                }
+            }
+        }
     }
 }
 
