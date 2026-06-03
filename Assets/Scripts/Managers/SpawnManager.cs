@@ -9,8 +9,7 @@ public class SpawnManager : NetworkBehaviour
 
     public static SpawnManager instance;
 
-    public UnitController DEBUG_PlayerHealer;
-    public UnitController DEBUG_PlayerWarrior;
+    public List<UnitController> DEBUG_PlayerClasses;
 
     private void Awake()
     {
@@ -36,25 +35,14 @@ public class SpawnManager : NetworkBehaviour
         SpawnUnitForPlayer(clientId);
     }
 
-    public UnitController PickRandomClass()
-    {
-        int rand = Random.Range(0, 2);
-        if (rand == 0)
-        {
-            return DEBUG_PlayerWarrior;
-        }
-
-        return DEBUG_PlayerHealer;
-    }
-
     private void SpawnUnitForPlayer(ulong clientId)
     {
         if (!IsServer)
             return;
 
-        BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(DEBUG_PlayerWarrior.UnitTeam);
+        BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(DEBUG_PlayerClasses[0].UnitTeam);
 
-        GameObject unitObj = Instantiate(PickRandomClass().gameObject);
+        GameObject unitObj = Instantiate(DEBUG_PlayerClasses[Random.Range(0, DEBUG_PlayerClasses.Count)].gameObject);
 
         NetworkObject netObj = unitObj.GetComponent<NetworkObject>();
 
@@ -62,7 +50,7 @@ public class SpawnManager : NetworkBehaviour
         unitObj.transform.rotation = slot.UnitHolder.transform.rotation;
 
         UnitController unit = unitObj.GetComponent<UnitController>();
-        
+
         netObj.SpawnWithOwnership(clientId);
 
         unit.Level.Value = 1;

@@ -10,6 +10,7 @@ public static class CombatResolver
     public static HitResult CalculateHitDamage(UnitController attacker, AbilityEffect abilityEffect, UnitController target, float resolvedPower)
     {
         HitResult result = new HitResult();
+        result.DamageSource = DamageSource.Ability;
 
         if (abilityEffect.DamageType == DamageType.Heal)
         {
@@ -109,28 +110,12 @@ public static class CombatResolver
                 targetResults[o].TargetId = abilityEffectTargets[o].NetworkObjectId;
                 targetResults[o].Hits = hitResults;
 
-                //This is where we actually apply the status effect
-                if (effect.StatusToApply != null)
-                {
-                    float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
-                    string statusEffectId = Guid.NewGuid().ToString();
-                    abilityEffectResults[p].ApplyStatusEffect = true;
-                    abilityEffectResults[p].StatusEffectName = effect.StatusToApply.StatusEffectName;
-                    abilityEffectResults[p].StatusEffectResolvedPower = resolvedStatusPower;
-                    abilityEffectResults[p].StatusEffectId = statusEffectId;
-                }
-                else
-                {
-                    abilityEffectResults[p].StatusEffectName = "";
-                    abilityEffectResults[p].StatusEffectResolvedPower = 0;
-                    abilityEffectResults[p].StatusEffectId = "-1";
-                }
                 //For each hit, we create a hit result
                 for (int i = 0; i < effect.NumberOfHits; i++)
                 {
                     float resolvedPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
                     hitResults[i] = CalculateHitDamage(user, effect, abilityEffectTargets[o], resolvedPower);
-                    abilityEffectResults[p].TotalDamage += (int)hitResults[i].Damage;
+                    abilityEffectResults[p].TotalDamage += hitResults[i].Damage;
 
                     if (hitResults[i].Damage != 0)
                     {
@@ -152,6 +137,23 @@ public static class CombatResolver
             abilityEffectResults[p].AttackerId = userId;
             abilityEffectResults[p].TargetResults = targetResults;
             context.EffectResults.Add(abilityEffectResults[p]);
+
+            //This is where we actually apply the status effect
+            if (effect.StatusToApply != null)
+            {
+                float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
+                string statusEffectId = Guid.NewGuid().ToString();
+                abilityEffectResults[p].ApplyStatusEffect = true;
+                abilityEffectResults[p].StatusEffectName = effect.StatusToApply.StatusEffectName;
+                abilityEffectResults[p].StatusEffectResolvedPower = resolvedStatusPower;
+                abilityEffectResults[p].StatusEffectId = statusEffectId;
+            }
+            else
+            {
+                abilityEffectResults[p].StatusEffectName = "";
+                abilityEffectResults[p].StatusEffectResolvedPower = 0;
+                abilityEffectResults[p].StatusEffectId = "-1";
+            }
         }
 
         abilityResult.AttackerId = userId;
@@ -259,6 +261,7 @@ public class TargetResult : INetworkSerializable
 public class HitResult : INetworkSerializable
 {
     public DamageType DamageType;
+    public DamageSource DamageSource;
     public float Damage;
     public bool Crit;
     public bool Dodged;
@@ -267,6 +270,7 @@ public class HitResult : INetworkSerializable
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref DamageType);
+        serializer.SerializeValue(ref DamageSource);
         serializer.SerializeValue(ref Damage);
         serializer.SerializeValue(ref Crit);
         serializer.SerializeValue(ref Dodged);
@@ -316,14 +320,19 @@ public static class EffectConditionEvaluator
     public static float ResolveEffectPower(AbilityEffect effect, AbilityExecutionContext ctx)
     {
         float value = effect.DamageAmount;
+        if (effect.EffectType == EffectType.None)
+            return value;
+
+        for (int i = 0; i < ctx.EffectResults.Count; i++)
+        {
+            value += ctx.EffectResults[i].TotalDamage;
+        }
 
         if (effect.EffectScalingType == EffectScalingType.BasedOnPreviousDamage)
         {
             if (ctx.EffectResults.Count > 0)
             {
-                AbilityEffectResult last = ctx.EffectResults.Last();
-
-                float scaledValue = last.TotalDamage * effect.ScalingMultiplier;
+                float scaledValue = value * effect.ScalingMultiplier;
 
                 value = scaledValue * Mathf.Sign(effect.DamageAmount);
             }
@@ -339,6 +348,12 @@ public static class EffectConditionEvaluator
 
         return value;
     }
+}
+
+public enum DamageSource
+{
+    Ability,
+    StatusEffect
 }
 
 

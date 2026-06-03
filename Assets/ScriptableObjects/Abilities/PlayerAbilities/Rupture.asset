@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: TripleStrike
+  m_Name: Rupture
   m_EditorClassIdentifier: 
-  AbilityName: Triple Strike
-  AbilityDescription: Deals damage to a single enemy 3 times
+  AbilityName: Rupture
+  AbilityDescription: Deals damage to a single enemy and inflict Rupture for 3 turns
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 0
-  Cooldown: 2
+  Cooldown: 3
   MovesToTarget: 1
   AbilityAnimationDelay: 2
   UsesProjectile: 0
@@ -27,15 +27,29 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 3
-    NumberOfHits: 3
-    DurationBetweenHits: 0.2
-    StrengthScaling: 0.1
-    DexterityScaling: 0.1
+    DamageAmount: 2
+    NumberOfHits: 1
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0.15
     IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0
     ConditionThreshold: 0
     EffectScalingType: 0
-    ScalingMultiplier: 1
+    ScalingMultiplier: 0
+  - DamageType: 0
+    TargetType: 0
+    DamageAmount: 0
+    NumberOfHits: 0
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0
+    StatusToApply: {fileID: 11400000, guid: 27808563b514ad341b9b87a49baf3eb2, type: 2}
+    EffectType: 1
+    ConditionType: 1
+    ConditionThreshold: 0
+    EffectScalingType: 1
+    ScalingMultiplier: 2

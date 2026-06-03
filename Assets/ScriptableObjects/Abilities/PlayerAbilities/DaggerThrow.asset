@@ -10,32 +10,32 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: TripleStrike
+  m_Name: DaggerThrow
   m_EditorClassIdentifier: 
-  AbilityName: Triple Strike
-  AbilityDescription: Deals damage to a single enemy 3 times
+  AbilityName: Dagger Throw
+  AbilityDescription: Deals damage to all enemies
   ManaCost: 1
   TeamTargeting: 1
-  TargetType: 0
-  Cooldown: 2
-  MovesToTarget: 1
-  AbilityAnimationDelay: 2
+  TargetType: 3
+  Cooldown: 3
+  MovesToTarget: 0
+  AbilityAnimationDelay: 1.5
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   AIIntents: 00000000
   abilityEffects:
   - DamageType: 1
-    TargetType: 0
-    DamageAmount: 3
-    NumberOfHits: 3
-    DurationBetweenHits: 0.2
-    StrengthScaling: 0.1
-    DexterityScaling: 0.1
+    TargetType: 3
+    DamageAmount: 6
+    NumberOfHits: 1
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0.2
     IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0
     ConditionThreshold: 0
     EffectScalingType: 0
-    ScalingMultiplier: 1
+    ScalingMultiplier: 0

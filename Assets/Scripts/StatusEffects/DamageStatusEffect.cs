@@ -20,6 +20,7 @@ public class DamageStatusEffect : StatusEffect
     public override void ServerExecuteEffect(UnitController controller, StatusEffectInstance instance)
     {
         HitResult hitResult = new HitResult();
+        hitResult.DamageSource = DamageSource.StatusEffect;
         hitResult.Blocked = false;
         hitResult.Crit = false;
         hitResult.Dodged = false;
@@ -32,6 +33,7 @@ public class DamageStatusEffect : StatusEffect
     public override void ClientExecuteEffect(UnitController controller, StatusEffectInstance instance)
     {
         HitResult hitResult = new HitResult();
+        hitResult.DamageSource = DamageSource.StatusEffect;
         hitResult.Blocked = false;
         hitResult.Crit = false;
         hitResult.Dodged = false;

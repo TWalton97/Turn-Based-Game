@@ -315,7 +315,7 @@ public class CampManager : MonoBehaviour
 
         sb.AppendLine($"HP: {controller.CurrentHealth.Value}/{controller.MaxHealth}");
         sb.AppendLine($"Energy: {controller.MaxMana}");
-        sb.AppendLine($"Level: {controller.Level.Value} ({playerDataController.CurrentExp.Value}/{30})");
+        sb.AppendLine($"Level: {controller.Level.Value} ({playerDataController.CurrentExp.Value}/{ExperienceValues.ExpToNextLevel[controller.Level.Value]})");
         sb.AppendLine();
         sb.AppendLine($"STR: {controller.GetStatType(StatType.STR)}");
         sb.AppendLine($"DEX: {controller.GetStatType(StatType.DEX)}");

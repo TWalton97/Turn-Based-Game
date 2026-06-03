@@ -171,12 +171,28 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         ClientUpdateMana(CalculateManaRegen());
     }
 
+    public void ServerTurnInitialization(UnitController controller)
+    {
+        if (controller != this)
+            return;
+
+        statusEffectController.ServerOnTurnStarted();
+    }
+
+    public void ClientTurnInitialization(UnitController controller)
+    {
+        if (controller != this)
+            return;
+
+        StartCoroutine(ClientStartTurn(controller));
+    }
+
     private IEnumerator ClientStartTurn(UnitController controller)
     {
         if (controller != this)
             yield break;
 
-        yield return statusEffectController.ClientProcStatusEffects(ActivationTime.StartOfTurn);
+        yield return statusEffectController.ClientOnTurnStarted();
 
         foreach (RuntimeAbilityInstance abilityInstance in RuntimeAbilityInstances)
         {
@@ -186,28 +202,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         TurnManager.OnClientActionPhaseStarted?.Invoke(controller);
         yield return null;
-    }
-
-    public void ServerTurnInitialization(UnitController controller)
-    {
-        if (controller != this)
-            return;
-
-        statusEffectController.ServerProcStatusEffects(ActivationTime.StartOfTurn);
-        statusEffectController.ServerProcStatusEffects(ActivationTime.OnApplication);
-        statusEffectController.ServerReduceRemainingTurnTimer();
-        //Beginning of turn status effects modify health values
-    }
-
-    public void ClientTurnInitialization(UnitController controller)
-    {
-        if (controller != this)
-            return;
-
-        StartCoroutine(ClientStartTurn(controller));
-        statusEffectController.ClientProcStatusEffects(ActivationTime.OnApplication);
-        statusEffectController.ClientReduceRemainingTurnTimer();
-        //Beginning of turn status effects display
     }
 
     public void ServerBeginActionPhase(UnitController controller)
@@ -230,7 +224,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         enemyController.PickAction();
-        //Action is decided and computed
     }
 
     public void ClientBeginActionPhase(UnitController controller)
@@ -249,7 +242,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         ActionPhaseStarted = true;
         TurnManager.OnRefreshUI?.Invoke(controller);
-        //Enable UI
     }
 
     public void ServerEndTurn(UnitController controller)
@@ -257,7 +249,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (controller != this)
             return;
 
-        statusEffectController.ServerProcStatusEffects(ActivationTime.EndOfTurn);
+        statusEffectController.ServerOnTurnEnded();
         //End of turn status effects modify health values
     }
 
@@ -267,7 +259,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             return;
 
         ActionPhaseStarted = false;
-        statusEffectController.ClientProcStatusEffects(ActivationTime.EndOfTurn);
+        statusEffectController.ClientOnTurnEnded();
         //End of turn status effects display
     }
 
@@ -278,6 +270,9 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (!ServerIsAlive.Value) return;
 
         CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value - hitResult.Damage, 0, MaxHealth);
+
+        if (hitResult.DamageSource != DamageSource.StatusEffect && !hitResult.Dodged)
+            statusEffectController.ServerOnHit();
 
         if (syncDisplayedHealth)
         {
@@ -293,6 +288,10 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         DisplayedHealth = Mathf.Clamp(DisplayedHealth - hitResult.Damage, 0, MaxHealth);
         DamageNumberManager.instance.SpawnDamageNumberAtPosition(hitResult, transform.position);
+
+        if (hitResult.DamageSource != DamageSource.StatusEffect && !hitResult.Dodged)
+            statusEffectController.ClientOnHit();
+
         OnDisplayedHealthChanged?.Invoke();
         if (DisplayedHealth <= 0)
         {
@@ -372,25 +371,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         for (int p = 0; p < abilityResult.AbilityEffectResults.Length; p++)
         {
-            if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
-            {
-                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.TargetId);
-                if (!IsServer)
-                {
-                    StatusEffect status = StatusDatabase.GetStatusByName(abilityResult.AbilityEffectResults[p].StatusEffectName);
-                    target.statusEffectController.AddStatusEffect(status, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
-                }
-
-                StatusEffectInstance instance = target.statusEffectController.ActiveStatusEffects.Find(t => t.statusEffectId == abilityResult.AbilityEffectResults[p].StatusEffectId);
-                if (instance != null)
-                {
-                    instance.isAppliedOnClient = true;
-                    instance.StatusEffect.ClientOnApplication(this, instance);
-                }
-
-                target.statusEffectController.OnStatusEffectsChanged?.Invoke();
-            }
-
             for (int o = 0; o < abilityResult.AbilityEffectResults[p].TargetResults.Length; o++)
             {
                 UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.AbilityEffectResults[p].TargetResults[o].TargetId);
@@ -399,6 +379,13 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
                     target.ClientTakeDamage(abilityResult.AbilityEffectResults[p].TargetResults[o].Hits[i]);
                     yield return new WaitForSeconds(ability.abilityEffects[p].DurationBetweenHits);
                 }
+            }
+
+            if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
+            {
+                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.TargetId);
+                StatusEffect status = StatusDatabase.GetStatusByName(abilityResult.AbilityEffectResults[p].StatusEffectName);
+                target.statusEffectController.ClientApplyStatusEffect(status, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
             }
         }
 

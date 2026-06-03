@@ -68,11 +68,6 @@ public class CombatManager : NetworkBehaviour
 
         foreach (AbilityEffectResult abilityEffectResult in abilityResult.AbilityEffectResults)
         {
-            if (abilityEffectResult.ApplyStatusEffect)
-            {
-                StatusEffect status = StatusDatabase.GetStatusByName(abilityEffectResult.StatusEffectName);
-                target.statusEffectController.AddStatusEffect(status, abilityEffectResult.StatusEffectId, abilityEffectResult.StatusEffectResolvedPower);
-            }
             foreach (TargetResult targetResult in abilityEffectResult.TargetResults)
             {
                 UnitController controller = NetworkUtilities.GetUnitControllerById(targetResult.TargetId);
@@ -80,6 +75,12 @@ public class CombatManager : NetworkBehaviour
                 {
                     controller.ServerTakeDamage(hitResult);
                 }
+            }
+
+            if (abilityEffectResult.ApplyStatusEffect)
+            {
+                StatusEffect status = StatusDatabase.GetStatusByName(abilityEffectResult.StatusEffectName);
+                target.statusEffectController.ServerApplyStatusEffect(status, abilityEffectResult.StatusEffectId, abilityEffectResult.StatusEffectResolvedPower);
             }
         }
 

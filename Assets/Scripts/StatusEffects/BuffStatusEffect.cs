@@ -11,6 +11,16 @@ public class BuffStatusEffect : StatusEffect
 
     public override void ServerOnApplication(UnitController controller, StatusEffectInstance instance)
     {
+
+    }
+
+    public override void ClientOnApplication(UnitController controller, StatusEffectInstance instance)
+    {
+
+    }
+
+    public override void ServerExecuteEffect(UnitController controller, StatusEffectInstance instance)
+    {
         foreach (StatModifier mod in StatModifiers)
         {
             if (NetworkManager.Singleton.IsServer)
@@ -32,7 +42,7 @@ public class BuffStatusEffect : StatusEffect
         controller.CachedStatsDirty = true;
     }
 
-    public override void ClientOnApplication(UnitController controller, StatusEffectInstance instance)
+    public override void ClientExecuteEffect(UnitController controller, StatusEffectInstance instance)
     {
         foreach (StatModifier mod in StatModifiers)
         {
@@ -41,16 +51,6 @@ public class BuffStatusEffect : StatusEffect
                 controller.ClientUpdateMana((int)mod.value);
             }
         }
-    }
-
-    public override void ServerExecuteEffect(UnitController controller, StatusEffectInstance instance)
-    {
-
-    }
-
-    public override void ClientExecuteEffect(UnitController controller, StatusEffectInstance instance)
-    {
-
     }
 
     public override void ServerRemoveStatus(UnitController controller, StatusEffectInstance instance)

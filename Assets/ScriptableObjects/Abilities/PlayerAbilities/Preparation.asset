@@ -10,32 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: TripleStrike
+  m_Name: Preparation
   m_EditorClassIdentifier: 
-  AbilityName: Triple Strike
-  AbilityDescription: Deals damage to a single enemy 3 times
+  AbilityName: Preparation
+  AbilityDescription: Increases your crit chance, crit damage, and dodge chance for
+    3 turns
   ManaCost: 1
-  TeamTargeting: 1
-  TargetType: 0
-  Cooldown: 2
-  MovesToTarget: 1
-  AbilityAnimationDelay: 2
+  TeamTargeting: 0
+  TargetType: 4
+  Cooldown: 5
+  MovesToTarget: 0
+  AbilityAnimationDelay: 1
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
-  AIIntents: 00000000
+  AIIntents: 
   abilityEffects:
-  - DamageType: 1
-    TargetType: 0
-    DamageAmount: 3
-    NumberOfHits: 3
-    DurationBetweenHits: 0.2
-    StrengthScaling: 0.1
-    DexterityScaling: 0.1
+  - DamageType: 0
+    TargetType: 4
+    DamageAmount: 0
+    NumberOfHits: 0
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
     IntelligenceScaling: 0
-    StatusToApply: {fileID: 0}
+    StatusToApply: {fileID: 11400000, guid: fedc7ddb02370994e86c85b8cc092bad, type: 2}
     EffectType: 0
     ConditionType: 0
     ConditionThreshold: 0
     EffectScalingType: 0
-    ScalingMultiplier: 1
+    ScalingMultiplier: 0
