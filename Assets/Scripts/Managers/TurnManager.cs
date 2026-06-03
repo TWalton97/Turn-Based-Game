@@ -122,6 +122,7 @@ public class TurnManager : NetworkBehaviour
     [ClientRpc]
     public void GenerateTurnEntryListClientRpc(ulong[] unitIds, float[] rolls)
     {
+        ClientCurrentTurnIndex = -1;
         for (int i = 0; i < unitIds.Length; i++)
         {
             UnitController unit = NetworkUtilities.GetUnitControllerById(unitIds[i]);
@@ -140,7 +141,6 @@ public class TurnManager : NetworkBehaviour
 
         }
         turnOrderPanelController.SetActiveTurnEntry(NetworkUtilities.GetUnitControllerById(unitIds[0]));
-        ClientCurrentTurnIndex = -1;
         ClientMoveToNextTurn();
     }
 

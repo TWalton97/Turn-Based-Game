@@ -113,7 +113,35 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         }
     }
 
-    public void UnlockAbility(BaseAbility ability)
+    [ServerRpc(RequireOwnership = false)]
+    public void UnlockAbilityServerRpc(int abilityUnlockLevel, int abilityIndex)
+    {
+        AbilityUnlock abilityUnlock = UnitData.AbilityUnlocks.Find(t => t.LevelToUnlock == abilityUnlockLevel);
+        BaseAbility ability = abilityUnlock.AbilityToUnlock[abilityIndex];
+
+        if (BaseAbilities.Contains(ability))
+            return;
+
+        BaseAbilities.Add(ability);
+        InitializeAbilityRuntimeInstances();
+
+        UnlockAbilityClientRpc(abilityUnlockLevel, abilityIndex);
+    }
+
+    [ClientRpc]
+    public void UnlockAbilityClientRpc(int abilityUnlockLevel, int abilityIndex)
+    {
+        AbilityUnlock abilityUnlock = UnitData.AbilityUnlocks.Find(t => t.LevelToUnlock == abilityUnlockLevel);
+        BaseAbility ability = abilityUnlock.AbilityToUnlock[abilityIndex];
+
+        if (BaseAbilities.Contains(ability))
+            return;
+
+        BaseAbilities.Add(ability);
+        InitializeAbilityRuntimeInstances();
+    }
+
+    private void UnlockAbility(BaseAbility ability)
     {
         if (BaseAbilities.Contains(ability))
             return;

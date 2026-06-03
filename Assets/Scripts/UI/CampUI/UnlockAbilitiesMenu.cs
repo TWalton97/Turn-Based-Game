@@ -76,7 +76,8 @@ public class UnlockAbilitiesMenu : MonoBehaviour
         if (CurrentlySelectedAbility == null)
             return;
 
-        unitController.UnlockAbility(CurrentlySelectedAbility);
+        int abilityIndex = PendingAbilityUnlocks[0].AbilityToUnlock.IndexOf(CurrentlySelectedAbility);
+        unitController.UnlockAbilityServerRpc(PendingAbilityUnlocks[0].LevelToUnlock, abilityIndex);
         playerDataController.RemovePendingAbilityUnlock(PendingAbilityUnlocks[0]);
         PendingAbilityUnlocks = playerDataController.PendingAbilityUnlocks;
 

@@ -27,14 +27,14 @@ MonoBehaviour:
   - LevelToUnlock: 0
     AbilityUnlockType: 0
     AbilityToUnlock:
-    - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
-  - LevelToUnlock: 0
-    AbilityUnlockType: 0
+    - {fileID: 11400000, guid: 28cf74de454dab24a82b5e1f9222d185, type: 2}
+  - LevelToUnlock: 2
+    AbilityUnlockType: 1
     AbilityToUnlock:
     - {fileID: 11400000, guid: bd13e4831124a1542b7647ad73f63731, type: 2}
     - {fileID: 11400000, guid: 1b386e455ce04a54f93c036a977adac2, type: 2}
     - {fileID: 11400000, guid: 28cf74de454dab24a82b5e1f9222d185, type: 2}
-  - LevelToUnlock: 2
+  - LevelToUnlock: 3
     AbilityUnlockType: 1
     AbilityToUnlock:
     - {fileID: 11400000, guid: 62ab4d1d7f2162742b2fe15c6e3dd624, type: 2}

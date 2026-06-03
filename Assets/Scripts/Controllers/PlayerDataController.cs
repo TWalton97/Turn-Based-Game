@@ -70,7 +70,7 @@ public class PlayerDataController : NetworkBehaviour
         {
             if (abilityUnlock.AbilityUnlockType == AbilityUnlockType.AutoGrant && abilityUnlock.AbilityToUnlock.Count > 0)
             {
-                UnitController.UnlockAbility(abilityUnlock.AbilityToUnlock[0]);
+                UnitController.UnlockAbilityServerRpc(abilityUnlock.LevelToUnlock, 0);
             }
             else
             {
