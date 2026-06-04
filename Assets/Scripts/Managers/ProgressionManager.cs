@@ -9,10 +9,11 @@ public class ProgressionManager : NetworkBehaviour
 {
     public static ProgressionManager instance;
 
-    public static RoomData CurrentRoomData;
+    public static RuntimeRoomData CurrentRoomData;
     private GameObject CurrentlyLoadedBackground;
 
     public static Action OnRoomLoaded;
+    public static Action OnRoomCompleted;
 
     public List<RoomData> RoomData;
     private List<RoomData> RemainingRoomData = new();
@@ -20,6 +21,7 @@ public class ProgressionManager : NetworkBehaviour
     public int RoomIndex = -1;
     private int TotalCombatRoomsCompleted = 0;
     public TextMeshProUGUI RoomCountText;
+    public GameObject RoomBackground;
 
     public enum RoomType
     {
@@ -99,20 +101,42 @@ public class ProgressionManager : NetworkBehaviour
         }
     }
 
-    public void LoadCombatRoom(RoomData roomData)
+    public void LoadCombatRoomData(RoomData roomData)
     {
-        if (CurrentRoomData != null)
-            UnloadCombatRoom();
+        CombatRoom combatRoom = roomData as CombatRoom;
 
+        RuntimeRoomData runtimeRoomData = new();
+        runtimeRoomData.presetRoomId = combatRoom.presetId;
+        runtimeRoomData.Background = combatRoom.RoomBackground;
+        runtimeRoomData.Enemies = combatRoom.Enemies;
+
+        LoadCombatRoom(runtimeRoomData);
+    }
+
+    public void LoadCombatRoom(RuntimeRoomData roomData)
+    {
         UIManager.instance.EnableCombatUI();
 
-        CurrentlyLoadedBackground = Instantiate(Background);
+        CombatRoom combatRoom;
+        RoomPresetDatabase.instance.TryGetRoomById(roomData.presetRoomId, out combatRoom);
+        CurrentlyLoadedBackground = Instantiate(combatRoom.RoomBackground);
+
 
         if (NetworkManager.Singleton.IsServer)
         {
-            for (int i = 0; i < 2; i++)
+            if (roomData.Enemies.Count > 0)
             {
-                SpawnManager.instance.SpawnUnit(AvailableEnemies[UnityEngine.Random.Range(0, AvailableEnemies.Count)], TotalCombatRoomsCompleted);
+                foreach (CombatRoomEnemyEntry entry in roomData.Enemies)
+                {
+                    SpawnManager.instance.SpawnUnit(entry.Unit, entry.Level);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    SpawnManager.instance.SpawnUnit(AvailableEnemies[UnityEngine.Random.Range(0, AvailableEnemies.Count)], TotalCombatRoomsCompleted);
+                }
             }
         }
 
@@ -123,7 +147,12 @@ public class ProgressionManager : NetworkBehaviour
     public void UnloadCombatRoom()
     {
         if (CurrentlyLoadedBackground != null)
+        {
             Destroy(CurrentlyLoadedBackground);
+            CurrentlyLoadedBackground = null;
+        }
+
+        OnRoomCompleted?.Invoke();
 
         if (NetworkManager.Singleton.IsServer)
         {
@@ -153,6 +182,9 @@ public class ProgressionManager : NetworkBehaviour
 
     public void LoadNextRoom()
     {
+        if (CurrentRoomData != null)
+            UnloadCombatRoom();
+
         if (NetworkManager.Singleton.IsServer)
         {
             foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
@@ -174,16 +206,12 @@ public class ProgressionManager : NetworkBehaviour
             {
                 case RoomType.Camp:
                     LoadRoomClientRpc(0);
-                    //LoadCamp();
                     break;
                 case RoomType.Combat:
                     LoadRoomClientRpc(1);
-                    //RoomData roomDataToLoad = RemainingRoomData[0];
-                    //LoadCombatRoom(roomDataToLoad);
                     break;
                 case RoomType.Event:
                     LoadRoomClientRpc(2);
-                    //LoadEvent();
                     break;
             }
 
@@ -201,13 +229,64 @@ public class ProgressionManager : NetworkBehaviour
                 LoadCamp();
                 break;
             case 1:
-                RoomData roomDataToLoad = RemainingRoomData[0];
+                RuntimeRoomData roomDataToLoad = GenerateRoomData();
                 LoadCombatRoom(roomDataToLoad);
                 break;
             case 2:
                 LoadEvent();
                 break;
         }
+    }
+
+    public RuntimeRoomData GenerateRoomData()
+    {
+        RuntimeRoomData runtimeRoomData = new();
+
+        runtimeRoomData.Background = RoomBackground;
+        int roomBudget = 7 + (CurrentRoomIndex * 3);
+        int enemyCount = 2;
+        if (roomBudget >= 18)
+        {
+            enemyCount = UnityEngine.Random.value < 0.8f ? 2 : 3;
+        }
+        int enemyBudget = roomBudget / enemyCount;
+        List<CombatRoomEnemyEntry> validEnemies = ReturnValidEnemies(enemyBudget);
+        for (int i = 0; i < enemyCount; i++)
+        {
+            int rand = UnityEngine.Random.Range(0, validEnemies.Count);
+            runtimeRoomData.Enemies.Add(validEnemies[rand]);
+        }
+        return runtimeRoomData;
+    }
+
+    public List<CombatRoomEnemyEntry> ReturnValidEnemies(int strengthPerEnemy)
+    {
+        List<CombatRoomEnemyEntry> validRoomEnemyEntries = new();
+
+        foreach (UnitController controller in AvailableEnemies)
+        {
+            EnemyController enemyController = controller.GetComponent<EnemyController>();
+            if (enemyController == null)
+                continue;
+
+            if (enemyController.baseStrength > strengthPerEnemy)
+                continue;
+
+            int maxLevel = GetMaxLevelForTarget(enemyController, strengthPerEnemy);
+            CombatRoomEnemyEntry entry = new();
+            entry.Unit = controller;
+            entry.Level = maxLevel;
+            validRoomEnemyEntries.Add(entry);
+        }
+
+        return validRoomEnemyEntries;
+    }
+
+    int GetMaxLevelForTarget(EnemyController enemy, int targetStrength)
+    {
+        int raw = targetStrength - enemy.baseStrength + 1;
+        Debug.Log($"Max level for {enemy} is {raw}");
+        return Mathf.Max(1, raw);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -253,4 +332,12 @@ public class ProgressionManager : NetworkBehaviour
     {
         return readyClients.Count == NetworkManager.Singleton.ConnectedClients.Count;
     }
+}
+
+public class RuntimeRoomData
+{
+    public int presetRoomId = -1;
+    public List<CombatRoomEnemyEntry> Enemies = new();
+    public GameObject Background;
+
 }

@@ -101,20 +101,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   UnitName: Bandit
-  UnitStats:
-    Strength: 0
-    Dexterity: 0
-    Constitution: 0
-    Intelligence: 0
-    Faith: 0
-    Charisma: 0
-    Luck: 0
+  Strength:
+    m_InternalValue: 0
+  Dexterity:
+    m_InternalValue: 0
+  Constitution:
+    m_InternalValue: 0
+  Intelligence:
+    m_InternalValue: 0
+  Faith:
+    m_InternalValue: 0
+  Charisma:
+    m_InternalValue: 0
+  Luck:
+    m_InternalValue: 0
   UnitData: {fileID: 11400000, guid: 16a2d8091e9d253429021b4e58bb4220, type: 2}
   MaxHealth: 26
   CurrentHealth:
     m_InternalValue: 0
   DisplayedHealth: 0
-  Level: 0
+  Level:
+    m_InternalValue: 0
   MaxMana: 5
   CurrentMana:
     m_InternalValue: 0
@@ -129,7 +136,6 @@ MonoBehaviour:
   highlightEmission: {r: 0.6313726, g: 0.6313726, b: 0.21960784, a: 1}
   ServerIsStunned: 0
   ClientIsStunned: 0
-  StatModifiers: []
   StateModifiers: []
   CachedStatsDirty: 1
 --- !u!114 &7367418481594108555
@@ -149,6 +155,7 @@ MonoBehaviour:
   AvailableDrops:
   - {fileID: 11400000, guid: 456e9b7e775c5544a88a75b359397b2d, type: 2}
   - {fileID: 11400000, guid: f7d91fe039ef3ed4e9f404a7d9554ebf, type: 2}
+  baseStrength: 4
 --- !u!136 &5333646278970840875
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -191,4 +198,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b1ccf784e09f0e47990e147f6b43f64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StatusEffectNames: []
+  ServerActiveStatusEffects: []
+  ClientActiveStatusEffectViews: []

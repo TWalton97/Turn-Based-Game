@@ -10,6 +10,8 @@ public class EnemyController : NetworkBehaviour
     public int ExpValue = 10;
     public List<ItemSO> AvailableDrops;
 
+    public int baseStrength;
+
     private void Awake()
     {
         unitController = GetComponent<UnitController>();

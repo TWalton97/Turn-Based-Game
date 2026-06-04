@@ -7,7 +7,7 @@ using UnityEngine;
 public class RuntimeAbilityInstance
 {
     public BaseAbility Ability;
-    public int RemainingCooldownTurns { get; private set; } = 0;
+    public int RemainingCooldownTurns = 0;
 
     public bool CanUse(UnitController controller)
     {

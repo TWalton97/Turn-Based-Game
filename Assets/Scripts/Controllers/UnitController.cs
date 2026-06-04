@@ -81,6 +81,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         TurnManager.OnClientActionPhaseStarted += ClientBeginActionPhase;
         TurnManager.OnClientTurnEnded += ClientEndTurn;
 
+        ProgressionManager.OnRoomCompleted += CombatStartReset;
+
         StatModifiers = new();
     }
 
@@ -187,6 +189,23 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         DisplayedHealth = MaxHealth;
         MaxMana = UnitData.MaxMana;
+    }
+
+    public void CombatStartReset()
+    {
+        if (enemyController != null)
+            return;
+
+        if (IsServer)
+            CurrentMana.Value = 0;
+        DisplayedMana = CurrentMana.Value;
+
+        foreach (RuntimeAbilityInstance abilityInstance in RuntimeAbilityInstances)
+        {
+            abilityInstance.RemainingCooldownTurns = 0;
+        }
+
+        statusEffectController.ClearAllStatusEffects();
     }
 
     public void ServerRegenerateResources()

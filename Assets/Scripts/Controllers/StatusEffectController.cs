@@ -163,4 +163,14 @@ public class StatusEffectController : NetworkBehaviour
             OnStatusEffectsChanged?.Invoke();
         }
     }
+
+    public void ClearAllStatusEffects()
+    {
+        foreach (StatusEffectInstance instance in ServerActiveStatusEffects)
+        {
+            instance.StatusEffect.ServerRemoveStatus(unitController, instance);
+        }
+        ServerActiveStatusEffects.Clear();
+        ClientActiveStatusEffectViews.Clear();
+    }
 }
