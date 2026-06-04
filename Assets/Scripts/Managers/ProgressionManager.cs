@@ -13,7 +13,6 @@ public class ProgressionManager : NetworkBehaviour
     private GameObject CurrentlyLoadedBackground;
 
     public static Action OnRoomLoaded;
-    public static Action OnRoomCompleted;
 
     public List<RoomData> RoomData;
     private List<RoomData> RemainingRoomData = new();
@@ -152,8 +151,6 @@ public class ProgressionManager : NetworkBehaviour
             CurrentlyLoadedBackground = null;
         }
 
-        OnRoomCompleted?.Invoke();
-
         if (NetworkManager.Singleton.IsServer)
         {
             foreach (UnitController controller in BattleManager.instance.EnemyUnits)
@@ -171,6 +168,11 @@ public class ProgressionManager : NetworkBehaviour
         TotalCombatRoomsCompleted++;
         BattleManager.instance.RemoveAllEnemies();
         CurrentRoomData = null;
+
+        foreach (UnitController unitController in BattleManager.instance.FriendlyUnits)
+        {
+            unitController.CombatEndReset();
+        }
     }
 
     public IEnumerator DelayBeforeLoadingNextRoom()
