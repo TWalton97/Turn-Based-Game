@@ -16618,6 +16618,8 @@ MonoBehaviour:
   transitionStartingTime: 0
   AreaDataSOs:
   - {fileID: 11400000, guid: 95583e08f49c2c74ea2bf0babfc62c0a, type: 2}
+  - {fileID: 11400000, guid: 51bb8a20ead694c428c3c23014702ae7, type: 2}
+  CurrentAreaData: {fileID: 0}
 --- !u!114 &958336431
 MonoBehaviour:
   m_ObjectHideFlags: 0

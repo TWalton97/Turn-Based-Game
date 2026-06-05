@@ -51,7 +51,7 @@ public class CombatRoomManager : NetworkBehaviour
             SpawnManager.instance.SpawnUnit(entry.Unit, entry.Level);
         }
 
-        SendCombatRoomVisualsClientRpc(roomData.presetRoomId);
+        SendCombatRoomVisualsClientRpc();
 
         CurrentlyLoadedRuntimeRoomData = roomData;
         StartCoroutine(DelayCombatStart());
@@ -73,11 +73,9 @@ public class CombatRoomManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void SendCombatRoomVisualsClientRpc(int roomPresetId)
+    public void SendCombatRoomVisualsClientRpc()
     {
-        CombatRoom combatRoom;
-        RoomPresetDatabase.instance.TryGetRoomById(roomPresetId, out combatRoom);
-        CurrentlyLoadedBackground = Instantiate(combatRoom.RoomBackground);
+        CurrentlyLoadedBackground = Instantiate(ProgressionManager.instance.CurrentAreaData.DefaultAreaBackground);
 
         UIManager.instance.EnableCombatUI();
     }
@@ -103,6 +101,12 @@ public class CombatRoomManager : NetworkBehaviour
     {
         if (CurrentlyLoadedBackground == null)
             return;
+
+        foreach (UnitController controller in BattleManager.instance.AllUnits)
+        {
+            TurnManager.instance.RemoveTurnEntryUI(controller);
+        }
+
 
         Destroy(CurrentlyLoadedBackground);
         CurrentlyLoadedBackground = null;

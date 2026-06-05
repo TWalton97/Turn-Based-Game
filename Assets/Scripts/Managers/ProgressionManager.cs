@@ -40,6 +40,8 @@ public class ProgressionManager : NetworkBehaviour
     public const float MIN_TRANSITION_TIME = 1f;
 
     public List<AreaDataSO> AreaDataSOs;
+    public AreaDataSO CurrentAreaData;
+    private int currentAreaIndex = 0;
 
     public void Awake()
     {
@@ -49,7 +51,18 @@ public class ProgressionManager : NetworkBehaviour
         IsTransitioning.OnValueChanged += OnTransitionChanged;
 
         //We populate with the first area information
-        AvailableEnemies = AreaDataSOs[0].AvailableEnemies;
+        LoadNextArea();
+    }
+
+    public void LoadNextArea()
+    {
+        if (AreaDataSOs[currentAreaIndex] == null)
+        {
+            Debug.LogWarning($"No area data for area {currentAreaIndex}");
+            return;
+        }
+        CurrentAreaData = AreaDataSOs[currentAreaIndex];
+        AvailableEnemies = AreaDataSOs[currentAreaIndex].AvailableEnemies;
     }
 
     public void LoadFirstRoom()
@@ -103,12 +116,24 @@ public class ProgressionManager : NetworkBehaviour
         if (!IsServer)
             return;
 
+        if (CurrentRoomIndex == CurrentAreaData.NumberOfRooms)
+        {
+            currentAreaIndex++;
+            LoadNextAreaClientRpc(currentAreaIndex);
+            CurrentRoomIndex = 0;
+            RoomIndex = -1;
+            CampManager.instance.LoadCamp();
+            RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex}/{CurrentAreaData.NumberOfRooms})";
+            IsTransitioning.Value = false;
+            return;
+        }
+
         int nextRoomIndex = (RoomIndex + 1) % RoomOrder.Count;
         RoomType nextRoomType = RoomOrder[nextRoomIndex];
 
-        if (nextRoomIndex == 0 && CurrentRoomIndex == (AreaDataSOs[0].NumberOfRooms - 1))
+        if (nextRoomIndex == 0 && CurrentRoomIndex == (CurrentAreaData.NumberOfRooms - 1))
         {
-            CombatRoomManager.instance.LoadCombatRoom(CombatRoomManager.instance.ReturnRoomDataAsRuntime(AreaDataSOs[0].BossRoomData));
+            CombatRoomManager.instance.LoadCombatRoom(CombatRoomManager.instance.ReturnRoomDataAsRuntime(CurrentAreaData.BossRoomData));
         }
         else
         {
@@ -133,8 +158,15 @@ public class ProgressionManager : NetworkBehaviour
         if (RoomIndex == 0)
             CurrentRoomIndex++;
 
-        RoomCountText.text = $"{AreaDataSOs[0].AreaName} ({CurrentRoomIndex}/{AreaDataSOs[0].NumberOfRooms})";
+        RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex}/{CurrentAreaData.NumberOfRooms})";
         IsTransitioning.Value = false;
+    }
+
+    [ClientRpc]
+    public void LoadNextAreaClientRpc(int areaIndex)
+    {
+        currentAreaIndex = areaIndex;
+        LoadNextArea();
     }
 
     public void ForceLoadCombatRoom(RuntimeRoomData runtimeRoomData)

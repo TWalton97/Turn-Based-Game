@@ -117,11 +117,11 @@ public class TurnManager : NetworkBehaviour
         ServerCurrentTurnIndex = -1;
         ServerMoveToNextTurn();
 
-        GenerateTurnEntryListClientRpc(unitIds, rolls);
+        GenerateTurnEntryListClientRpc(unitIds, rolls, ServerCurrentTurnIndex);
     }
 
     [ClientRpc]
-    public void GenerateTurnEntryListClientRpc(ulong[] unitIds, float[] rolls)
+    public void GenerateTurnEntryListClientRpc(ulong[] unitIds, float[] rolls, int serverCurrentTurnIndex)
     {
         ClientCurrentTurnIndex = -1;
         for (int i = 0; i < unitIds.Length; i++)
@@ -141,7 +141,7 @@ public class TurnManager : NetworkBehaviour
             }
 
         }
-        turnOrderPanelController.SetActiveTurnEntry(NetworkUtilities.GetUnitControllerById(unitIds[0]));
+        turnOrderPanelController.SetActiveTurnEntry(NetworkUtilities.GetUnitControllerById(unitIds[serverCurrentTurnIndex]));
         ClientMoveToNextTurn();
     }
 
@@ -152,7 +152,7 @@ public class TurnManager : NetworkBehaviour
 
         if (ServerIsBattleOver())
         {
-            ServerIsBattleEnded = true; 
+            ServerIsBattleEnded = true;
             NotifyBattleEndedClientRpc();
             return;
         }
