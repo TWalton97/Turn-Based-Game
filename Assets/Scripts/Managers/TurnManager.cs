@@ -23,7 +23,6 @@ public class TurnManager : NetworkBehaviour
 
     public static Action<UnitController> OnRefreshUI;
 
-    public static Action OnBattleEnded;
     public bool ServerIsBattleEnded;
     public bool ClientIsBattleEnded;
     public static Action OnActionSelected;
@@ -153,8 +152,8 @@ public class TurnManager : NetworkBehaviour
 
         if (ServerIsBattleOver())
         {
-            ServerIsBattleEnded = true; NotifyBattleEndedClientRpc();
-            ProgressionManager.instance.DelayBeforeLoadingNextRoom();
+            ServerIsBattleEnded = true; 
+            NotifyBattleEndedClientRpc();
             return;
         }
 

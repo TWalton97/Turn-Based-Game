@@ -36,25 +36,62 @@ public class ProgressionManager : NetworkBehaviour
     public List<UnitController> AvailableEnemies;
     public GameObject Background;
 
+    public NetworkVariable<bool> IsTransitioning = new(false);
+    public float transitionStartingTime;
+    public const float MIN_TRANSITION_TIME = 1f;
+
     public void Awake()
     {
         if (instance == null)
             instance = this;
-    }
 
-    private void Start()
-    {
-
+        IsTransitioning.OnValueChanged += OnTransitionChanged;
     }
 
     public void LoadFirstRoom()
     {
-        LoadNextRoom();
+        StartCoroutine(TransitionToNextRoom());
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
+        IsTransitioning.OnValueChanged += OnTransitionChanged;
+    }
+
+    public void OnTransitionChanged(bool oldValue, bool newValue)
+    {
+        if (newValue)
+        {
+            UIManager.instance.EnableTravelingUI();
+            StartCoroutine(DelayClientUnload());
+        }
+        else
+        {
+            UIManager.instance.EnableTravelingUI();
+        }
+    }
+
+    public IEnumerator DelayClientUnload()
+    {
+        yield return new WaitForSeconds(1f);
+        CombatRoomManager.instance.ClientUnloadCombatRoom();
+    }
+
+    public IEnumerator TransitionToNextRoom()
+    {
+        IsTransitioning.Value = true;
+
+        yield return new WaitForSeconds(1.5f);
+
+        CombatRoomManager.instance.ServerUnloadCombatRoom();
+
+        yield return new WaitForSeconds(1.5f);
+
+        LoadNextRoom();
+        IsTransitioning.Value = false;
+
+        yield return null;
     }
 
     public void LoadNextRoom()
@@ -82,20 +119,16 @@ public class ProgressionManager : NetworkBehaviour
         RoomIndex = (RoomIndex + 1) % RoomOrder.Count;
 
         //This tracks the actual room index, goes up by 1 each room
-        CurrentRoomIndex++;
+        if (RoomIndex == 0)
+            CurrentRoomIndex++;
+
         RoomCountText.text = "Forest (" + CurrentRoomIndex.ToString() + "/8)";
+        IsTransitioning.Value = false;
     }
 
     public void ForceLoadCombatRoom(RuntimeRoomData runtimeRoomData)
     {
         CombatRoomManager.instance.LoadCombatRoom(runtimeRoomData);
-    }
-
-    public IEnumerator DelayBeforeLoadingNextRoom()
-    {
-        yield return new WaitForSeconds(1.5f);
-        LoadNextRoom();
-        yield return null;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -107,7 +140,7 @@ public class ProgressionManager : NetworkBehaviour
 
         if (AllClientsReady())
         {
-            LoadNextRoom();
+            StartCoroutine(TransitionToNextRoom());
 
             foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
             {

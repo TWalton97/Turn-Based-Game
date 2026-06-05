@@ -41,10 +41,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public List<RuntimeAbilityInstance> RuntimeAbilityInstances;
 
     private MeshRenderer meshRenderer;
-    private Material mat;
-
+    private MaterialPropertyBlock mpb;
     private Color originalEmission;
-
     [SerializeField] private Color highlightEmission = Color.white * 2f;
 
     public Action OnDisplayedManaChanged;
@@ -67,8 +65,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
-        mat = meshRenderer.material;
-        originalEmission = mat.GetColor("_EmissionColor");
+        mpb = new MaterialPropertyBlock();
+        originalEmission = meshRenderer.material.GetColor("_EmissionColor");
 
         enemyController = GetComponent<EnemyController>();
         statusEffectController = GetComponent<StatusEffectController>();
@@ -488,14 +486,20 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public void EnableHighlight()
     {
-        mat.EnableKeyword("_EMISSION");
-        mat.SetColor("_EmissionColor", highlightEmission);
+        meshRenderer.material.EnableKeyword("_EMISSION");
+
+        meshRenderer.GetPropertyBlock(mpb);
+        mpb.SetColor("_EmissionColor", highlightEmission);
+        meshRenderer.SetPropertyBlock(mpb);
     }
 
     public void DisableHighlight()
     {
-        mat.DisableKeyword("_EMISSION");
-        mat.SetColor("_EmissionColor", originalEmission);
+        meshRenderer.GetPropertyBlock(mpb);
+        mpb.SetColor("_EmissionColor", originalEmission);
+        meshRenderer.SetPropertyBlock(mpb);
+
+        meshRenderer.material.DisableKeyword("_EMISSION");
     }
 
     public void OnPointerClick(PointerEventData eventData)

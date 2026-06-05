@@ -55,6 +55,16 @@ public class CombatManager : NetworkBehaviour
         UnitController target = NetworkUtilities.GetUnitControllerById(targetId);
 
         ServerExecuteAbility(user, ability, target);
+        UpdateAbilityInstanceCooldownClientRpc(userId, abilityIndex);
+    }
+
+    [ClientRpc]
+    public void UpdateAbilityInstanceCooldownClientRpc(ulong userId, int abilityIndex)
+    {
+        UnitController user = NetworkUtilities.GetUnitControllerById(userId);
+        RuntimeAbilityInstance ability = user.RuntimeAbilityInstances[abilityIndex];
+
+        ability.RemainingCooldownTurns = ability.Ability.Cooldown;
     }
 
     public void ServerExecuteAbility(UnitController user, RuntimeAbilityInstance ability, UnitController target)
@@ -91,7 +101,6 @@ public class CombatManager : NetworkBehaviour
     [ClientRpc]
     public void BeginAnimationSequenceClientRpc(AbilityResult abilityResult)
     {
-        UnitController user = NetworkUtilities.GetUnitControllerById(abilityResult.AttackerId);
         ClientPlayAbilitySequence(abilityResult);
         TurnManager.OnActionSelected?.Invoke();
     }
@@ -134,7 +143,6 @@ public class CombatManager : NetworkBehaviour
         yield return new WaitForSeconds(1f);
 
         ProgressionManager.instance.BattlePresentationFinishedServerRpc();
-        TurnManager.OnBattleEnded?.Invoke();
     }
 
 }

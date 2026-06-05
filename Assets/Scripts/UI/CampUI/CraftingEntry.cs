@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -26,12 +28,17 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
         playerDataController = CampManager.instance.TrackedUnitController.GetComponent<PlayerDataController>();
         CheckIfCraftingAvailable();
-        playerDataController.OnInventoryUpdated += CheckIfCraftingAvailable;
+        playerDataController.InventoryItems.OnListChanged += OnInventoryListChanged;
     }
 
     void OnDestroy()
     {
-        playerDataController.OnInventoryUpdated -= CheckIfCraftingAvailable;
+        playerDataController.InventoryItems.OnListChanged -= OnInventoryListChanged;
+    }
+
+    private void OnInventoryListChanged(NetworkListEvent<InventoryEntry> changeEvent)
+    {
+        CheckIfCraftingAvailable();
     }
 
     public void CheckIfRecipeUnlocked()

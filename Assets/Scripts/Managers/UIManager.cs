@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     public GameObject CombatUI;
     public GameObject EventUI;
     public GameObject CampUI;
+    public Animator TravelingUI;
 
     private void Awake()
     {
@@ -96,7 +97,10 @@ public class UIManager : MonoBehaviour
     private void UpdateContextMenu()
     {
         if (currentlySelectedUnit == null)
+        {
             ClearContextMenu();
+            return;
+        }
 
         ContextMenuUnitName.text = currentlySelectedUnit.UnitName;
 
@@ -147,5 +151,10 @@ public class UIManager : MonoBehaviour
         CombatUI.SetActive(false);
         EventUI.SetActive(false);
         CampUI.SetActive(true);
+    }
+
+    public void EnableTravelingUI()
+    {
+        TravelingUI.SetTrigger("Travel");
     }
 }

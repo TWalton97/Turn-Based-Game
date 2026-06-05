@@ -18,14 +18,11 @@ public class CombatRoomManager : NetworkBehaviour
     {
         if (instance == null)
             instance = this;
-
-        TurnManager.OnBattleEnded += UnloadCombatRoom;
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
-        TurnManager.OnBattleEnded -= UnloadCombatRoom;
     }
 
     //This is a function for converting a RoomData to a RuntimeRoomData
@@ -57,6 +54,12 @@ public class CombatRoomManager : NetworkBehaviour
         SendCombatRoomVisualsClientRpc(roomData.presetRoomId);
 
         CurrentlyLoadedRuntimeRoomData = roomData;
+        StartCoroutine(DelayCombatStart());
+    }
+
+    private IEnumerator DelayCombatStart()
+    {
+        yield return new WaitForSeconds(1.5f);
         OnCombatRoomLoaded?.Invoke();
     }
 
@@ -79,16 +82,8 @@ public class CombatRoomManager : NetworkBehaviour
         UIManager.instance.EnableCombatUI();
     }
 
-    public void UnloadCombatRoom()
+    public void ServerUnloadCombatRoom()
     {
-        //Deletes all currently loaded backgrounds
-        if (CurrentlyLoadedBackground != null)
-        {
-            Destroy(CurrentlyLoadedBackground);
-            CurrentlyLoadedBackground = null;
-        }
-
-        //If we're the server, we remove all existing turn entries
         if (NetworkManager.Singleton.IsServer)
         {
             foreach (UnitController controller in BattleManager.instance.EnemyUnits)
@@ -102,11 +97,18 @@ public class CombatRoomManager : NetworkBehaviour
                 TurnManager.instance.RemoveUnitFromTurnEntries(controller);
             }
         }
+    }
 
-        //Remove all enemy entries from the battle manager list
+    public void ClientUnloadCombatRoom()
+    {
+        if (CurrentlyLoadedBackground == null)
+            return;
+
+        Destroy(CurrentlyLoadedBackground);
+        CurrentlyLoadedBackground = null;
+
         BattleManager.instance.RemoveAllEnemies();
 
-        //Reset currently loaded runtime room data
         CurrentlyLoadedRuntimeRoomData = null;
         OnCombatRoomUnloaded?.Invoke();
     }

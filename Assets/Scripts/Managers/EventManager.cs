@@ -47,7 +47,6 @@ public class EventManager : NetworkBehaviour
 
     public void LoadEvent()
     {
-        UIManager.instance.EnableEventUI();
         PopulateEventOptions();
     }
 
@@ -91,6 +90,7 @@ public class EventManager : NetworkBehaviour
     [ClientRpc]
     private void ShowEventOptionsClientRpc(int eventA, int eventB, int eventC)
     {
+        UIManager.instance.EnableEventUI();
         SetupEventSelectionMenu(eventA, eventB, eventC);
     }
 
@@ -200,7 +200,7 @@ public class EventManager : NetworkBehaviour
 
     [ClientRpc]
     public void EventEffectExecuteClientRpc(int currentEventOptionIndex)
-    {   
+    {
         foreach (var effect in CurrentEventNode.choices[currentEventOptionIndex].effects)
         {
             effect.Execute();

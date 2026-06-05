@@ -5,6 +5,6 @@ public class EndEvent : EventEffect
 {
     public override void Execute()
     {
-        ProgressionManager.instance.LoadNextRoom();
+        ProgressionManager.instance.StartCoroutine(ProgressionManager.instance.TransitionToNextRoom());
     }
 }

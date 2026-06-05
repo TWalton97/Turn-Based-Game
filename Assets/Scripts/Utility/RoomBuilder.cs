@@ -8,7 +8,7 @@ public static class RoomBuilder
     {
         RuntimeRoomData runtimeRoomData = new();
 
-        int roomBudget = 7 + (currentRoomIndex * 3);
+        int roomBudget = 10 + (currentRoomIndex * 3);
         int enemyCount = 2;
         if (roomBudget >= 18)
         {

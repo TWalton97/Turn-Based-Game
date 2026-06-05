@@ -15,8 +15,6 @@ public class PlayerDataController : NetworkBehaviour
     public NetworkVariable<int> Gold;
     public NetworkList<InventoryEntry> InventoryItems;
 
-    public Action OnInventoryUpdated;
-
     public List<AbilityUnlock> PendingAbilityUnlocks;
 
     void Awake()
@@ -113,8 +111,6 @@ public class PlayerDataController : NetworkBehaviour
             inventoryEntry.equipped = false;
             InventoryItems.Add(inventoryEntry);
         }
-
-        OnInventoryUpdated?.Invoke();
     }
 
     public void RemoveItemFromInventoryById(FixedString64Bytes itemId)
@@ -137,8 +133,6 @@ public class PlayerDataController : NetworkBehaviour
                 break;
             }
         }
-
-        OnInventoryUpdated?.Invoke();
     }
 
     public void RemoveItemFromInventoryByName(string itemName)
@@ -161,8 +155,6 @@ public class PlayerDataController : NetworkBehaviour
                 break;
             }
         }
-
-        OnInventoryUpdated?.Invoke();
     }
 
     public InventoryEntry FindInventoryEntryByItem(ItemSO item)
@@ -210,7 +202,6 @@ public class PlayerDataController : NetworkBehaviour
         ServerAddItemToInventory(recipeSO.CraftingOutput);
     }
 
-    //TODO: re-add recipes
     public bool HasItemsForRecipe(RecipeSO recipe)
     {
         foreach (RecipeIngredient recipeIngredient in recipe.CraftingIngredients)
@@ -231,7 +222,6 @@ public class PlayerDataController : NetworkBehaviour
         return true;
     }
 
-    //TODO: re-add recipes
     public void TryRemoveItemsForRecipe(RecipeSO recipe)
     {
         if (!IsServer)

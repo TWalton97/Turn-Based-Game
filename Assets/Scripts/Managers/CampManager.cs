@@ -53,8 +53,8 @@ public class CampManager : NetworkBehaviour
     public TextMeshProUGUI ReadyButtonText;
 
     public NetworkVariable<int> NumberOfReadyVotes;
-
-    bool hasVoted = false;
+    HashSet<ulong> votedClients = new();
+    HashSet<ulong> expectedVoters = new();
 
     void Awake()
     {
@@ -64,10 +64,23 @@ public class CampManager : NetworkBehaviour
 
     public void LoadCamp()
     {
-        hasVoted = false;
-
         if (IsServer)
+        {
+            votedClients.Clear();
+            expectedVoters.Clear();
             NumberOfReadyVotes.Value = 0;
+            foreach (var client in NetworkManager.Singleton.ConnectedClients)
+            {
+                expectedVoters.Add(client.Key);
+            }
+        }
+
+        EnterCampClientRpc();
+    }
+
+    [ClientRpc]
+    void EnterCampClientRpc()
+    {
 
         foreach (UnitController unit in BattleManager.instance.FriendlyUnits)
         {
@@ -82,17 +95,20 @@ public class CampManager : NetworkBehaviour
 
     public void VoteReady()
     {
-        if (!hasVoted)
-        {
-            hasVoted = true;
-            RequestCampReadyVoteServerRpc();
-        }
+        RequestCampReadyVoteServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void RequestCampReadyVoteServerRpc(ServerRpcParams rpcParams = default)
     {
-        NumberOfReadyVotes.Value++;
+        ulong clientId = rpcParams.Receive.SenderClientId;
+
+        if (votedClients.Contains(clientId))
+            return;
+
+        votedClients.Add(clientId);
+        NumberOfReadyVotes.Value = votedClients.Count;
+
         CountReadyVotes();
     }
 
@@ -101,9 +117,9 @@ public class CampManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-        if (NumberOfReadyVotes.Value == NetworkManager.Singleton.ConnectedClients.Count)
+        if (votedClients.Count == expectedVoters.Count)
         {
-            ProgressionManager.instance.LoadNextRoom();
+            StartCoroutine(ProgressionManager.instance.TransitionToNextRoom());
             NumberOfReadyVotes.Value = 0;
         }
     }
@@ -392,6 +408,7 @@ public class CampManager : NetworkBehaviour
         PlayerStatsPanel.text = sb.ToString();
 
         UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";
+        InvestPointsButton.text = $"Invest Points ({playerDataController.AvailableStatPoints.Value})";
     }
 
     public void TryEquipItem(InventoryEntry entry)
