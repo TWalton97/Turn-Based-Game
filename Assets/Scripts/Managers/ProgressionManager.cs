@@ -34,11 +34,12 @@ public class ProgressionManager : NetworkBehaviour
     public int CurrentRoomIndex = 1;
 
     public List<UnitController> AvailableEnemies;
-    public GameObject Background;
 
     public NetworkVariable<bool> IsTransitioning = new(false);
     public float transitionStartingTime;
     public const float MIN_TRANSITION_TIME = 1f;
+
+    public List<AreaDataSO> AreaDataSOs;
 
     public void Awake()
     {
@@ -46,6 +47,9 @@ public class ProgressionManager : NetworkBehaviour
             instance = this;
 
         IsTransitioning.OnValueChanged += OnTransitionChanged;
+
+        //We populate with the first area information
+        AvailableEnemies = AreaDataSOs[0].AvailableEnemies;
     }
 
     public void LoadFirstRoom()
@@ -82,11 +86,11 @@ public class ProgressionManager : NetworkBehaviour
     {
         IsTransitioning.Value = true;
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1f);
 
         CombatRoomManager.instance.ServerUnloadCombatRoom();
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1f);
 
         LoadNextRoom();
         IsTransitioning.Value = false;
@@ -99,30 +103,37 @@ public class ProgressionManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-        RoomType nextRoomType = RoomOrder[(RoomIndex + 1) % RoomOrder.Count];
+        int nextRoomIndex = (RoomIndex + 1) % RoomOrder.Count;
+        RoomType nextRoomType = RoomOrder[nextRoomIndex];
 
-        //Picking what room is next
-        switch (nextRoomType)
+        if (nextRoomIndex == 0 && CurrentRoomIndex == (AreaDataSOs[0].NumberOfRooms - 1))
         {
-            case RoomType.Camp:
-                CampManager.instance.LoadCamp();
-                break;
-            case RoomType.Combat:
-                CombatRoomManager.instance.LoadRandomCombatRoom(CurrentRoomIndex, AvailableEnemies);
-                break;
-            case RoomType.Event:
-                EventManager.instance.LoadEvent();
-                break;
+            CombatRoomManager.instance.LoadCombatRoom(CombatRoomManager.instance.ReturnRoomDataAsRuntime(AreaDataSOs[0].BossRoomData));
+        }
+        else
+        {
+            switch (nextRoomType)
+            {
+                case RoomType.Camp:
+                    CampManager.instance.LoadCamp();
+                    break;
+                case RoomType.Combat:
+                    CombatRoomManager.instance.LoadRandomCombatRoom(CurrentRoomIndex, AvailableEnemies);
+                    break;
+                case RoomType.Event:
+                    EventManager.instance.LoadEvent();
+                    break;
+            }
         }
 
         //This is a looping index for iterating through our RoomOrder list
-        RoomIndex = (RoomIndex + 1) % RoomOrder.Count;
+        RoomIndex = nextRoomIndex;
 
         //This tracks the actual room index, goes up by 1 each room
         if (RoomIndex == 0)
             CurrentRoomIndex++;
 
-        RoomCountText.text = "Forest (" + CurrentRoomIndex.ToString() + "/8)";
+        RoomCountText.text = $"{AreaDataSOs[0].AreaName} ({CurrentRoomIndex}/{AreaDataSOs[0].NumberOfRooms})";
         IsTransitioning.Value = false;
     }
 
@@ -161,3 +172,4 @@ public class RuntimeRoomData
     public int presetRoomId = -1;
     public List<CombatRoomEnemyEntry> Enemies = new();
 }
+

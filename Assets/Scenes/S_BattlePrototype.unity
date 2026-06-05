@@ -15401,6 +15401,7 @@ MonoBehaviour:
   combatRoomPresets:
   - {fileID: 11400000, guid: be999d4a040a8784497624f2edd31226, type: 2}
   - {fileID: 11400000, guid: d65f4a9b87d6e1a4495ba0e1f491c26a, type: 2}
+  - {fileID: 11400000, guid: 41326ac3f462a804e896a73398e33942, type: 2}
 --- !u!4 &853061928
 Transform:
   m_ObjectHideFlags: 0
@@ -16612,10 +16613,11 @@ MonoBehaviour:
   - {fileID: 1859624672593206805, guid: df20a2b68b3ad094e823742f3ba5d5bc, type: 3}
   - {fileID: 1859624672593206805, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
   - {fileID: 1859624672593206805, guid: e91b782b0ea4d5746a9c14a85d088845, type: 3}
-  Background: {fileID: 1342900617445200421, guid: 36a4675a39ad99d41a5b2a89389f2db1, type: 3}
   IsTransitioning:
     m_InternalValue: 0
   transitionStartingTime: 0
+  AreaDataSOs:
+  - {fileID: 11400000, guid: 95583e08f49c2c74ea2bf0babfc62c0a, type: 2}
 --- !u!114 &958336431
 MonoBehaviour:
   m_ObjectHideFlags: 0

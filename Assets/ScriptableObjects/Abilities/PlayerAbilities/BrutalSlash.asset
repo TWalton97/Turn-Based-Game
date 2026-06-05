@@ -28,7 +28,7 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 19
+    DamageAmount: 4
     NumberOfHits: 1
     DurationBetweenHits: 0
     StrengthScaling: 1

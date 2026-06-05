@@ -120,7 +120,6 @@ public class CampManager : NetworkBehaviour
         if (votedClients.Count == expectedVoters.Count)
         {
             StartCoroutine(ProgressionManager.instance.TransitionToNextRoom());
-            NumberOfReadyVotes.Value = 0;
         }
     }
 
