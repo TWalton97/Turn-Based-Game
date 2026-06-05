@@ -31,7 +31,7 @@ public class ProgressionManager : NetworkBehaviour
         RoomType.Camp,
     };
 
-    public int CurrentRoomIndex = 1;
+    private NetworkVariable<int> CurrentRoomIndex = new(0);
 
     public List<UnitController> AvailableEnemies;
 
@@ -52,6 +52,7 @@ public class ProgressionManager : NetworkBehaviour
 
         //We populate with the first area information
         LoadNextArea();
+
     }
 
     public void LoadNextArea()
@@ -63,6 +64,7 @@ public class ProgressionManager : NetworkBehaviour
         }
         CurrentAreaData = AreaDataSOs[currentAreaIndex];
         AvailableEnemies = AreaDataSOs[currentAreaIndex].AvailableEnemies;
+        RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex.Value}/{CurrentAreaData.NumberOfRooms})";
     }
 
     public void LoadFirstRoom()
@@ -86,6 +88,7 @@ public class ProgressionManager : NetworkBehaviour
         else
         {
             UIManager.instance.EnableTravelingUI();
+            RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex.Value}/{CurrentAreaData.NumberOfRooms})";
         }
     }
 
@@ -97,6 +100,9 @@ public class ProgressionManager : NetworkBehaviour
 
     public IEnumerator TransitionToNextRoom()
     {
+        if (!IsServer)
+            yield break;
+
         IsTransitioning.Value = true;
 
         yield return new WaitForSeconds(1f);
@@ -116,14 +122,13 @@ public class ProgressionManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-        if (CurrentRoomIndex == CurrentAreaData.NumberOfRooms)
+        if (CurrentRoomIndex.Value == CurrentAreaData.NumberOfRooms)
         {
             currentAreaIndex++;
             LoadNextAreaClientRpc(currentAreaIndex);
-            CurrentRoomIndex = 0;
+            CurrentRoomIndex.Value = 1;
             RoomIndex = -1;
             CampManager.instance.LoadCamp();
-            RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex}/{CurrentAreaData.NumberOfRooms})";
             IsTransitioning.Value = false;
             return;
         }
@@ -131,9 +136,10 @@ public class ProgressionManager : NetworkBehaviour
         int nextRoomIndex = (RoomIndex + 1) % RoomOrder.Count;
         RoomType nextRoomType = RoomOrder[nextRoomIndex];
 
-        if (nextRoomIndex == 0 && CurrentRoomIndex == (CurrentAreaData.NumberOfRooms - 1))
+        if (nextRoomIndex == 0 && CurrentRoomIndex.Value == (CurrentAreaData.NumberOfRooms - 1))
         {
             CombatRoomManager.instance.LoadCombatRoom(CombatRoomManager.instance.ReturnRoomDataAsRuntime(CurrentAreaData.BossRoomData));
+            IsTransitioning.Value = false;
         }
         else
         {
@@ -143,7 +149,7 @@ public class ProgressionManager : NetworkBehaviour
                     CampManager.instance.LoadCamp();
                     break;
                 case RoomType.Combat:
-                    CombatRoomManager.instance.LoadRandomCombatRoom(CurrentRoomIndex, AvailableEnemies);
+                    CombatRoomManager.instance.LoadRandomCombatRoom(CurrentRoomIndex.Value, AvailableEnemies);
                     break;
                 case RoomType.Event:
                     EventManager.instance.LoadEvent();
@@ -156,9 +162,8 @@ public class ProgressionManager : NetworkBehaviour
 
         //This tracks the actual room index, goes up by 1 each room
         if (RoomIndex == 0)
-            CurrentRoomIndex++;
+            CurrentRoomIndex.Value++;
 
-        RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex}/{CurrentAreaData.NumberOfRooms})";
         IsTransitioning.Value = false;
     }
 

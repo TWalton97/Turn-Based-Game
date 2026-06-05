@@ -82,13 +82,17 @@ public class CombatRoomManager : NetworkBehaviour
 
     public void ServerUnloadCombatRoom()
     {
-        if (NetworkManager.Singleton.IsServer)
+        if (IsServer)
         {
-            foreach (UnitController controller in BattleManager.instance.EnemyUnits)
+            for (int i = BattleManager.instance.EnemyUnits.Count - 1; i >= 0; i--)
             {
+                UnitController controller = BattleManager.instance.EnemyUnits[i];
                 TurnManager.instance.RemoveUnitFromTurnEntries(controller);
+                controller.GetComponent<NetworkObject>().Despawn();
                 Destroy(controller.gameObject);
             }
+
+            BattleManager.instance.RemoveAllEnemies();
 
             foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
             {
@@ -111,7 +115,8 @@ public class CombatRoomManager : NetworkBehaviour
         Destroy(CurrentlyLoadedBackground);
         CurrentlyLoadedBackground = null;
 
-        BattleManager.instance.RemoveAllEnemies();
+        if (!IsServer)
+            BattleManager.instance.RemoveAllEnemies();
 
         CurrentlyLoadedRuntimeRoomData = null;
         OnCombatRoomUnloaded?.Invoke();

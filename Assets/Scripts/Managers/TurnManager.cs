@@ -81,7 +81,9 @@ public class TurnManager : NetworkBehaviour
         if (!IsServer)
             return;
 
+        ServerCurrentTurnIndex = -1;
         initiativeList.Clear();
+        ServerCurrentTurnUnitController = null;
         ServerIsBattleEnded = false;
 
         foreach (var unit in BattleManager.instance.FriendlyUnits)
@@ -114,9 +116,7 @@ public class TurnManager : NetworkBehaviour
             rolls[i] = initiativeList[i].roll;
         }
 
-        ServerCurrentTurnIndex = -1;
         ServerMoveToNextTurn();
-
         GenerateTurnEntryListClientRpc(unitIds, rolls, ServerCurrentTurnIndex);
     }
 
@@ -124,6 +124,9 @@ public class TurnManager : NetworkBehaviour
     public void GenerateTurnEntryListClientRpc(ulong[] unitIds, float[] rolls, int serverCurrentTurnIndex)
     {
         ClientCurrentTurnIndex = -1;
+        initiativeList.Clear();
+        ClientCurrentTurnUnitController = null;
+
         for (int i = 0; i < unitIds.Length; i++)
         {
             UnitController unit = NetworkUtilities.GetUnitControllerById(unitIds[i]);

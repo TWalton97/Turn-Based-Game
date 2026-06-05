@@ -6671,7 +6671,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 160, y: -50}
-  m_SizeDelta: {x: 240, y: 50}
+  m_SizeDelta: {x: 360, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &340269131
 MonoBehaviour:
@@ -14052,6 +14052,11 @@ MonoBehaviour:
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 2381207045323696021, guid: 4592312c7fe161d49b4e1e9d4adaef0f, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -16183,7 +16188,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 160, y: -250}
-  m_SizeDelta: {x: 240, y: 50}
+  m_SizeDelta: {x: 360, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &912482048
 MonoBehaviour:
@@ -16607,8 +16612,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RoomIndex: -1
   RoomCountText: {fileID: 1543857193}
-  RoomOrder: 010000000000000002000000
-  CurrentRoomIndex: 0
+  RoomOrder: 020000000000000002000000
   AvailableEnemies:
   - {fileID: 1859624672593206805, guid: df20a2b68b3ad094e823742f3ba5d5bc, type: 3}
   - {fileID: 1859624672593206805, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
@@ -20339,7 +20343,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 160, y: -150}
-  m_SizeDelta: {x: 240, y: 50}
+  m_SizeDelta: {x: 360, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1151995998
 MonoBehaviour:

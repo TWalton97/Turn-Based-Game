@@ -39,6 +39,7 @@ public class EventManager : NetworkBehaviour
     private readonly Dictionary<ulong, int> PlayerVotes = new();
     private readonly List<EventDefinition> currentEventOptions = new();
     private readonly Dictionary<int, EventDefinition> SelectedEventOptions = new();
+    private readonly Dictionary<int, int> voteCounts = new();
 
     private void Awake()
     {
@@ -51,18 +52,6 @@ public class EventManager : NetworkBehaviour
     }
 
     #region EVENT GENERATION
-
-    //Event manager timeline
-
-    //On event started, the server chooses 3 events from the pool and distributes their indexes to each player
-    //Each player takes those indexes and populates the event choices
-    //Each event choice button submits a vote for that event's index to the server
-
-    //Once the number of votes for an event >= number of clients, the server tells all clients to load the starting node of that event
-    //The starting node populates the buttons with more vote buttons based on the option index
-    //Clicking a button submits a vote for that index
-
-    //General loop: Clients submit votes to server, server waits until votes reach player count, server tells clients what outcome is
 
     public void PopulateEventOptions()
     {
@@ -121,11 +110,11 @@ public class EventManager : NetworkBehaviour
         var startNode = eventDef.GetNode(eventDef.startNodeID);
 
         ui.EventSelectionImage.sprite = startNode.image;
-        ui.EventSelectionButtonText.text = eventDef.eventID;
+        ui.EventSelectionButtonText.text = $"{eventDef.eventID} (0)";
 
         ui.EventSelectionButton.onClick.RemoveAllListeners();
 
-        string eventID = eventDef.eventID; // IMPORTANT: stable identifier
+        string eventID = eventDef.eventID;
 
         ui.EventSelectionButton.onClick.AddListener(() =>
         {
@@ -144,12 +133,30 @@ public class EventManager : NetworkBehaviour
 
         PlayerVotes[senderId] = optionIndex;
 
-        CheckVotes();
+        RecalculateVotes();
+
+        PushVoteStateToClients();
+
+        CheckForWinner();
     }
 
-    private void CheckVotes()
+    private void CheckForWinner()
     {
-        Dictionary<int, int> voteCounts = new();
+        int requiredVotes = NetworkManager.Singleton.ConnectedClients.Count;
+
+        foreach (var pair in voteCounts)
+        {
+            if (pair.Value >= requiredVotes)
+            {
+                ResolveWinningVote(pair.Key);
+                return;
+            }
+        }
+    }
+
+    private void RecalculateVotes()
+    {
+        voteCounts.Clear();
 
         foreach (var vote in PlayerVotes.Values)
         {
@@ -158,15 +165,58 @@ public class EventManager : NetworkBehaviour
 
             voteCounts[vote]++;
         }
+    }
 
-        foreach (var pair in voteCounts)
+    [ClientRpc]
+    private void UpdateVoteDisplayClientRpc(int[] counts)
+    {
+        // --- Update Event Selection UI ---
+        for (int i = 0; i < EventSelections.Count; i++)
         {
-            if (pair.Value >= NetworkManager.Singleton.ConnectedClientsIds.Count)
-            {
-                ResolveWinningVote(pair.Key);
-                return;
-            }
+            if (!SelectedEventOptions.ContainsKey(i))
+                continue;
+
+            string label = SelectedEventOptions[i].eventID;
+            int count = (i < counts.Length) ? counts[i] : 0;
+
+            EventSelections[i].EventSelectionButtonText.text =
+                $"{label} ({count})";
         }
+
+        // --- Update Event Node UI ---
+        for (int i = 0; i < EventNodeOptions.Count; i++)
+        {
+            var ui = EventNodeOptions[i];
+
+            if (!ui.EventSelectionButton.gameObject.activeSelf)
+                continue;
+
+            string baseLabel = ui.EventSelectionButtonText.text;
+
+            // strip old count safely
+            if (baseLabel.Contains("("))
+                baseLabel = baseLabel.Split('(')[0].Trim();
+
+            int count = (i < counts.Length) ? counts[i] : 0;
+
+            ui.EventSelectionButtonText.text =
+                $"{baseLabel} ({count})";
+        }
+    }
+
+    private void PushVoteStateToClients()
+    {
+        int maxOptions = Mathf.Max(EventSelections.Count, EventNodeOptions.Count);
+
+        int[] counts = new int[maxOptions];
+
+        foreach (var kvp in voteCounts)
+        {
+            if (kvp.Key >= 0 && kvp.Key < maxOptions)
+                counts[kvp.Key] = kvp.Value;
+        }
+
+        UpdateVoteDisplayClientRpc(counts);
     }
 
     private void ResolveWinningVote(int winningEventIndex)
@@ -256,7 +306,7 @@ public class EventManager : NetworkBehaviour
 
         EventNodeImage.sprite = node.image;
         EventNodeName.text = "Event";
-        EventNodeDescription.text = node.description;
+        EventNodeDescription.text = $"{node.description}";
 
         foreach (var option in EventNodeOptions)
             option.EventSelectionButton.gameObject.SetActive(false);
@@ -268,13 +318,12 @@ public class EventManager : NetworkBehaviour
             var ui = EventNodeOptions[i];
 
             ui.EventSelectionButton.gameObject.SetActive(true);
-            ui.EventSelectionButtonText.text = choice.buttonText;
+            ui.EventSelectionButtonText.text = $"{choice.buttonText} (0)";
 
             ui.EventSelectionButton.onClick.RemoveAllListeners();
 
             int capturedChoiceIndex = i;
 
-            //We need to just change this to submit a vote with an index and let the server decide
             ui.EventSelectionButton.onClick.AddListener(() =>
             {
                 SubmitEventVoteServerRpc(capturedChoiceIndex);
