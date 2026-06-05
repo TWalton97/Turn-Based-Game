@@ -7,6 +7,7 @@ public class StartCombatEffect : EventEffect
 
     public override void Execute()
     {
-        ProgressionManager.instance.LoadCombatRoomData(roomData);
+        RuntimeRoomData runtimeRoomData = CombatRoomManager.instance.ReturnRoomDataAsRuntime(roomData);
+        ProgressionManager.instance.ForceLoadCombatRoom(runtimeRoomData);
     }
 }

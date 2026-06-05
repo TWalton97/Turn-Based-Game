@@ -8,7 +8,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CampManager : MonoBehaviour
+public class CampManager : NetworkBehaviour
 {
     public static CampManager instance;
 
@@ -52,10 +52,60 @@ public class CampManager : MonoBehaviour
 
     public TextMeshProUGUI ReadyButtonText;
 
+    public NetworkVariable<int> NumberOfReadyVotes;
+
+    bool hasVoted = false;
+
     void Awake()
     {
         if (instance == null)
             instance = this;
+    }
+
+    public void LoadCamp()
+    {
+        hasVoted = false;
+
+        if (IsServer)
+            NumberOfReadyVotes.Value = 0;
+
+        foreach (UnitController unit in BattleManager.instance.FriendlyUnits)
+        {
+            if (unit.IsOwner)
+            {
+                PopulateCampUI(unit);
+                UIManager.instance.EnableCampUI();
+                return;
+            }
+        }
+    }
+
+    public void VoteReady()
+    {
+        if (!hasVoted)
+        {
+            hasVoted = true;
+            RequestCampReadyVoteServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestCampReadyVoteServerRpc(ServerRpcParams rpcParams = default)
+    {
+        NumberOfReadyVotes.Value++;
+        CountReadyVotes();
+    }
+
+    private void CountReadyVotes()
+    {
+        if (!IsServer)
+            return;
+
+        if (NumberOfReadyVotes.Value == NetworkManager.Singleton.ConnectedClients.Count)
+        {
+            ProgressionManager.instance.LoadNextRoom();
+            NumberOfReadyVotes.Value = 0;
+        }
     }
 
     public void PopulateCampUI(UnitController unitController)
@@ -70,7 +120,7 @@ public class CampManager : MonoBehaviour
         PopulateStashList();
         UpdateReadyButtonText(0, 0);
 
-        ProgressionManager.instance.NumberOfReadyVotes.OnValueChanged += UpdateReadyButtonText;
+        NumberOfReadyVotes.OnValueChanged += UpdateReadyButtonText;
 
         TrackedUnitController.Strength.OnValueChanged += OnStatsChanged;
         TrackedUnitController.Dexterity.OnValueChanged += OnStatsChanged;
@@ -87,9 +137,11 @@ public class CampManager : MonoBehaviour
         TrackedUnitController.StatModifiers.OnListChanged += UpdateStatsPanel;
     }
 
-    void OnDestroy()
+    public override void OnDestroy()
     {
-        ProgressionManager.instance.NumberOfReadyVotes.OnValueChanged -= UpdateReadyButtonText;
+        base.OnDestroy();
+
+        NumberOfReadyVotes.OnValueChanged -= UpdateReadyButtonText;
 
         if (TrackedUnitController == null)
             return;

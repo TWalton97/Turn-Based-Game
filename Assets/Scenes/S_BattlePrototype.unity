@@ -16392,6 +16392,7 @@ GameObject:
   - component: {fileID: 958336435}
   - component: {fileID: 958336437}
   - component: {fileID: 958336436}
+  - component: {fileID: 958336438}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -16501,11 +16502,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae71226373bf4bf4cb338cb01e4ef64a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RoomData:
-  - {fileID: 11400000, guid: be999d4a040a8784497624f2edd31226, type: 2}
   RoomIndex: -1
   RoomCountText: {fileID: 1543857193}
-  RoomBackground: {fileID: 0}
   RoomOrder: 00000000010000000200000000000000
   CurrentRoomIndex: 0
   AvailableEnemies:
@@ -16513,8 +16511,6 @@ MonoBehaviour:
   - {fileID: 1859624672593206805, guid: 4a1b8d3038ad8824f8ba3cf59c6b85f6, type: 3}
   - {fileID: 1859624672593206805, guid: e91b782b0ea4d5746a9c14a85d088845, type: 3}
   Background: {fileID: 1342900617445200421, guid: 36a4675a39ad99d41a5b2a89389f2db1, type: 3}
-  NumberOfReadyVotes:
-    m_InternalValue: 0
 --- !u!114 &958336431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16642,6 +16638,8 @@ MonoBehaviour:
   CraftingEntriesParent: {fileID: 964138278}
   CraftingEntryPrefab: {fileID: 5453653390508399583, guid: 55c2ee4340c0e5849935ab9a6c1137f1, type: 3}
   ReadyButtonText: {fileID: 1713036360}
+  NumberOfReadyVotes:
+    m_InternalValue: 0
 --- !u!114 &958336436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16708,6 +16706,19 @@ MonoBehaviour:
     image: {fileID: 0}
     description: 
     choices: []
+--- !u!114 &958336438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958336424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26349f6334439c3469e76d7ee849e73c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentlyLoadedBackground: {fileID: 0}
 --- !u!1001 &961846108
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26305,8 +26316,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 958336430}
-        m_TargetAssemblyTypeName: ProgressionManager, Assembly-CSharp
+      - m_Target: {fileID: 958336435}
+        m_TargetAssemblyTypeName: CampManager, Assembly-CSharp
         m_MethodName: VoteReady
         m_Mode: 1
         m_Arguments:

@@ -45,6 +45,12 @@ public class EventManager : NetworkBehaviour
         if (instance == null) instance = this;
     }
 
+    public void LoadEvent()
+    {
+        UIManager.instance.EnableEventUI();
+        PopulateEventOptions();
+    }
+
     #region EVENT GENERATION
 
     //Event manager timeline

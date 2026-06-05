@@ -134,6 +134,7 @@ public class CombatManager : NetworkBehaviour
         yield return new WaitForSeconds(1f);
 
         ProgressionManager.instance.BattlePresentationFinishedServerRpc();
+        TurnManager.OnBattleEnded?.Invoke();
     }
 
 }

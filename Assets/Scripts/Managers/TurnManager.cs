@@ -54,12 +54,14 @@ public class TurnManager : NetworkBehaviour
     private void Start()
     {
         ProgressionManager.OnRoomLoaded += GenerateTurnOrder;
+        CombatRoomManager.OnCombatRoomLoaded += GenerateTurnOrder;
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
         ProgressionManager.OnRoomLoaded -= GenerateTurnOrder;
+        CombatRoomManager.OnCombatRoomLoaded -= GenerateTurnOrder;
     }
 
     public void RemoveUnitFromTurnEntries(UnitController controller)
