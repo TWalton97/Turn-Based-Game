@@ -16,7 +16,7 @@ MonoBehaviour:
   StatusDescription: Increases block chance by 100%.
   StatusSprite: {fileID: 21300000, guid: 0038c07c43785c04faa15ecb8093fe89, type: 3}
   BuffType: 0
-  ActivationTime: 3
+  ActivationTime: 4
   NumberOfTurns: 1
   StatModifiers:
   - stat: 11

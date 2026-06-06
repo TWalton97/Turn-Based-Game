@@ -75,6 +75,10 @@ public class EnemyController : NetworkBehaviour
 
         foreach (RuntimeAbilityInstance runtimeAbility in unitController.RuntimeAbilityInstances)
         {
+            if (unitController.StateModifiers.Find(s => s.stateTag == UnitStateTags.Taunted) != null)
+                if (runtimeAbility.Ability.TeamTargeting == Team.Ally)
+                    continue;
+
             if (!runtimeAbility.CanUse(unitController))
                 continue;
 
@@ -130,6 +134,14 @@ public class EnemyController : NetworkBehaviour
             return targets;
         }
 
+        StateModifier stateModifier = unitController.StateModifiers.Find(s => s.stateTag == UnitStateTags.Taunted);
+        if (ability.Ability.TeamTargeting == Team.Enemy && stateModifier != null)
+        {
+            UnitController tauntSourceController = NetworkUtilities.GetUnitControllerById(stateModifier.sourceUnitId);
+            targets.Add(tauntSourceController);
+            return targets;
+        }
+
         targets =
         ability.Ability.TeamTargeting == Team.Enemy
         ? BattleManager.instance.FriendlyUnits
@@ -141,6 +153,8 @@ public class EnemyController : NetworkBehaviour
 
         if (ability.Ability.AIIntents.Contains(AIIntent.Heal))
             targets = targets.Where(t => t.CurrentHealth.Value < t.MaxHealth).ToList();
+
+
 
         return targets;
     }

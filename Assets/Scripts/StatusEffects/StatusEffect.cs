@@ -37,7 +37,8 @@ public enum ActivationTime
 {
     StartOfTurn,
     EndOfTurn,
-    OnHit,
+    OnTakeHit,
+    OnAttack,
     OnApplication,
     OnExpire
 }

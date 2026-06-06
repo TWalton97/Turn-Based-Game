@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67a198f927bd177499d847de2a155688, type: 3}
+  m_Name: Duelist
+  m_EditorClassIdentifier: 
+  ClassName: Duelist
+  MaxHealth: 40
+  MaxMana: 5
+  AbilityUnlocks:
+  - LevelToUnlock: 0
+    AbilityUnlockType: 0
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+  - LevelToUnlock: 0
+    AbilityUnlockType: 0
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: 487204df2ab3fcb47a5b7bc7feb8898d, type: 2}
+  - LevelToUnlock: 0
+    AbilityUnlockType: 0
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: 6a84c3b571e97cd4f9f55e69be79d99f, type: 2}
+  - LevelToUnlock: 2
+    AbilityUnlockType: 1
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: cb3beb4559f02b642a974c4cf5860ab6, type: 2}
+    - {fileID: 11400000, guid: 1b386e455ce04a54f93c036a977adac2, type: 2}
+  - LevelToUnlock: 4
+    AbilityUnlockType: 1
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
+    - {fileID: 11400000, guid: 5772b115f89b26b488caf2516bef51c6, type: 2}
+  - LevelToUnlock: 6
+    AbilityUnlockType: 1
+    AbilityToUnlock:
+    - {fileID: 11400000, guid: 05226c3d66c5bd24e8a067538a3805c0, type: 2}
+    - {fileID: 11400000, guid: 0b85937a1c537094e9332d64b7b59c2d, type: 2}
+    - {fileID: 11400000, guid: 375d493276558704f80a3ff8edb7c176, type: 2}
+  Strength: 0
+  Dexterity: 3
+  Constitution: 0
+  Intelligence: 0
+  Faith: 0
+  Charisma: 0
+  Luck: 0

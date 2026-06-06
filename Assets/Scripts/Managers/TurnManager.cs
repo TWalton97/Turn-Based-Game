@@ -156,6 +156,12 @@ public class TurnManager : NetworkBehaviour
         if (ServerIsBattleOver())
         {
             ServerIsBattleEnded = true;
+            foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+            {
+                float amount = controller.MaxHealth * 0.25f;
+                controller.ServerHeal(amount, true);
+                DistributeHealthClientRpc(controller.OwnerClientId, amount);
+            }
             NotifyBattleEndedClientRpc();
             return;
         }
@@ -190,6 +196,15 @@ public class TurnManager : NetworkBehaviour
 
         OnServerTurnStarted?.Invoke(ServerCurrentTurnUnitController);
         OnServerActionPhaseStarted?.Invoke(ServerCurrentTurnUnitController);
+    }
+
+    [ClientRpc]
+    public void DistributeHealthClientRpc(ulong targetClientId, float amount)
+    {
+        if (NetworkManager.Singleton.LocalClientId != targetClientId)
+            return;
+
+        CombatLogController.instance.AddHealingToCombatLog(amount);
     }
 
     public void RequestClientTurnAdvance()

@@ -2991,9 +2991,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1204929158}
-        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
-        m_MethodName: OpenMainMenu
+      - m_Target: {fileID: 1204929161}
+        m_TargetAssemblyTypeName: NetworkUI, Assembly-CSharp
+        m_MethodName: CloseGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3256,6 +3256,11 @@ MonoBehaviour:
       OverridingTargetPrefab: {fileID: 0}
     - Override: 0
       Prefab: {fileID: 2381207045323696021, guid: bb02c65ce3a81b14f92f9372b2dfe557, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 2381207045323696021, guid: 67ca6d7ef3ba94c4fa69e862c37887aa, type: 3}
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
@@ -4607,9 +4612,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55ff8a8f6c9c3e43bf4d077f7c48e81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  connectedPlayersText: {fileID: 290962519}
-  ConnectedPlayerCount:
-    m_InternalValue: 0
+  networkUI: {fileID: 1204929161}
+  maximumPlayersText: {fileID: 290962519}
   LobbyPlayerData: []
   LobbyEntryControllerPrefab: {fileID: 5433542513033401242, guid: 784cc9ed907a712409534730c0454295, type: 3}
   LobbyEntryParent: {fileID: 1459318213}

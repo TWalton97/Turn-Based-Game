@@ -13,6 +13,7 @@ public class SpawnManager : NetworkBehaviour
     public UnitController WarriorPrefab;
     public UnitController RoguePrefab;
     public UnitController PriestPrefab;
+    public UnitController DuelistPrefab;
 
     private void Awake()
     {
@@ -106,7 +107,17 @@ public class SpawnManager : NetworkBehaviour
                 return RoguePrefab;
             case PlayerClass.Priest:
                 return PriestPrefab;
+            case PlayerClass.Duelist:
+                return DuelistPrefab;
         }
         return null;
     }
+}
+
+public enum PlayerClass
+{
+    Warrior,
+    Rogue,
+    Priest,
+    Duelist
 }

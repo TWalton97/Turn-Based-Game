@@ -60,7 +60,7 @@ public class NetworkUI : NetworkBehaviour
         if (maxPlayers == 1)
         {
             NetworkManager.Singleton.StartHost();
-            StartGame();
+            mainMenuManager.OpenLobbyMenu();
         }
         else
         {
@@ -116,6 +116,21 @@ public class NetworkUI : NetworkBehaviour
         {
             Debug.LogWarning($"Failed to join relay: {e.Message}");
         }
+    }
+
+    public void CloseGame()
+    {
+        if (IsHost)
+        {
+            NetworkManager.Singleton.Shutdown();
+            lobbyManager.ClearEntries();
+        }
+        else if (IsClient)
+        {
+            NetworkManager.Singleton.DisconnectClient(NetworkManager.Singleton.LocalClientId);
+        }
+        joinCodeText.text = $"Join Code:";
+        mainMenuManager.OpenStartGameMenu();
     }
 
     private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)

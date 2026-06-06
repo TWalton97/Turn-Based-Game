@@ -10,7 +10,7 @@ public class GainHealthEffect : EventEffect
     {
         foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
         {
-            controller.ServerHeal(HealthAmount);
+            controller.ServerHeal(HealthAmount, true);
         }
     }
 }

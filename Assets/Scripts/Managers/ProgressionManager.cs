@@ -42,6 +42,7 @@ public class ProgressionManager : NetworkBehaviour
     public List<AreaDataSO> AreaDataSOs;
     public AreaDataSO CurrentAreaData;
     private int currentAreaIndex = 0;
+    private bool hasStartedCycle = false;
 
     public GameObject FirstLoadCanvas;
 
@@ -102,7 +103,7 @@ public class ProgressionManager : NetworkBehaviour
         else
         {
             UIManager.instance.EnableTravelingUI();
-            RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex.Value}/{CurrentAreaData.NumberOfRooms})";
+            RoomCountText.text = $"{CurrentAreaData.AreaName} ({CurrentRoomIndex.Value + 1}/{CurrentAreaData.NumberOfRooms})";
         }
     }
 
@@ -136,8 +137,21 @@ public class ProgressionManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-
         int roomsInArea = CurrentAreaData.NumberOfRooms;
+
+        int nextRoomIndex = (RoomIndex + 1) % RoomOrder.Count;
+
+        // PRE-COMMIT STATE FIRST
+        bool willWrap = nextRoomIndex == 0;
+
+        // commit index immediately
+        RoomIndex = nextRoomIndex;
+
+        // ONLY NOW decide progression effects
+        if (hasStartedCycle && willWrap)
+        {
+            CurrentRoomIndex.Value++;
+        }
 
         // -------------------------
         // BOSS + AREA TRANSITION
@@ -163,7 +177,6 @@ public class ProgressionManager : NetworkBehaviour
                 CombatRoomManager.instance.ReturnRoomDataAsRuntime(CurrentAreaData.BossRoomData)
             );
 
-            CurrentRoomIndex.Value++;
             RoomIndex = -1; // important: not 0
 
             IsTransitioning.Value = false;
@@ -173,7 +186,6 @@ public class ProgressionManager : NetworkBehaviour
         // -------------------------
         // NORMAL ROOM FLOW
         // -------------------------
-        int nextRoomIndex = (RoomIndex + 1) % RoomOrder.Count;
         RoomType nextRoomType = RoomOrder[nextRoomIndex];
 
         switch (nextRoomType)
@@ -187,14 +199,10 @@ public class ProgressionManager : NetworkBehaviour
                 break;
 
             case RoomType.Event:
+                hasStartedCycle = true;
                 EventManager.instance.LoadEvent();
                 break;
         }
-
-        RoomIndex = nextRoomIndex;
-
-        if (RoomIndex == 0)
-            CurrentRoomIndex.Value++;
 
         IsTransitioning.Value = false;
     }
@@ -241,6 +249,8 @@ public class ProgressionManager : NetworkBehaviour
         {
             controller.CombatEndReset();
         }
+
+        StartCoroutine(CombatLogController.instance.DisplayCombatLogAndClear());
     }
 
     private bool AllClientsReady()

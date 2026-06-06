@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Area_Forest
   m_EditorClassIdentifier: 
   AreaName: Forest
-  NumberOfRooms: 2
+  NumberOfRooms: 8
   AvailableEnemies:
   - {fileID: 1859624672593206805, guid: df20a2b68b3ad094e823742f3ba5d5bc, type: 3}
   - {fileID: 1859624672593206805, guid: e91b782b0ea4d5746a9c14a85d088845, type: 3}

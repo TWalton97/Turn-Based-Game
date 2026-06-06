@@ -6,9 +6,10 @@ using UnityEngine;
 
 public class LobbyManager : NetworkBehaviour
 {
+    public NetworkUI networkUI;
+
     public static LobbyManager instance;
-    public TextMeshProUGUI connectedPlayersText;
-    public NetworkVariable<int> ConnectedPlayerCount;
+    public TextMeshProUGUI maximumPlayersText;
     public List<PlayerLobbyState> LobbyPlayerData;
     public LobbyEntryController LobbyEntryControllerPrefab;
     public Transform LobbyEntryParent;
@@ -18,26 +19,11 @@ public class LobbyManager : NetworkBehaviour
     {
         if (instance == null)
             instance = this;
-
-        ConnectedPlayerCount.OnValueChanged += UpdateConnectedPlayersText;
     }
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        }
-    }
-
-    public void BuildAllEntries()
-    {
-        var players = FindObjectsOfType<PlayerLobbyState>();
-
-        foreach (var player in players)
-        {
-            CreateOrUpdateLobbyEntry(player);
-        }
+        UpdateMaximumPlayersText();
     }
 
     public void CreateOrUpdateLobbyEntry(PlayerLobbyState player)
@@ -57,23 +43,13 @@ public class LobbyManager : NetworkBehaviour
         entries.Add(clientId, newEntry);
     }
 
-    private void OnClientConnected(ulong clientId)
+    public void ClearEntries()
     {
-        if (IsServer)
-        {
-            ConnectedPlayerCount.Value = NetworkManager.Singleton.ConnectedClients.Count;
-        }
+        entries.Clear();
     }
 
-    public void UpdateConnectedPlayersText(int oldValue, int newValue)
+    public void UpdateMaximumPlayersText()
     {
-        connectedPlayersText.text = $"Connected players: {newValue}";
+        maximumPlayersText.text = $"Maximum Players: {networkUI.maxPlayers}";
     }
-}
-
-public enum PlayerClass
-{
-    Warrior,
-    Rogue,
-    Priest
 }

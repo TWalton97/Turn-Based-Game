@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
+  m_Name: BloodSacrifice
+  m_EditorClassIdentifier: 
+  AbilityName: Blood Sacrifice
+  AbilityDescription: Sacrifice some of your health to empower your entire team
+  ManaCost: 0
+  TeamTargeting: 0
+  TargetType: 4
+  Cooldown: 6
+  MovesToTarget: 1
+  AbilityAnimationDelay: 2
+  UsesProjectile: 0
+  Animation: {fileID: 0}
+  VFX: {fileID: 0}
+  AIIntents: 
+  abilityEffects:
+  - DamageType: 1
+    TargetType: 4
+    DamageAmount: 5
+    NumberOfHits: 1
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0
+    StatusToApply: {fileID: 0}
+    EffectType: 0
+    ConditionType: 0
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0
+  - DamageType: 0
+    TargetType: 4
+    DamageAmount: 3
+    NumberOfHits: 0
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0
+    StatusToApply: {fileID: 11400000, guid: fb31b8dc520e71945811fb088a74f6ba, type: 2}
+    EffectType: 0
+    ConditionType: 0
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0
+  - DamageType: 0
+    TargetType: 2
+    DamageAmount: 0
+    NumberOfHits: 0
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0
+    StatusToApply: {fileID: 11400000, guid: decc35fa7fe323b43be8d3d1ce488a78, type: 2}
+    EffectType: 0
+    ConditionType: 0
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0

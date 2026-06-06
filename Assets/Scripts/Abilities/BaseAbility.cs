@@ -32,6 +32,11 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
     {
         controller.ServerUpdateMana(-ManaCost);
     }
+
+    protected virtual void OnEnable()
+    {
+        AbilityDatabase.RegisterBaseAbility(this);
+    }
 }
 
 [System.Serializable]

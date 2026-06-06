@@ -84,13 +84,14 @@ public class CombatManager : NetworkBehaviour
                 foreach (HitResult hitResult in targetResult.Hits)
                 {
                     controller.ServerTakeDamage(hitResult);
+                    user.statusEffectController.ServerOnAttack();
                 }
             }
 
             if (abilityEffectResult.ApplyStatusEffect)
             {
                 StatusEffect status = StatusDatabase.GetStatusByName(abilityEffectResult.StatusEffectName);
-                target.statusEffectController.ServerApplyStatusEffect(status, abilityEffectResult.StatusEffectId, abilityEffectResult.StatusEffectResolvedPower);
+                target.statusEffectController.ServerApplyStatusEffect(status, user.NetworkObjectId, abilityEffectResult.StatusEffectId, abilityEffectResult.StatusEffectResolvedPower);
             }
         }
 

@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using Unity.Netcode;
 using System.Linq;
 using Unity.Netcode.Components;
+using Unity.Collections;
 
 public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -112,10 +113,9 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void UnlockAbilityServerRpc(int abilityUnlockLevel, int abilityIndex)
+    public void UnlockAbilityServerRpc(FixedString64Bytes abilityName)
     {
-        AbilityUnlock abilityUnlock = UnitData.AbilityUnlocks.Find(t => t.LevelToUnlock == abilityUnlockLevel);
-        BaseAbility ability = abilityUnlock.AbilityToUnlock[abilityIndex];
+        BaseAbility ability = AbilityDatabase.GetAbilityByName(abilityName);
 
         if (BaseAbilities.Contains(ability))
             return;
@@ -123,14 +123,13 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         BaseAbilities.Add(ability);
         InitializeAbilityRuntimeInstances();
 
-        UnlockAbilityClientRpc(abilityUnlockLevel, abilityIndex);
+        UnlockAbilityClientRpc(abilityName);
     }
 
     [ClientRpc]
-    public void UnlockAbilityClientRpc(int abilityUnlockLevel, int abilityIndex)
+    public void UnlockAbilityClientRpc(FixedString64Bytes abilityName)
     {
-        AbilityUnlock abilityUnlock = UnitData.AbilityUnlocks.Find(t => t.LevelToUnlock == abilityUnlockLevel);
-        BaseAbility ability = abilityUnlock.AbilityToUnlock[abilityIndex];
+        BaseAbility ability = AbilityDatabase.GetAbilityByName(abilityName);
 
         if (BaseAbilities.Contains(ability))
             return;
@@ -340,13 +339,13 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         }
     }
 
-    public void ServerHeal(int amount, bool syncDisplayedHealth = false)
+    public void ServerHeal(float amount, bool syncDisplayedHealth = false)
     {
         if (!IsServer) return;
 
         if (!ServerIsAlive.Value) return;
 
-        CurrentHealth.Value = (int)Mathf.Clamp(CurrentHealth.Value + amount, 0, MaxHealth);
+        CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value + amount, 0, MaxHealth);
 
         if (syncDisplayedHealth)
         {
@@ -417,6 +416,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
                 UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.AbilityEffectResults[p].TargetResults[o].TargetId);
                 for (int i = 0; i < abilityResult.AbilityEffectResults[p].TargetResults[o].Hits.Length; i++)
                 {
+                    statusEffectController.ClientOnAttack();
                     target.ClientTakeDamage(abilityResult.AbilityEffectResults[p].TargetResults[o].Hits[i]);
                     yield return new WaitForSeconds(ability.abilityEffects[p].DurationBetweenHits);
                 }
@@ -426,7 +426,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             {
                 UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.TargetId);
                 StatusEffect status = StatusDatabase.GetStatusByName(abilityResult.AbilityEffectResults[p].StatusEffectName);
-                target.statusEffectController.ClientApplyStatusEffect(status, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
+                target.statusEffectController.ClientApplyStatusEffect(status, abilityResult.AttackerId, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
             }
         }
 
@@ -741,4 +741,5 @@ public enum UnitStateTags
 {
     Stunned,
     Silenced,
+    Taunted,
 }

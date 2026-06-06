@@ -29,6 +29,10 @@ public class BuffStatusEffect : StatusEffect
                 {
                     controller.ServerUpdateMana((int)mod.value);
                 }
+                else if (mod.stat == StatType.CurrentHealth)
+                {
+                    controller.ServerHeal(mod.value);
+                }
                 else
                     controller.StatModifiers.Add(new StatModifier
                     {
@@ -49,6 +53,18 @@ public class BuffStatusEffect : StatusEffect
             if (mod.stat == StatType.CurrentMana)
             {
                 controller.ClientUpdateMana((int)mod.value);
+            }
+
+            if (mod.stat == StatType.CurrentHealth)
+            {
+                HitResult hitResult = new();
+                hitResult.DamageType = DamageType.Heal;
+                hitResult.DamageSource = DamageSource.StatusEffect;
+                hitResult.Damage = -mod.value;
+                hitResult.Crit = false;
+                hitResult.Dodged = false;
+                hitResult.Blocked = false;
+                controller.ClientTakeDamage(hitResult);
             }
         }
     }

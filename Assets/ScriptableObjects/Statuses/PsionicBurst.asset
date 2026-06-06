@@ -16,6 +16,6 @@ MonoBehaviour:
   StatusDescription: Take {power} damage when this effect expires
   StatusSprite: {fileID: 21300000, guid: d59645c7fcb8ee146b3c19f7ae8ce288, type: 3}
   BuffType: 1
-  ActivationTime: 4
+  ActivationTime: 5
   NumberOfTurns: 2
   DamageType: 4

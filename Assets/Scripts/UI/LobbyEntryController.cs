@@ -37,6 +37,7 @@ public class LobbyEntryController : MonoBehaviour
         playerLobbyState.playerName.OnValueChanged += OnNameChanged;
         playerLobbyState.playerClass.OnValueChanged += OnClassChanged;
         playerLobbyState.readyState.OnValueChanged += OnReadyChanged;
+        playerLobbyState.OnAnyDespawned += HandlePlayerDespawned;
 
         NameInputField.text = playerLobbyState.playerName.Value.ToString();
         ClassNameText.text = playerLobbyState.playerClass.Value.ToString();
@@ -79,6 +80,7 @@ public class LobbyEntryController : MonoBehaviour
         playerLobbyState.playerName.OnValueChanged -= OnNameChanged;
         playerLobbyState.playerClass.OnValueChanged -= OnClassChanged;
         playerLobbyState.readyState.OnValueChanged -= OnReadyChanged;
+        playerLobbyState.OnAnyDespawned -= HandlePlayerDespawned;
 
         NameInputField.onEndEdit.RemoveAllListeners();
         MoveClassSelectionLeftButton.onClick.RemoveAllListeners();
@@ -86,6 +88,15 @@ public class LobbyEntryController : MonoBehaviour
         ReadyToggle.onValueChanged.RemoveAllListeners();
 
         playerLobbyState = null;
+    }
+
+    public void HandlePlayerDespawned(PlayerLobbyState state)
+    {
+        if (state == playerLobbyState && this != null)
+        {
+            Unbind();
+            Destroy(gameObject);
+        }
     }
 
     public void OnNameEdited(string newName)

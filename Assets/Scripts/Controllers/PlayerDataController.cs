@@ -17,6 +17,8 @@ public class PlayerDataController : NetworkBehaviour
 
     public List<AbilityUnlock> PendingAbilityUnlocks;
 
+    public List<BaseAbility> UnchosenAbilities;
+
     void Awake()
     {
         UnitController = GetComponent<UnitController>();
@@ -58,6 +60,10 @@ public class PlayerDataController : NetworkBehaviour
 
     public void OnLevelUpChanges(int oldValue, int newValue)
     {
+        if (IsOwner && newValue > 1)
+        {
+            CombatLogController.instance.AddLevelUp();
+        }
         CheckAbilityUnlocks();
     }
 
@@ -68,7 +74,7 @@ public class PlayerDataController : NetworkBehaviour
         {
             if (abilityUnlock.AbilityUnlockType == AbilityUnlockType.AutoGrant && abilityUnlock.AbilityToUnlock.Count > 0)
             {
-                UnitController.UnlockAbilityServerRpc(abilityUnlock.LevelToUnlock, 0);
+                UnitController.UnlockAbilityServerRpc(abilityUnlock.AbilityToUnlock[0].AbilityName);
             }
             else
             {

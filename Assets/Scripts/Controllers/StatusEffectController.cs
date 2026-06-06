@@ -18,7 +18,7 @@ public class StatusEffectController : NetworkBehaviour
         unitController = GetComponent<UnitController>();
     }
 
-    public void ServerApplyStatusEffect(StatusEffect statusEffect, FixedString64Bytes statusInstanceId, float statusEffectPower = 1)
+    public void ServerApplyStatusEffect(StatusEffect statusEffect, ulong sourceUnitId, FixedString64Bytes statusInstanceId, float statusEffectPower = 1)
     {
         // If there is already an existing status effect of this type, we just update that one
         // StatusEffectInstance existingStatusEffectInstance = ActiveStatusEffects.Find(t => t.StatusEffect == statusEffect);
@@ -31,7 +31,8 @@ public class StatusEffectController : NetworkBehaviour
         // }
 
         //If there is no existing status effect of this type, we create a new one
-        StatusEffectInstance newStatusEffectInstance = new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower, statusInstanceId);
+        UnitController sourceUnitController = NetworkUtilities.GetUnitControllerById(sourceUnitId);
+        StatusEffectInstance newStatusEffectInstance = new StatusEffectInstance(unitController, sourceUnitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower, statusInstanceId);
         ServerActiveStatusEffects.Add(newStatusEffectInstance);
 
         if (statusEffect.ActivationTime == ActivationTime.OnApplication)
@@ -40,9 +41,10 @@ public class StatusEffectController : NetworkBehaviour
         }
     }
 
-    public void ClientApplyStatusEffect(StatusEffect statusEffect, FixedString64Bytes statusInstanceId, float statusEffectPower = 1)
+    public void ClientApplyStatusEffect(StatusEffect statusEffect, ulong sourceUnitId, FixedString64Bytes statusInstanceId, float statusEffectPower = 1)
     {
-        StatusEffectInstance newStatusEffectInstance = new StatusEffectInstance(unitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower, statusInstanceId);
+        UnitController sourceUnitController = NetworkUtilities.GetUnitControllerById(sourceUnitId);
+        StatusEffectInstance newStatusEffectInstance = new StatusEffectInstance(unitController, sourceUnitController, statusEffect, statusEffect.NumberOfTurns, statusEffectPower, statusInstanceId);
         ClientActiveStatusEffectViews.Add(newStatusEffectInstance);
 
         if (statusEffect.ActivationTime == ActivationTime.OnApplication)
@@ -146,7 +148,7 @@ public class StatusEffectController : NetworkBehaviour
         {
             var s = ServerActiveStatusEffects[i];
 
-            if (s.StatusEffect.ActivationTime == ActivationTime.OnHit)
+            if (s.StatusEffect.ActivationTime == ActivationTime.OnTakeHit)
                 s.ServerExecuteEffect(s.UnitController);
         }
     }
@@ -157,10 +159,32 @@ public class StatusEffectController : NetworkBehaviour
         {
             var s = ClientActiveStatusEffectViews[i];
 
-            if (s.StatusEffect.ActivationTime == ActivationTime.OnHit)
+            if (s.StatusEffect.ActivationTime == ActivationTime.OnTakeHit)
                 s.ClientExecuteEffect(s.UnitController);
 
             OnStatusEffectsChanged?.Invoke();
+        }
+    }
+
+    public void ServerOnAttack()
+    {
+        for (int i = ServerActiveStatusEffects.Count - 1; i >= 0; i--)
+        {
+            var s = ServerActiveStatusEffects[i];
+
+            if (s.StatusEffect.ActivationTime == ActivationTime.OnAttack)
+                s.ServerExecuteEffect(s.UnitController);
+        }
+    }
+
+    public void ClientOnAttack()
+    {
+        for (int i = ClientActiveStatusEffectViews.Count - 1; i >= 0; i--)
+        {
+            var s = ClientActiveStatusEffectViews[i];
+
+            if (s.StatusEffect.ActivationTime == ActivationTime.OnAttack)
+                s.ClientExecuteEffect(s.UnitController);
         }
     }
 

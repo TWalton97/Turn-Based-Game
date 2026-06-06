@@ -9,6 +9,7 @@ public class StatusEffectInstance
 {
     public StatusEffect StatusEffect;
     public UnitController UnitController;
+    public UnitController SourceController;
 
     public int RemainingNumberOfTurns;
     public float StatusEffectPower;
@@ -20,9 +21,10 @@ public class StatusEffectInstance
 
     public FixedString64Bytes statusEffectId;
 
-    public StatusEffectInstance(UnitController _unitControler, StatusEffect _statusEffect, int _numberOfTurns, float _statusEffectPower, FixedString64Bytes _statusEffectId)
+    public StatusEffectInstance(UnitController _unitController, UnitController _sourceController, StatusEffect _statusEffect, int _numberOfTurns, float _statusEffectPower, FixedString64Bytes _statusEffectId)
     {
-        UnitController = _unitControler;
+        UnitController = _unitController;
+        SourceController = _sourceController;
         StatusEffect = _statusEffect;
         RemainingNumberOfTurns = _numberOfTurns;
         StatusEffectPower = _statusEffectPower;

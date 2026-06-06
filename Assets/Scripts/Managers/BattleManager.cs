@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -76,13 +77,26 @@ public class BattleManager : NetworkBehaviour
                 if (controller.TryGetComponent(out PlayerDataController dataController))
                 {
                     dataController.ServerAddExp(amount);
+                    DistributeExpClientRpc(controller.OwnerClientId, amount);
                 }
             }
         }
     }
 
+    [ClientRpc]
+    public void DistributeExpClientRpc(ulong targetClientId, int amount)
+    {
+        if (NetworkManager.Singleton.LocalClientId != targetClientId)
+            return;
+
+        CombatLogController.instance.AddExpToCombatLog(amount);
+    }
+
     public void DistributeItemsToPlayer(ItemSO item)
     {
+        if (!IsServer)
+            return;
+
         foreach (UnitController controller in FriendlyUnits)
         {
             if (controller.ServerIsAlive.Value)
@@ -92,12 +106,20 @@ public class BattleManager : NetworkBehaviour
                     for (int i = 0; i < UnityEngine.Random.Range(1, 3); i++)
                     {
                         dataController.ServerAddItemToInventory(item);
+                        DistributeItemsClientRpc(controller.OwnerClientId, item.ItemName);
                     }
                 }
             }
         }
     }
 
-    
+    [ClientRpc]
+    public void DistributeItemsClientRpc(ulong targetClientId, FixedString64Bytes itemName)
+    {
+        if (NetworkManager.Singleton.LocalClientId != targetClientId)
+            return;
 
+        ItemSO item = ItemDatabase.GetItemByName(itemName.ToString());
+        CombatLogController.instance.AddItemToCombatlog(item, 1);
+    }
 }

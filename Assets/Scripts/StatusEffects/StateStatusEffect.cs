@@ -10,14 +10,7 @@ public class StateStatusEffect : StatusEffect
 
     public override void ServerOnApplication(UnitController controller, StatusEffectInstance instance)
     {
-        foreach (UnitStateTags tag in StateTags)
-        {
-            controller.StateModifiers.Add(new StateModifier
-            {
-                stateTag = tag,
-                sourceId = instance.statusEffectId,
-            });
-        }
+
     }
 
     public override void ClientOnApplication(UnitController controller, StatusEffectInstance instance)
@@ -27,7 +20,15 @@ public class StateStatusEffect : StatusEffect
 
     public override void ServerExecuteEffect(UnitController controller, StatusEffectInstance instance)
     {
-
+        foreach (UnitStateTags tag in StateTags)
+        {
+            controller.StateModifiers.Add(new StateModifier
+            {
+                stateTag = tag,
+                sourceUnitId = instance.SourceController.NetworkObjectId,
+                sourceStatusId = instance.statusEffectId,
+            });
+        }
     }
 
     public override void ClientExecuteEffect(UnitController controller, StatusEffectInstance instance)
@@ -37,7 +38,7 @@ public class StateStatusEffect : StatusEffect
 
     public override void ServerRemoveStatus(UnitController controller, StatusEffectInstance instance)
     {
-        controller.StateModifiers.RemoveAll(t => t.sourceId == instance.statusEffectId);
+        controller.StateModifiers.RemoveAll(t => t.sourceStatusId == instance.statusEffectId);
     }
 
     public override string ConstructDescriptionString(StatusEffectInstance statusEffectInstance)
@@ -50,5 +51,6 @@ public class StateStatusEffect : StatusEffect
 public class StateModifier
 {
     public UnitStateTags stateTag;
-    public FixedString64Bytes sourceId;
+    public ulong sourceUnitId;
+    public FixedString64Bytes sourceStatusId;
 }
