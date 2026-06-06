@@ -43,6 +43,8 @@ public class ProgressionManager : NetworkBehaviour
     public AreaDataSO CurrentAreaData;
     private int currentAreaIndex = 0;
 
+    public GameObject FirstLoadCanvas;
+
     public void Awake()
     {
         if (instance == null)
@@ -70,6 +72,18 @@ public class ProgressionManager : NetworkBehaviour
     public void LoadFirstRoom()
     {
         StartCoroutine(TransitionToNextRoom());
+        DisableFirstLoadCanvasClientRpc();
+    }
+
+    [ClientRpc]
+    private void DisableFirstLoadCanvasClientRpc()
+    {
+        Invoke(nameof(DisableFirstLoadCanvas), 1f);
+    }
+
+    private void DisableFirstLoadCanvas()
+    {
+        FirstLoadCanvas.SetActive(false);
     }
 
     public override void OnDestroy()

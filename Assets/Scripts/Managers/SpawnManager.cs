@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SpawnManager : NetworkBehaviour
 {
@@ -9,14 +10,16 @@ public class SpawnManager : NetworkBehaviour
 
     public static SpawnManager instance;
 
-    public List<UnitController> DEBUG_PlayerClasses;
+    public UnitController WarriorPrefab;
+    public UnitController RoguePrefab;
+    public UnitController PriestPrefab;
 
     private void Awake()
     {
         if (instance == null)
             instance = this;
 
-        NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
     }
 
     public override void OnDestroy()
@@ -24,25 +27,32 @@ public class SpawnManager : NetworkBehaviour
         if (NetworkManager.Singleton == null)
             return;
 
-        NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoaded;
     }
 
-    public void HandleClientConnected(ulong clientId)
-    {
-        if (!NetworkManager.Singleton.IsServer)
-            return;
-
-        SpawnUnitForPlayer(clientId);
-    }
-
-    private void SpawnUnitForPlayer(ulong clientId)
+    private void OnSceneLoaded(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
         if (!IsServer)
             return;
 
-        BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(DEBUG_PlayerClasses[0].UnitTeam);
+        var playerLobbyStates = FindObjectsOfType<PlayerLobbyState>();
+        foreach (var player in playerLobbyStates)
+        {
+            UnitController classPrefab = ReturnClassPrefab(player.playerClass.Value);
+            SpawnUnitForPlayer(player.OwnerClientId, classPrefab, player.playerName.Value.ToString());
+        }
 
-        GameObject unitObj = Instantiate(DEBUG_PlayerClasses[Random.Range(0, DEBUG_PlayerClasses.Count)].gameObject);
+        ProgressionManager.instance.LoadFirstRoom();
+    }
+
+    private void SpawnUnitForPlayer(ulong clientId, UnitController classPrefab, string name = null)
+    {
+        if (!IsServer)
+            return;
+
+        BattleSlot slot = BattleManager.instance.ReturnEmptyBattleSlotOfType(classPrefab.UnitTeam);
+
+        GameObject unitObj = Instantiate(classPrefab.gameObject);
 
         NetworkObject netObj = unitObj.GetComponent<NetworkObject>();
 
@@ -50,6 +60,9 @@ public class SpawnManager : NetworkBehaviour
         unitObj.transform.rotation = slot.UnitHolder.transform.rotation;
 
         UnitController unit = unitObj.GetComponent<UnitController>();
+
+        if (name != null)
+            unit.UnitName = name;
 
         netObj.SpawnWithOwnership(clientId);
 
@@ -75,5 +88,19 @@ public class SpawnManager : NetworkBehaviour
 
         controller.Level.Value = level;
         slot.BindUnitToSlot(controller);
+    }
+
+    public UnitController ReturnClassPrefab(PlayerClass playerClass)
+    {
+        switch (playerClass)
+        {
+            case PlayerClass.Warrior:
+                return WarriorPrefab;
+            case PlayerClass.Rogue:
+                return RoguePrefab;
+            case PlayerClass.Priest:
+                return PriestPrefab;
+        }
+        return null;
     }
 }

@@ -95,7 +95,13 @@ public class UnlockAbilitiesMenu : MonoBehaviour
         CampManager.instance.PopulateAbilityList();
 
         if (PendingAbilityUnlocks.Count == 0)
+        {
             gameObject.SetActive(false);
+        }
+        else
+        {
+            PopulateNextPendingAbilityUnlock();
+        }
     }
 
     public void PopulateAbilityUnlockDetailsPanel(string title, string info, string stats)
