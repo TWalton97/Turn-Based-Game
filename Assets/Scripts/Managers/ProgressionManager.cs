@@ -136,45 +136,63 @@ public class ProgressionManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-        if (CurrentRoomIndex.Value == CurrentAreaData.NumberOfRooms)
+
+        int roomsInArea = CurrentAreaData.NumberOfRooms;
+
+        // -------------------------
+        // BOSS + AREA TRANSITION
+        // -------------------------
+        if (CurrentRoomIndex.Value >= roomsInArea)
         {
             currentAreaIndex++;
             LoadNextAreaClientRpc(currentAreaIndex);
-            CurrentRoomIndex.Value = 1;
+
+            CurrentRoomIndex.Value = 0;
             RoomIndex = -1;
+
             CampManager.instance.LoadCamp();
             IsTransitioning.Value = false;
             return;
         }
 
+        bool isBossRoom = CurrentRoomIndex.Value == roomsInArea - 1;
+
+        if (isBossRoom)
+        {
+            CombatRoomManager.instance.LoadCombatRoom(
+                CombatRoomManager.instance.ReturnRoomDataAsRuntime(CurrentAreaData.BossRoomData)
+            );
+
+            CurrentRoomIndex.Value++;
+            RoomIndex = -1; // important: not 0
+
+            IsTransitioning.Value = false;
+            return;
+        }
+
+        // -------------------------
+        // NORMAL ROOM FLOW
+        // -------------------------
         int nextRoomIndex = (RoomIndex + 1) % RoomOrder.Count;
         RoomType nextRoomType = RoomOrder[nextRoomIndex];
 
-        if (nextRoomIndex == 0 && CurrentRoomIndex.Value == (CurrentAreaData.NumberOfRooms - 1))
+        switch (nextRoomType)
         {
-            CombatRoomManager.instance.LoadCombatRoom(CombatRoomManager.instance.ReturnRoomDataAsRuntime(CurrentAreaData.BossRoomData));
-            IsTransitioning.Value = false;
-        }
-        else
-        {
-            switch (nextRoomType)
-            {
-                case RoomType.Camp:
-                    CampManager.instance.LoadCamp();
-                    break;
-                case RoomType.Combat:
-                    CombatRoomManager.instance.LoadRandomCombatRoom(CurrentRoomIndex.Value, AvailableEnemies);
-                    break;
-                case RoomType.Event:
-                    EventManager.instance.LoadEvent();
-                    break;
-            }
+            case RoomType.Camp:
+                CampManager.instance.LoadCamp();
+                break;
+
+            case RoomType.Combat:
+                CombatRoomManager.instance.LoadRandomCombatRoom(CurrentRoomIndex.Value, AvailableEnemies);
+                break;
+
+            case RoomType.Event:
+                EventManager.instance.LoadEvent();
+                break;
         }
 
-        //This is a looping index for iterating through our RoomOrder list
         RoomIndex = nextRoomIndex;
 
-        //This tracks the actual room index, goes up by 1 each room
         if (RoomIndex == 0)
             CurrentRoomIndex.Value++;
 
@@ -196,6 +214,9 @@ public class ProgressionManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void BattlePresentationFinishedServerRpc(ServerRpcParams rpcParams = default)
     {
+        if (IsTransitioning.Value)
+            return;
+
         ulong sender = rpcParams.Receive.SenderClientId;
 
         readyClients.Add(sender);
@@ -206,9 +227,19 @@ public class ProgressionManager : NetworkBehaviour
 
             foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
             {
-                controller.ServerHeal(15, true);
                 controller.CombatEndReset();
             }
+
+            CombatEndResetClientRpc();
+        }
+    }
+
+    [ClientRpc]
+    private void CombatEndResetClientRpc()
+    {
+        foreach (UnitController controller in BattleManager.instance.FriendlyUnits)
+        {
+            controller.CombatEndReset();
         }
     }
 

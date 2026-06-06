@@ -61,8 +61,14 @@ public class SpawnManager : NetworkBehaviour
 
         UnitController unit = unitObj.GetComponent<UnitController>();
 
-        if (name != null)
+        if (!string.IsNullOrEmpty(name))
+        {
             unit.UnitName = name;
+        }
+        else
+        {
+            unit.UnitName = classPrefab.UnitData.ClassName;
+        }
 
         netObj.SpawnWithOwnership(clientId);
 

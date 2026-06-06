@@ -25,7 +25,7 @@ public class TargetButtonController : NetworkBehaviour, IPointerEnterHandler, IP
     public void EnableButton(UnitController unit, BaseAbility ability)
     {
         UnitName.text = unit.UnitName;
-        HealthBarFill.fillAmount = (float)unit.CurrentHealth.Value / unit.MaxHealth;
+        HealthBarFill.fillAmount = (float)unit.DisplayedHealth / unit.MaxHealth;
         this.ability = ability;
         this.target = unit;
         unitControllers = ReturnTargetControllers();
