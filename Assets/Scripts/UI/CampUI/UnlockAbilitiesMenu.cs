@@ -23,7 +23,7 @@ public class UnlockAbilitiesMenu : MonoBehaviour
     public TextMeshProUGUI DetailsInfo;
     public TextMeshProUGUI DetailsStats;
 
-    public TextMeshProUGUI UnlockAbilitiesButton;
+    public AbilityUnlockButtonController UnlockAbilitiesButton;
 
     //When this opens, we need to get the list of "pending ability unlocks" from the player data controller
 
@@ -122,7 +122,7 @@ public class UnlockAbilitiesMenu : MonoBehaviour
         SpawnedBaseAbilities.Clear();
         AbilityUnlockEntries.Clear();
 
-        UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";
+        UnlockAbilitiesButton.UpdateText(playerDataController.PendingAbilityUnlocks.Count);
 
         PopulateAbilityUnlockDetailsPanel("", "", "");
 

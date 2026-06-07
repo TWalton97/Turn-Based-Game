@@ -5631,7 +5631,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65370cfa5f7853841aaf1a54053e08cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buttonImage: {fileID: 0}
+  InvestPointsText: {fileID: 0}
   SpendSkillPointsMenu: {fileID: 0}
+  NoPointsColor: {r: 0, g: 0, b: 0, a: 0}
+  AvailablePointsColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &301227653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7706,7 +7710,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 25073138}
   m_HandleRect: {fileID: 25073136}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -8930,7 +8934,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 490192969}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8956,7 +8960,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf58f44cc923704ba4c80476c9b1ba6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buttonImage: {fileID: 490192973}
+  AbilityUnlockText: {fileID: 907419548}
   AbilityUnlockMenu: {fileID: 2084341770}
+  NoPointsColor: {r: 0.5294118, g: 0.5294118, b: 0.5294118, a: 1}
+  AvailablePointsColor: {r: 0.02745098, g: 0.6431373, b: 0, a: 1}
 --- !u!114 &490192972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13119,7 +13127,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65370cfa5f7853841aaf1a54053e08cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buttonImage: {fileID: 0}
+  InvestPointsText: {fileID: 0}
   SpendSkillPointsMenu: {fileID: 0}
+  NoPointsColor: {r: 0, g: 0, b: 0, a: 0}
+  AvailablePointsColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &774176203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16028,8 +16040,8 @@ MonoBehaviour:
   DetailsInfo: {fileID: 22757886}
   DetailsStats: {fileID: 1924511657}
   PlayerStatsPanel: {fileID: 1241362503}
-  InvestPointsButton: {fileID: 1273083046}
-  UnlockAbilitiesButton: {fileID: 907419548}
+  InvestPointsButton: {fileID: 0}
+  UnlockAbilitiesButton: {fileID: 490192971}
   EquippedGearSlots:
   - {fileID: 5615783918244626889}
   - {fileID: 2107833197}
@@ -16430,7 +16442,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00007149747}
+  m_AnchoredPosition: {x: 0, y: -0.000061035156}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &964138279
@@ -16950,7 +16962,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00013575793}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1019461955
@@ -19229,7 +19241,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.9999998}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -29646,7 +29658,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65370cfa5f7853841aaf1a54053e08cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buttonImage: {fileID: 1837702272}
+  InvestPointsText: {fileID: 1273083046}
   SpendSkillPointsMenu: {fileID: 1716534389}
+  NoPointsColor: {r: 0.5294118, g: 0.5294118, b: 0.5294118, a: 1}
+  AvailablePointsColor: {r: 0.02745098, g: 0.6431373, b: 0, a: 1}
 --- !u!1001 &1838112975
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34097,7 +34113,7 @@ MonoBehaviour:
   DetailsTitle: {fileID: 999411437}
   DetailsInfo: {fileID: 1941054845}
   DetailsStats: {fileID: 795006500}
-  UnlockAbilitiesButton: {fileID: 907419548}
+  UnlockAbilitiesButton: {fileID: 490192971}
 --- !u!114 &2084341774
 MonoBehaviour:
   m_ObjectHideFlags: 0

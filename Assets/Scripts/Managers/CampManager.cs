@@ -36,8 +36,8 @@ public class CampManager : NetworkBehaviour
 
     //Stats Panel
     public TextMeshProUGUI PlayerStatsPanel;
-    public TextMeshProUGUI InvestPointsButton;
-    public TextMeshProUGUI UnlockAbilitiesButton;
+    public InvestPointsButtonController InvestPointsButton;
+    public AbilityUnlockButtonController UnlockAbilitiesButton;
 
     //Equipped Gear
     public List<EquippedGearSlot> EquippedGearSlots;
@@ -370,7 +370,7 @@ public class CampManager : NetworkBehaviour
 
     public void OnSkillPointsChanged(int oldValue, int newValue)
     {
-        InvestPointsButton.text = $"Invest Points ({newValue})";
+        InvestPointsButton.UpdateText(newValue);
     }
 
     public void PopulatePlayerStatsPanel()
@@ -406,8 +406,7 @@ public class CampManager : NetworkBehaviour
 
         PlayerStatsPanel.text = sb.ToString();
 
-        UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";
-        InvestPointsButton.text = $"Invest Points ({playerDataController.AvailableStatPoints.Value})";
+        UnlockAbilitiesButton.UpdateText(playerDataController.PendingAbilityUnlocks.Count);
     }
 
     public void TryEquipItem(InventoryEntry entry)

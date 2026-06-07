@@ -2,25 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InvestPointsButtonController : MonoBehaviour
 {
-    private TextMeshProUGUI InvestPointsText;
+    public Image buttonImage;
+    public TextMeshProUGUI InvestPointsText;
     public SkillpointsMenu SpendSkillPointsMenu;
 
-    void Awake()
-    {
-        InvestPointsText = GetComponentInChildren<TextMeshProUGUI>();
-    }
+    public Color NoPointsColor;
+    public Color AvailablePointsColor;
 
     public void UpdateText(int points)
     {
         InvestPointsText.text = $"Invest Points ({points})";
-    }
-
-    private void UpdateText()
-    {
-        UpdateText(CampManager.instance.playerDataController.AvailableStatPoints.Value);
+        buttonImage.color = points == 0 ? NoPointsColor : AvailablePointsColor;
     }
 
     public void ToggleSpendSkillpointsMenu()
