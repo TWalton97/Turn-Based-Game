@@ -33,21 +33,11 @@ MonoBehaviour:
     AbilityToUnlock:
     - {fileID: 11400000, guid: d8cbd032d0e5b724481a33fca3f8e9db, type: 2}
     - {fileID: 11400000, guid: 9b750ea59653d954eb91a2c3e4cb8e08, type: 2}
-    - {fileID: 11400000, guid: cc2ed14a3320c184e93bd01dd83ad442, type: 2}
   - LevelToUnlock: 4
     AbilityUnlockType: 1
     AbilityToUnlock:
     - {fileID: 11400000, guid: b98642cb307048b4daf337fef52fe607, type: 2}
-    - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
-    - {fileID: 11400000, guid: 1e9e7bfca9b32dd4ebec2b7f4c169da3, type: 2}
-  - LevelToUnlock: 0
-    AbilityUnlockType: 0
-    AbilityToUnlock:
-    - {fileID: 11400000, guid: 5ac49e0c9717fa64e97217f2291c7387, type: 2}
-  - LevelToUnlock: 0
-    AbilityUnlockType: 0
-    AbilityToUnlock:
-    - {fileID: 11400000, guid: 58b1ce5a1f03a9d4f8571fc97188d510, type: 2}
+    - {fileID: 11400000, guid: cc2ed14a3320c184e93bd01dd83ad442, type: 2}
   Strength: 3
   Dexterity: 0
   Constitution: 0

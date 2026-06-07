@@ -43,14 +43,6 @@ MonoBehaviour:
     AbilityToUnlock:
     - {fileID: 11400000, guid: e4dde0684ee6e674e9a64be3b8bbd66f, type: 2}
     - {fileID: 11400000, guid: 45e93a1d766a6304f8e2022043541cb6, type: 2}
-  - LevelToUnlock: 0
-    AbilityUnlockType: 0
-    AbilityToUnlock:
-    - {fileID: 11400000, guid: 45e93a1d766a6304f8e2022043541cb6, type: 2}
-  - LevelToUnlock: 0
-    AbilityUnlockType: 0
-    AbilityToUnlock:
-    - {fileID: 11400000, guid: dcd0c0c2c2d8aed4d905f6e0a3621d46, type: 2}
   Strength: 0
   Dexterity: 0
   Constitution: 0
