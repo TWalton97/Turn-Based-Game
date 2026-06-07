@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Suppress
   m_EditorClassIdentifier: 
   AbilityName: Suppress
-  AbilityDescription: Deals damage to a single enemy 2 times and applies Weaken
+  AbilityDescription: Deals damage to a single enemy 2 times and applies Weakened
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 0

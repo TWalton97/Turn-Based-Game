@@ -9378,6 +9378,7 @@ GameObject:
   - component: {fileID: 514076526}
   - component: {fileID: 514076525}
   - component: {fileID: 514076524}
+  - component: {fileID: 514076528}
   m_Layer: 0
   m_Name: DetailsPanel
   m_TagString: Untagged
@@ -9495,6 +9496,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 514076522}
   m_CullTransparentMesh: 1
+--- !u!114 &514076528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 514076522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d67f3f85ae1c81a468acaae7fb5a12c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DetailPanelRectTransform: {fileID: 1834962298}
+  DetailsTitle: {fileID: 1964746993}
+  DetailsInfo: {fileID: 22757886}
+  DetailsStats: {fileID: 1924511657}
 --- !u!1 &514937200
 GameObject:
   m_ObjectHideFlags: 0
@@ -16035,13 +16052,10 @@ MonoBehaviour:
   CampItemEntries: []
   StashEntriesParent: {fileID: 759566426}
   CampStashEntries: []
-  DetailPanelRectTransform: {fileID: 1834962298}
-  DetailsTitle: {fileID: 1964746993}
-  DetailsInfo: {fileID: 22757886}
-  DetailsStats: {fileID: 1924511657}
   PlayerStatsPanel: {fileID: 1241362503}
-  InvestPointsButton: {fileID: 0}
+  InvestPointsButton: {fileID: 1837702274}
   UnlockAbilitiesButton: {fileID: 490192971}
+  DetailsPanel: {fileID: 514076528}
   EquippedGearSlots:
   - {fileID: 5615783918244626889}
   - {fileID: 2107833197}
@@ -24069,6 +24083,7 @@ GameObject:
   - component: {fileID: 1466101547}
   - component: {fileID: 1466101549}
   - component: {fileID: 1466101548}
+  - component: {fileID: 1466101550}
   m_Layer: 0
   m_Name: TravelingText
   m_TagString: Untagged
@@ -24193,6 +24208,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1466101546}
   m_CullTransparentMesh: 1
+--- !u!114 &1466101550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1466101546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d67f3f85ae1c81a468acaae7fb5a12c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DetailPanelRectTransform: {fileID: 0}
+  DetailsTitle: {fileID: 0}
+  DetailsInfo: {fileID: 0}
+  DetailsStats: {fileID: 0}
 --- !u!1 &1483676099
 GameObject:
   m_ObjectHideFlags: 0

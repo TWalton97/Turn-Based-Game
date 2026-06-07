@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BladeWaltz
   m_EditorClassIdentifier: 
   AbilityName: Blade Waltz
-  AbilityDescription: Deals damage to all enemies and applies Rupture for 3 turns
+  AbilityDescription: Deals damage to all enemies and applies Ruptured for 3 turns
   ManaCost: 2
   TeamTargeting: 1
   TargetType: 3

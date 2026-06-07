@@ -77,7 +77,7 @@ public class CraftingEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void InspectItem()
     {
         //Populate the details panel with this item's details
-        CampManager.instance.PopulateDetailsPanel(Recipe.CraftingOutput.ItemName, Recipe.CraftingOutput.ItemInformation, Recipe.CraftingOutput.Description);
+        CampManager.instance.DetailsPanel.PopulateDetailsPanel(Recipe.CraftingOutput.ItemName, Recipe.CraftingOutput.ItemInformation, Recipe.CraftingOutput.Description);
     }
 
     public string BuildRecipeString(List<RecipeIngredient> recipeItems)

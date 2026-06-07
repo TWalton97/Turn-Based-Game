@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Provoke
   m_EditorClassIdentifier: 
   AbilityName: Provoke
-  AbilityDescription: Taunts the target unit, forcing it to only be able to use attacks
-    on you
+  AbilityDescription: Applies Taunted to the target unit
   ManaCost: 0
   TeamTargeting: 1
   TargetType: 0

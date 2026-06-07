@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Challenge
   m_EditorClassIdentifier: 
   AbilityName: Challenge
-  AbilityDescription: Apply Taunted, Vulnerable, and Weaken to the target unit
+  AbilityDescription: Apply Taunted, Vulnerable, and Weakened to the target unit
   ManaCost: 1
   TeamTargeting: 0
   TargetType: 0

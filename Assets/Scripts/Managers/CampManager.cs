@@ -6,6 +6,7 @@ using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class CampManager : NetworkBehaviour
@@ -28,16 +29,13 @@ public class CampManager : NetworkBehaviour
     public Transform StashEntriesParent;
     public List<CampItemEntry> CampStashEntries;
 
-    //Details Panel
-    public RectTransform DetailPanelRectTransform;
-    public TextMeshProUGUI DetailsTitle;
-    public TextMeshProUGUI DetailsInfo;
-    public TextMeshProUGUI DetailsStats;
-
     //Stats Panel
     public TextMeshProUGUI PlayerStatsPanel;
     public InvestPointsButtonController InvestPointsButton;
     public AbilityUnlockButtonController UnlockAbilitiesButton;
+
+    //Details Panel
+    public CampDetailsPanelController DetailsPanel;
 
     //Equipped Gear
     public List<EquippedGearSlot> EquippedGearSlots;
@@ -216,14 +214,14 @@ public class CampManager : NetworkBehaviour
             entry.AssignAbilityToButton(abilityInstance.Ability);
             entry.GetComponent<Button>().onClick.AddListener(() =>
             {
-                PopulateDetailsPanel(abilityInstance.Ability.AbilityName,
+                DetailsPanel.PopulateDetailsPanel(abilityInstance.Ability.AbilityName,
                 abilityInstance.Ability.AbilityDescription,
                 entry.GenerateAbilityDescription());
             });
         }
 
         CampAbilityEntry firstEntry = CampAbilityEntries[0];
-        PopulateDetailsPanel(CampAbilityEntries[0].Ability.AbilityName,
+        DetailsPanel.PopulateDetailsPanel(CampAbilityEntries[0].Ability.AbilityName,
         CampAbilityEntries[0].Ability.AbilityDescription,
         CampAbilityEntries[0].GenerateAbilityDescription());
     }
@@ -251,7 +249,7 @@ public class CampManager : NetworkBehaviour
 
                 itemEntry.InspectButton.onClick.AddListener(() =>
                 {
-                    PopulateDetailsPanel(item.ItemName,
+                    DetailsPanel.PopulateDetailsPanel(item.ItemName,
                     item.Description,
                     itemEntry.GenerateItemDescription());
                 });
@@ -292,7 +290,7 @@ public class CampManager : NetworkBehaviour
 
             itemEntry.InspectButton.onClick.AddListener(() =>
             {
-                PopulateDetailsPanel(item.ItemName,
+                DetailsPanel.PopulateDetailsPanel(item.ItemName,
                 item.Description,
                 itemEntry.GenerateItemDescription());
             });
@@ -304,16 +302,6 @@ public class CampManager : NetworkBehaviour
             });
         }
     }
-
-    public void PopulateDetailsPanel(string title, string info, string stats)
-    {
-        DetailsTitle.text = title;
-        DetailsInfo.text = info;
-        DetailsStats.text = stats;
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(DetailPanelRectTransform);
-    }
-
 
     public void PopulateEquippedGearPanel()
     {
@@ -407,6 +395,7 @@ public class CampManager : NetworkBehaviour
         PlayerStatsPanel.text = sb.ToString();
 
         UnlockAbilitiesButton.UpdateText(playerDataController.PendingAbilityUnlocks.Count);
+        InvestPointsButton.UpdateText(playerDataController.AvailableStatPoints.Value);
     }
 
     public void TryEquipItem(InventoryEntry entry)
@@ -417,5 +406,24 @@ public class CampManager : NetworkBehaviour
     public void TryUnequipItem(EquipmentItemSO equippedItem)
     {
         playerDataController.TryUnequipItemServerRpc(equippedItem.ItemName);
+    }
+
+    private string AddKeywordLinks(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        foreach (var kvp in StatusDatabase.StatusEffects)
+        {
+            string statusName = kvp.Key.ToString();
+
+            if (!text.Contains(statusName))
+                continue;
+
+            text = text.Replace(
+            statusName,
+            $"<link=\"{statusName}\"><color=#66CCFF>{statusName}</color></link>");
+        }
+        return text;
     }
 }
