@@ -46,6 +46,8 @@ public static class CombatResolver
         {
             result.DamageType = abilityEffect.DamageType;
             damage *= 1 - (target.GetStatType(StatType.BlockDamageReduction) / 100);
+            damage *= attacker.GetStatType(StatType.OutgoingDamage) / 100;
+            damage *= target.GetStatType(StatType.IncomingDamage) / 100;
             result.Damage = damage;
             result.Damage *= 1 + UnityEngine.Random.Range(-0.1f, 0.1f);
             result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
@@ -138,8 +140,17 @@ public static class CombatResolver
             abilityEffectResults[p].TargetResults = targetResults;
             context.EffectResults.Add(abilityEffectResults[p]);
 
-            //This is where we actually apply the status effect
-            if (effect.StatusToApply != null)
+            if (ability is RandomEffectAbility reb)
+            {
+                StatusEffect randomStatus = reb.possibleEffects[UnityEngine.Random.Range(0, reb.possibleEffects.Count)];
+                float resolvedStatusPower = UnityEngine.Random.Range(1, 5);
+                string statusEffectId = Guid.NewGuid().ToString();
+                abilityEffectResults[p].ApplyStatusEffect = true;
+                abilityEffectResults[p].StatusEffectName = randomStatus.StatusEffectName;
+                abilityEffectResults[p].StatusEffectResolvedPower = resolvedStatusPower;
+                abilityEffectResults[p].StatusEffectId = statusEffectId;
+            }
+            else if (effect.StatusToApply != null)
             {
                 float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
                 string statusEffectId = Guid.NewGuid().ToString();

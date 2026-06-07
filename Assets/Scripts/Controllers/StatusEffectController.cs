@@ -73,6 +73,7 @@ public class StatusEffectController : NetworkBehaviour
 
                 OnStatusInstanceExpiredClientRpc(ServerActiveStatusEffects[i].statusEffectId);
 
+                s.StatusEffect.ServerRemoveStatus(s.UnitController, s);
                 ServerActiveStatusEffects.RemoveAt(i);
             }
         }

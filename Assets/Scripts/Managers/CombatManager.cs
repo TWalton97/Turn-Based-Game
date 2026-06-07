@@ -86,12 +86,13 @@ public class CombatManager : NetworkBehaviour
                     controller.ServerTakeDamage(hitResult);
                     user.statusEffectController.ServerOnAttack();
                 }
-            }
 
-            if (abilityEffectResult.ApplyStatusEffect)
-            {
-                StatusEffect status = StatusDatabase.GetStatusByName(abilityEffectResult.StatusEffectName);
-                target.statusEffectController.ServerApplyStatusEffect(status, user.NetworkObjectId, abilityEffectResult.StatusEffectId, abilityEffectResult.StatusEffectResolvedPower);
+                if (abilityEffectResult.ApplyStatusEffect || ability.Ability is RandomEffectAbility)
+                {
+                    StatusEffect status = StatusDatabase.GetStatusByName(abilityEffectResult.StatusEffectName);
+                    UnitController targetController = NetworkUtilities.GetUnitControllerById(targetResult.TargetId);
+                    targetController.statusEffectController.ServerApplyStatusEffect(status, user.NetworkObjectId, abilityEffectResult.StatusEffectId, abilityEffectResult.StatusEffectResolvedPower);
+                }
             }
         }
 

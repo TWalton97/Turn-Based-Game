@@ -72,7 +72,7 @@ public class AbilityButtonController : MonoBehaviour, IPointerEnterHandler, IPoi
         if (!AbilityInstance.CanUse(controller))
             return;
 
-        if (Ability.TargetType == TargetType.Self)
+        if (Ability.TargetType == TargetType.Self || Ability.TargetType == TargetType.AllUnits)
         {
             CombatManager.instance.RequestCombatActionServerRpc(controller.NetworkObjectId, controller.GetAbilityIndex(Ability), controller.NetworkObjectId);
             combatMenuController.CloseAllMenus();

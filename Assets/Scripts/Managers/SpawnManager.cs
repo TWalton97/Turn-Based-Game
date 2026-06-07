@@ -14,6 +14,8 @@ public class SpawnManager : NetworkBehaviour
     public UnitController RoguePrefab;
     public UnitController PriestPrefab;
     public UnitController DuelistPrefab;
+    public UnitController WarlordPrefab;
+    public UnitController ArcanistPrefab;
 
     private void Awake()
     {
@@ -75,6 +77,8 @@ public class SpawnManager : NetworkBehaviour
 
         unit.Level.Value = 1;
 
+        unit.ApplyClassPresetStats();
+
         slot.BindUnitToSlot(unit);
     }
 
@@ -94,6 +98,9 @@ public class SpawnManager : NetworkBehaviour
         netObj.Spawn();
 
         controller.Level.Value = level;
+
+        controller.ApplyClassPresetStats();
+
         slot.BindUnitToSlot(controller);
     }
 
@@ -109,6 +116,10 @@ public class SpawnManager : NetworkBehaviour
                 return PriestPrefab;
             case PlayerClass.Duelist:
                 return DuelistPrefab;
+            case PlayerClass.Warlord:
+                return WarlordPrefab;
+            case PlayerClass.Arcanist:
+                return ArcanistPrefab;
         }
         return null;
     }
@@ -119,5 +130,7 @@ public enum PlayerClass
     Warrior,
     Rogue,
     Priest,
-    Duelist
+    Duelist,
+    Warlord,
+    Arcanist
 }

@@ -10,31 +10,44 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: Taunt
+  m_Name: Suppress
   m_EditorClassIdentifier: 
-  AbilityName: Taunt
-  AbilityDescription: Taunts the target unit, forcing it to only be able to use attacks
-    on you
-  ManaCost: 0
+  AbilityName: Suppress
+  AbilityDescription: Deals damage to a single enemy 2 times and applies Weaken
+  ManaCost: 1
   TeamTargeting: 1
   TargetType: 0
-  Cooldown: 3
-  MovesToTarget: 0
-  AbilityAnimationDelay: 1
+  Cooldown: 2
+  MovesToTarget: 1
+  AbilityAnimationDelay: 2
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   AIIntents: 
   abilityEffects:
-  - DamageType: 0
+  - DamageType: 1
     TargetType: 0
-    DamageAmount: 0
-    NumberOfHits: 0
+    DamageAmount: 2
+    NumberOfHits: 1
+    DurationBetweenHits: 0.8
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0
+    StatusToApply: {fileID: 0}
+    EffectType: 0
+    ConditionType: 0
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0
+  - DamageType: 1
+    TargetType: 0
+    DamageAmount: 6
+    NumberOfHits: 1
     DurationBetweenHits: 0
     StrengthScaling: 0
     DexterityScaling: 0
     IntelligenceScaling: 0
-    StatusToApply: {fileID: 11400000, guid: 75b3955abd734bf4eb4b3c1334cd6406, type: 2}
+    StatusToApply: {fileID: 11400000, guid: 266a908f2887e2a42acb11db149f7951, type: 2}
     EffectType: 0
     ConditionType: 0
     ConditionThreshold: 0

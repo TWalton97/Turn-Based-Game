@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
+  m_Name: RecursiveStrike
+  m_EditorClassIdentifier: 
+  AbilityName: Recursive Strike
+  AbilityDescription: 'Deals damage to all enemies
+
+    Hits a second time if any
+    hit connects'
+  ManaCost: 4
+  TeamTargeting: 1
+  TargetType: 3
+  Cooldown: 4
+  MovesToTarget: 0
+  AbilityAnimationDelay: 2
+  UsesProjectile: 0
+  Animation: {fileID: 0}
+  VFX: {fileID: 0}
+  AIIntents: 
+  abilityEffects:
+  - DamageType: 4
+    TargetType: 3
+    DamageAmount: 9
+    NumberOfHits: 1
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0
+    StatusToApply: {fileID: 0}
+    EffectType: 0
+    ConditionType: 0
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0
+  - DamageType: 4
+    TargetType: 3
+    DamageAmount: 6
+    NumberOfHits: 0
+    DurationBetweenHits: 0
+    StrengthScaling: 0
+    DexterityScaling: 0
+    IntelligenceScaling: 0
+    StatusToApply: {fileID: 0}
+    EffectType: 1
+    ConditionType: 1
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0

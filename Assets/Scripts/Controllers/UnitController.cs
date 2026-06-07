@@ -91,7 +91,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         BattleManager.instance.RegisterUnit(this);
 
         UnlockStartingAbilities();
-        ApplyClassPresetStats();
     }
 
     public override void OnNetworkDespawn()
@@ -122,7 +121,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         BaseAbilities.Add(ability);
         InitializeAbilityRuntimeInstances();
-
         UnlockAbilityClientRpc(abilityName);
     }
 
@@ -166,13 +164,25 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         if (IsServer)
         {
-            Strength.Value = UnitData.Strength;
-            Dexterity.Value = UnitData.Dexterity;
-            Constitution.Value = UnitData.Constitution;
-            Intelligence.Value = UnitData.Intelligence;
-            Faith.Value = UnitData.Faith;
-            Charisma.Value = UnitData.Charisma;
-            Luck.Value = UnitData.Luck;
+            float levelMultiplier = Mathf.Max(0, Level.Value - 1);
+
+            float total = UnitData.Strength + UnitData.Dexterity + UnitData.Intelligence + UnitData.Faith + UnitData.Charisma + UnitData.Luck + UnitData.Constitution;
+
+            float strengthWeight = UnitData.Strength / total;
+            float dexterityWeight = UnitData.Dexterity / total;
+            float intelligenceWeight = UnitData.Intelligence / total;
+            float faithWeight = UnitData.Faith / total;
+            float charismaWeight = UnitData.Charisma / total;
+            float luckWeight = UnitData.Luck / total;
+            float constitutionWeight = UnitData.Constitution / total;
+
+            Strength.Value = UnitData.Strength + Mathf.RoundToInt(levelMultiplier * (0.75f + (strengthWeight * 0.75f)));
+            Dexterity.Value = UnitData.Dexterity + Mathf.RoundToInt(levelMultiplier * (0.75f + (dexterityWeight * 0.75f)));
+            Intelligence.Value = UnitData.Intelligence + Mathf.RoundToInt(levelMultiplier * (0.75f + (intelligenceWeight * 0.75f)));
+            Faith.Value = UnitData.Faith + Mathf.RoundToInt(levelMultiplier * (0.75f + (faithWeight * 0.75f)));
+            Charisma.Value = UnitData.Charisma + Mathf.RoundToInt(levelMultiplier * (0.75f + (charismaWeight * 0.75f)));
+            Constitution.Value = UnitData.Constitution + Mathf.RoundToInt(levelMultiplier * (1.0f + (constitutionWeight * 1.0f)));
+            Luck.Value = UnitData.Luck + Mathf.RoundToInt(levelMultiplier * (0.25f + (luckWeight * 0.25f)));
         }
 
         RecalculateAllStats();
@@ -185,6 +195,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         DisplayedHealth = MaxHealth;
         MaxMana = UnitData.MaxMana;
     }
+
 
     public void CombatEndReset()
     {
@@ -420,13 +431,12 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
                     target.ClientTakeDamage(abilityResult.AbilityEffectResults[p].TargetResults[o].Hits[i]);
                     yield return new WaitForSeconds(ability.abilityEffects[p].DurationBetweenHits);
                 }
-            }
 
-            if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
-            {
-                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.TargetId);
-                StatusEffect status = StatusDatabase.GetStatusByName(abilityResult.AbilityEffectResults[p].StatusEffectName);
-                target.statusEffectController.ClientApplyStatusEffect(status, abilityResult.AttackerId, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
+                if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
+                {
+                    StatusEffect status = StatusDatabase.GetStatusByName(abilityResult.AbilityEffectResults[p].StatusEffectName);
+                    target.statusEffectController.ClientApplyStatusEffect(status, abilityResult.AttackerId, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
+                }
             }
         }
 
@@ -555,7 +565,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         // BLOCK
         stats[StatType.BlockChance] =
-            10f +
+            5f +
             (0.5f * stats[StatType.CON]) +
             (0.2f * stats[StatType.STR]);
 
@@ -565,7 +575,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         // DODGE
         stats[StatType.DodgeChance] =
-            10f +
+            5f +
             (0.5f * stats[StatType.LCK]) +
             (0.2f * stats[StatType.DEX]);
 

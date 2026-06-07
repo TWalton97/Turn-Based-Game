@@ -70,19 +70,18 @@ public class UnlockAbilitiesMenu : MonoBehaviour
         if (playerDataController.UnchosenAbilities.Count > 0)
         {
             int rand = Random.Range(0, playerDataController.UnchosenAbilities.Count);
-            SpawnedBaseAbilities.Add(playerDataController.UnchosenAbilities[rand]);
-            BaseAbility ability = SpawnedBaseAbilities[rand];
+            BaseAbility ability = playerDataController.UnchosenAbilities[rand];
+            SpawnedBaseAbilities.Add(ability);
 
             CampAbilityEntry entry = Instantiate(CampAbilityEntry, AbilityUnlocksParent);
             AbilityUnlockEntries.Add(entry);
             entry.AssignAbilityToButton(ability);
-            SpawnedBaseAbilities.Add(entry.Ability);
             entry.GetComponent<Button>().onClick.AddListener(() =>
             {
                 PopulateAbilityUnlockDetailsPanel(ability.AbilityName,
                 ability.AbilityDescription,
                 entry.GenerateAbilityDescription());
-                CurrentlySelectedAbility = entry.Ability;
+                CurrentlySelectedAbility = ability;
             });
         }
 
@@ -99,12 +98,18 @@ public class UnlockAbilitiesMenu : MonoBehaviour
             return;
 
         int abilityIndex = SpawnedBaseAbilities.IndexOf(CurrentlySelectedAbility);
-        unitController.UnlockAbilityServerRpc(PendingAbilityUnlocks[0].AbilityToUnlock[abilityIndex].AbilityName);
+        unitController.UnlockAbilityServerRpc(SpawnedBaseAbilities[abilityIndex].AbilityName);
+
+        if (playerDataController.UnchosenAbilities.Contains(SpawnedBaseAbilities[abilityIndex]))
+            playerDataController.UnchosenAbilities.Remove(SpawnedBaseAbilities[abilityIndex]);
+
         SpawnedBaseAbilities.RemoveAt(abilityIndex);
         for (int i = 0; i < SpawnedBaseAbilities.Count; i++)
         {
-            playerDataController.UnchosenAbilities.Add(SpawnedBaseAbilities[i]);
+            if (!playerDataController.UnchosenAbilities.Contains(SpawnedBaseAbilities[i]))
+                playerDataController.UnchosenAbilities.Add(SpawnedBaseAbilities[i]);
         }
+
         playerDataController.RemovePendingAbilityUnlock(PendingAbilityUnlocks[0]);
         PendingAbilityUnlocks = playerDataController.PendingAbilityUnlocks;
 
@@ -113,6 +118,8 @@ public class UnlockAbilitiesMenu : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        SpawnedBaseAbilities.Clear();
         AbilityUnlockEntries.Clear();
 
         UnlockAbilitiesButton.text = $"Unlock Abilities ({playerDataController.PendingAbilityUnlocks.Count})";

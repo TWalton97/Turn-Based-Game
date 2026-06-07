@@ -1341,10 +1341,10 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 15
-  m_ChildForceExpandWidth: 1
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 1
+  m_ChildControlWidth: 0
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -13424,8 +13424,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 67.845, y: -12.5}
-  m_SizeDelta: {x: 135.69, y: 25}
+  m_AnchoredPosition: {x: 87.5, y: -12.5}
+  m_SizeDelta: {x: 175, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &786187887
 CanvasRenderer:
@@ -13482,12 +13482,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
+  m_fontSize: 22.35
   m_fontSizeBase: 24
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 36
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 5
+  m_fontSizeMax: 24
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -13498,9 +13498,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 0
+  m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
@@ -15888,6 +15888,8 @@ MonoBehaviour:
   RoguePrefab: {fileID: 1859624672593206805, guid: b27e9ff6020a4274ea2b52a191aae801, type: 3}
   PriestPrefab: {fileID: 1859624672593206805, guid: 28d82611dd0c4864aa344343053dfe45, type: 3}
   DuelistPrefab: {fileID: 1859624672593206805, guid: 67ca6d7ef3ba94c4fa69e862c37887aa, type: 3}
+  WarlordPrefab: {fileID: 1859624672593206805, guid: 3ab0d87811bd16040ba685fb977dc600, type: 3}
+  ArcanistPrefab: {fileID: 1859624672593206805, guid: 4603264ee5c058f4681e2a8e983c6aa4, type: 3}
 --- !u!114 &958336429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25326,8 +25328,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 212.845, y: -12.5}
-  m_SizeDelta: {x: 124.31, y: 25}
+  m_AnchoredPosition: {x: 225, y: -12.5}
+  m_SizeDelta: {x: 100, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1574505587
 MonoBehaviour:
@@ -25384,7 +25386,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 4
-  m_VerticalAlignment: 1024
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -34090,6 +34092,7 @@ MonoBehaviour:
   AbilityUnlocksParent: {fileID: 1024627110}
   DetailsPanelRectTransform: {fileID: 770960146}
   PendingAbilityUnlocks: []
+  SpawnedBaseAbilities: []
   CampAbilityEntry: {fileID: 5768175703977055556, guid: 7a010f74cb41e32478a8d72be45dafd8, type: 3}
   DetailsTitle: {fileID: 999411437}
   DetailsInfo: {fileID: 1941054845}
