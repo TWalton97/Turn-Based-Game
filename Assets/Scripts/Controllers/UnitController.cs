@@ -18,7 +18,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public NetworkVariable<int> Constitution;
 
     public ClassStatPresetSO UnitData;
-    public float MaxHealth = 30;
+    public float MaxHealth;
     public NetworkVariable<float> CurrentHealth;
     public float DisplayedHealth;
 
@@ -88,6 +88,15 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         BattleManager.instance.RegisterUnit(this);
 
         UnlockStartingAbilities();
+        StartCoroutine(WaitUntilMaxHealthIsSet());
+    }
+
+    private IEnumerator WaitUntilMaxHealthIsSet()
+    {
+        yield return new WaitUntil(() => CurrentHealth.Value > 0);
+        MaxHealth = CurrentHealth.Value;
+        DisplayedHealth = CurrentHealth.Value;
+        yield return null;
     }
 
     public override void OnNetworkDespawn()
@@ -183,7 +192,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             CurrentHealth.Value = MaxHealth;
         }
 
-        DisplayedHealth = MaxHealth;
         MaxMana = UnitData.MaxMana;
     }
 
