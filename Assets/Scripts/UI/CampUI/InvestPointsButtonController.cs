@@ -30,11 +30,8 @@ public enum StatType
 {
     STR,
     DEX,
-    CON,
     INT,
-    FTH,
-    CHA,
-    LCK,
+    CON,
 
     InitiativeMin,
     InitiativeMax,

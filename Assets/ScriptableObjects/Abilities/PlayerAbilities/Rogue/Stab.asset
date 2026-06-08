@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Stab
   m_EditorClassIdentifier: 
   AbilityName: Stab
-  AbilityDescription: Deals damage to a single enemy and inflict Bleed on hit for
-    3 turns
+  AbilityDescription: Attacks an enemy for 220% of your DEX and inflicts Bleed
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 0
@@ -28,12 +27,11 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 7
+    DamageScaling:
+    - Attribute: 1
+      ScalingAmount: 220
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0
@@ -42,12 +40,9 @@ MonoBehaviour:
     ScalingMultiplier: 0
   - DamageType: 0
     TargetType: 0
-    DamageAmount: 3
+    DamageScaling: []
     NumberOfHits: 0
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 11400000, guid: fb31b8dc520e71945811fb088a74f6ba, type: 2}
     EffectType: 0
     ConditionType: 0

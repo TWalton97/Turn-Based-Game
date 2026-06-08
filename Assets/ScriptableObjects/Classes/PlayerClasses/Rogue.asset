@@ -19,7 +19,7 @@ MonoBehaviour:
   - LevelToUnlock: 0
     AbilityUnlockType: 0
     AbilityToUnlock:
-    - {fileID: 11400000, guid: d811701077a25ed4295c62305db415f9, type: 2}
+    - {fileID: 11400000, guid: e267c5bcb5ee071479dc2a67c69022d3, type: 2}
   - LevelToUnlock: 0
     AbilityUnlockType: 0
     AbilityToUnlock:
@@ -39,9 +39,6 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 62ab4d1d7f2162742b2fe15c6e3dd624, type: 2}
     - {fileID: 11400000, guid: 1e9e7bfca9b32dd4ebec2b7f4c169da3, type: 2}
   Strength: 0
-  Dexterity: 3
-  Constitution: 0
+  Dexterity: 4
   Intelligence: 0
-  Faith: 0
-  Charisma: 0
-  Luck: 3
+  Constitution: 0

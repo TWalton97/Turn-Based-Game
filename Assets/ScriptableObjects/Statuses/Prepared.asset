@@ -24,7 +24,7 @@ MonoBehaviour:
   ActivationTime: 4
   NumberOfTurns: 3
   StatModifiers:
-  - stat: 9
+  - stat: 6
     value: 25
     sourceId:
       utf8LengthInBytes: 0
@@ -94,7 +94,7 @@ MonoBehaviour:
         byte0059: 0
         byte0060: 0
         byte0061: 0
-  - stat: 10
+  - stat: 7
     value: 50
     sourceId:
       utf8LengthInBytes: 0
@@ -164,7 +164,7 @@ MonoBehaviour:
         byte0059: 0
         byte0060: 0
         byte0061: 0
-  - stat: 13
+  - stat: 10
     value: 15
     sourceId:
       utf8LengthInBytes: 0

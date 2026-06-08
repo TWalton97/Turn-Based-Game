@@ -57,9 +57,9 @@ public static class AbilityTooltipBuilder
             lines.Add(coreLine);
 
         // 2. Scaling
-        string scaling = BuildScalingLine(effect);
-        if (!string.IsNullOrEmpty(scaling))
-            lines.Add(scaling);
+        // string scaling = BuildScalingLine(effect);
+        // if (!string.IsNullOrEmpty(scaling))
+        //     lines.Add(scaling);
 
         string status = BuildStatusLine(effect);
         if (!string.IsNullOrEmpty(status))
@@ -78,7 +78,12 @@ public static class AbilityTooltipBuilder
         string target = TargetToString(effect.TargetType, ability.TeamTargeting);
         string hits = effect.NumberOfHits > 1 ? $" {effect.NumberOfHits} times" : "";
 
-        string amount = Mathf.Abs(effect.DamageAmount).ToString();
+        string amount = "";
+        for (int i = 0; i < effect.DamageScaling.Count; i++)
+        {
+            amount += $"{effect.DamageScaling[i].ScalingAmount}% {effect.DamageScaling[i].Attribute}";
+        }
+
         if (effect.EffectScalingType == EffectScalingType.BasedOnPreviousDamage)
         {
             amount = $"{effect.ScalingMultiplier * 100f}% of damage dealt";
@@ -101,24 +106,24 @@ public static class AbilityTooltipBuilder
         };
     }
 
-    private static string BuildScalingLine(AbilityEffect effect)
-    {
-        List<string> parts = new List<string>();
+    // private static string BuildScalingLine(AbilityEffect effect)
+    // {
+    //     List<string> parts = new List<string>();
 
-        if (effect.StrengthScaling != 0)
-            parts.Add($"{effect.StrengthScaling * 100f}% STR");
+    //     if (effect.StrengthScaling != 0)
+    //         parts.Add($"{effect.StrengthScaling * 100f}% STR");
 
-        if (effect.DexterityScaling != 0)
-            parts.Add($"{effect.DexterityScaling * 100f}% DEX");
+    //     if (effect.DexterityScaling != 0)
+    //         parts.Add($"{effect.DexterityScaling * 100f}% DEX");
 
-        if (effect.IntelligenceScaling != 0)
-            parts.Add($"{effect.IntelligenceScaling * 100f}% INT");
+    //     if (effect.IntelligenceScaling != 0)
+    //         parts.Add($"{effect.IntelligenceScaling * 100f}% INT");
 
-        if (parts.Count == 0)
-            return null;
+    //     if (parts.Count == 0)
+    //         return null;
 
-        return "Scaling: " + "\n" + string.Join("\n", parts);
-    }
+    //     return "Scaling: " + "\n" + string.Join("\n", parts);
+    // }
 
     private static string BuildConditionLine(AbilityEffect effect)
     {

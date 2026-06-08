@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67a198f927bd177499d847de2a155688, type: 3}
   m_Name: Warlord
   m_EditorClassIdentifier: 
-  ClassName: Walord
+  ClassName: Warlord
   MaxHealth: 80
   MaxMana: 5
   AbilityUnlocks:
@@ -44,10 +44,7 @@ MonoBehaviour:
     AbilityToUnlock:
     - {fileID: 11400000, guid: 8e7592e2381c30044a9abc6eb5a60b4c, type: 2}
     - {fileID: 11400000, guid: 7bc97ec4ffbf52c4c817b9b4cee4a6e2, type: 2}
-  Strength: 3
+  Strength: 2
   Dexterity: 0
-  Constitution: 0
   Intelligence: 0
-  Faith: 0
-  Charisma: 0
-  Luck: 0
+  Constitution: 2

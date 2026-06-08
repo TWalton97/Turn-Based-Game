@@ -28,10 +28,7 @@ MonoBehaviour:
     AbilityUnlockType: 0
     AbilityToUnlock:
     - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
-  Strength: -3
-  Dexterity: -3
-  Constitution: -4
-  Intelligence: -6
-  Faith: -4
-  Charisma: -2
-  Luck: 0
+  Strength: 1
+  Dexterity: 3
+  Intelligence: 1
+  Constitution: 2

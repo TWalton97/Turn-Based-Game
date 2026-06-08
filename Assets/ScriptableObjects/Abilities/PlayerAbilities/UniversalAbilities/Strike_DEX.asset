@@ -10,29 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
-  m_Name: SunderArmor
+  m_Name: Strike_DEX
   m_EditorClassIdentifier: 
-  AbilityName: Sunder Armor
-  AbilityDescription: Attacks an enemy for 220% of your STR and applies Vulnerable
-  ManaCost: 1
+  AbilityName: Strike(DEX)
+  AbilityDescription: Attacks an enemy for 170% of your DEX
+  ManaCost: 0
   TeamTargeting: 1
   TargetType: 0
-  Cooldown: 3
+  Cooldown: 0
   MovesToTarget: 1
   AbilityAnimationDelay: 2
   UsesProjectile: 0
   Animation: {fileID: 0}
   VFX: {fileID: 0}
-  AIIntents: 
+  AIIntents: 00000000
   abilityEffects:
   - DamageType: 1
     TargetType: 0
     DamageScaling:
-    - Attribute: 0
-      ScalingAmount: 220
+    - Attribute: 1
+      ScalingAmount: 170
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StatusToApply: {fileID: 11400000, guid: c6d94ad37fba4a44fb957b164fefc363, type: 2}
+    StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0
     ConditionThreshold: 0

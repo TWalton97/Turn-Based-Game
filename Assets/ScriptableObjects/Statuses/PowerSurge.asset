@@ -19,7 +19,7 @@ MonoBehaviour:
   ActivationTime: 4
   NumberOfTurns: 3
   StatModifiers:
-  - stat: 16
+  - stat: 13
     value: 100
     sourceId:
       utf8LengthInBytes: 0

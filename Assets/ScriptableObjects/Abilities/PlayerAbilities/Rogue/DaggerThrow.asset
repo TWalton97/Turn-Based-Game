@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DaggerThrow
   m_EditorClassIdentifier: 
   AbilityName: Dagger Throw
-  AbilityDescription: Deals damage to all enemies
+  AbilityDescription: Attacks all enemies for 190% of your DEX
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 3
@@ -27,12 +27,11 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 3
-    DamageAmount: 6
+    DamageScaling:
+    - Attribute: 1
+      ScalingAmount: 190
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0.2
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0

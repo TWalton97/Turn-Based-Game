@@ -14,14 +14,25 @@ public static class CombatResolver
 
         if (abilityEffect.DamageType == DamageType.Heal)
         {
-            float heal = resolvedPower
-            + (abilityEffect.StrengthScaling * attacker.GetStatType(StatType.STR))
-            + (abilityEffect.DexterityScaling * attacker.GetStatType(StatType.DEX))
-            + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.INT));
+            float heal = 0;
+            for (int i = 0; i < abilityEffect.DamageScaling.Count; i++)
+            {
+                switch (abilityEffect.DamageScaling[i].Attribute)
+                {
+                    case StatType.STR:
+                        heal += attacker.GetStatType(StatType.STR) * (abilityEffect.DamageScaling[i].ScalingAmount / 100);
+                        break;
+                    case StatType.DEX:
+                        heal += attacker.GetStatType(StatType.DEX) * (abilityEffect.DamageScaling[i].ScalingAmount / 100);
+                        break;
+                    case StatType.INT:
+                        heal += attacker.GetStatType(StatType.INT) * (abilityEffect.DamageScaling[i].ScalingAmount / 100);
+                        break;
+                }
+            }
             result.DamageType = abilityEffect.DamageType;
             result.Dodged = false;
             result.Damage = heal;
-            result.Damage *= 1 + UnityEngine.Random.Range(-0.1f, 0.1f);
             result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
             return result;
         }
@@ -35,10 +46,22 @@ public static class CombatResolver
         }
 
         //If it isn't dodged, we calculate the damage
-        float damage = resolvedPower
-        + (abilityEffect.StrengthScaling * attacker.GetStatType(StatType.STR))
-        + (abilityEffect.DexterityScaling * attacker.GetStatType(StatType.DEX))
-        + (abilityEffect.IntelligenceScaling * attacker.GetStatType(StatType.INT));
+        float damage = 0;
+        for (int i = 0; i < abilityEffect.DamageScaling.Count; i++)
+        {
+            switch (abilityEffect.DamageScaling[i].Attribute)
+            {
+                case StatType.STR:
+                    damage += attacker.GetStatType(StatType.STR) * (abilityEffect.DamageScaling[i].ScalingAmount / 100);
+                    break;
+                case StatType.DEX:
+                    damage += attacker.GetStatType(StatType.DEX) * (abilityEffect.DamageScaling[i].ScalingAmount / 100);
+                    break;
+                case StatType.INT:
+                    damage += attacker.GetStatType(StatType.INT) * (abilityEffect.DamageScaling[i].ScalingAmount / 100);
+                    break;
+            }
+        }
 
         //Roll if it's a block
         bool blocked = UnityEngine.Random.Range(0f, 100f) < target.GetStatType(StatType.BlockChance);
@@ -49,7 +72,6 @@ public static class CombatResolver
             damage *= attacker.GetStatType(StatType.OutgoingDamage) / 100;
             damage *= target.GetStatType(StatType.IncomingDamage) / 100;
             result.Damage = damage;
-            result.Damage *= 1 + UnityEngine.Random.Range(-0.1f, 0.1f);
             result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
             return result;
         }
@@ -68,7 +90,6 @@ public static class CombatResolver
 
         result.DamageType = abilityEffect.DamageType;
         result.Damage = damage;
-        result.Damage *= 1 + UnityEngine.Random.Range(-0.1f, 0.1f);
         result.Damage = Mathf.Round(result.Damage * 10f) / 10f;
         return result;
     }
@@ -115,7 +136,8 @@ public static class CombatResolver
                 //For each hit, we create a hit result
                 for (int i = 0; i < effect.NumberOfHits; i++)
                 {
-                    float resolvedPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
+                    //float resolvedPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
+                    float resolvedPower = 0;
                     hitResults[i] = CalculateHitDamage(user, effect, abilityEffectTargets[o], resolvedPower);
                     abilityEffectResults[p].TotalDamage += hitResults[i].Damage;
 
@@ -152,7 +174,8 @@ public static class CombatResolver
             }
             else if (effect.StatusToApply != null)
             {
-                float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
+                //float resolvedStatusPower = EffectConditionEvaluator.ResolveEffectPower(effect, context);
+                float resolvedStatusPower = 0;
                 string statusEffectId = Guid.NewGuid().ToString();
                 abilityEffectResults[p].ApplyStatusEffect = true;
                 abilityEffectResults[p].StatusEffectName = effect.StatusToApply.StatusEffectName;
@@ -328,37 +351,37 @@ public static class EffectConditionEvaluator
         }
     }
 
-    public static float ResolveEffectPower(AbilityEffect effect, AbilityExecutionContext ctx)
-    {
-        float value = effect.DamageAmount;
-        if (effect.EffectType == EffectType.None)
-            return value;
+    // public static float ResolveEffectPower(AbilityEffect effect, AbilityExecutionContext ctx)
+    // {
+    //     float value = effect.DamageAmount;
+    //     if (effect.EffectType == EffectType.None)
+    //         return value;
 
-        for (int i = 0; i < ctx.EffectResults.Count; i++)
-        {
-            value += ctx.EffectResults[i].TotalDamage;
-        }
+    //     for (int i = 0; i < ctx.EffectResults.Count; i++)
+    //     {
+    //         value += ctx.EffectResults[i].TotalDamage;
+    //     }
 
-        if (effect.EffectScalingType == EffectScalingType.BasedOnPreviousDamage)
-        {
-            if (ctx.EffectResults.Count > 0)
-            {
-                float scaledValue = value * effect.ScalingMultiplier;
+    //     if (effect.EffectScalingType == EffectScalingType.BasedOnPreviousDamage)
+    //     {
+    //         if (ctx.EffectResults.Count > 0)
+    //         {
+    //             float scaledValue = value * effect.ScalingMultiplier;
 
-                value = scaledValue * Mathf.Sign(effect.DamageAmount);
-            }
-        }
-        else if (effect.EffectScalingType == EffectScalingType.BasedOnAttributeScaling)
-        {
-            float scaledValue = value
-            + (effect.StrengthScaling * ctx.user.GetStatType(StatType.STR))
-            + (effect.DexterityScaling * ctx.user.GetStatType(StatType.DEX))
-            + (effect.IntelligenceScaling * ctx.user.GetStatType(StatType.INT));
-            return scaledValue;
-        }
+    //             value = scaledValue * Mathf.Sign(effect.DamageAmount);
+    //         }
+    //     }
+    //     else if (effect.EffectScalingType == EffectScalingType.BasedOnAttributeScaling)
+    //     {
+    //         float scaledValue = value
+    //         + (effect.StrengthScaling * ctx.user.GetStatType(StatType.STR))
+    //         + (effect.DexterityScaling * ctx.user.GetStatType(StatType.DEX))
+    //         + (effect.IntelligenceScaling * ctx.user.GetStatType(StatType.INT));
+    //         return scaledValue;
+    //     }
 
-        return value;
-    }
+    //     return value;
+    // }
 }
 
 public enum DamageSource

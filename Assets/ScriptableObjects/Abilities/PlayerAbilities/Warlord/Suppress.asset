@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Suppress
   m_EditorClassIdentifier: 
   AbilityName: Suppress
-  AbilityDescription: Deals damage to a single enemy 2 times and applies Weakened
+  AbilityDescription: Attacks an enemy for 100% of your STR 2 times and applies Weakened
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 0
@@ -27,12 +27,11 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 2
+    DamageScaling:
+    - Attribute: 0
+      ScalingAmount: 100
     NumberOfHits: 1
     DurationBetweenHits: 0.8
-    StrengthScaling: 0
-    DexterityScaling: 0
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0
@@ -41,12 +40,11 @@ MonoBehaviour:
     ScalingMultiplier: 0
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 6
+    DamageScaling:
+    - Attribute: 0
+      ScalingAmount: 100
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 11400000, guid: 266a908f2887e2a42acb11db149f7951, type: 2}
     EffectType: 0
     ConditionType: 0

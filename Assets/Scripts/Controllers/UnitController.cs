@@ -14,11 +14,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
     public NetworkVariable<int> Strength;
     public NetworkVariable<int> Dexterity;
-    public NetworkVariable<int> Constitution;
     public NetworkVariable<int> Intelligence;
-    public NetworkVariable<int> Faith;
-    public NetworkVariable<int> Charisma;
-    public NetworkVariable<int> Luck;
+    public NetworkVariable<int> Constitution;
 
     public ClassStatPresetSO UnitData;
     public float MaxHealth = 30;
@@ -166,23 +163,17 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         {
             float levelMultiplier = Mathf.Max(0, Level.Value - 1);
 
-            float total = UnitData.Strength + UnitData.Dexterity + UnitData.Intelligence + UnitData.Faith + UnitData.Charisma + UnitData.Luck + UnitData.Constitution;
+            float total = UnitData.Strength + UnitData.Dexterity + UnitData.Intelligence + UnitData.Constitution;
 
             float strengthWeight = UnitData.Strength / total;
             float dexterityWeight = UnitData.Dexterity / total;
             float intelligenceWeight = UnitData.Intelligence / total;
-            float faithWeight = UnitData.Faith / total;
-            float charismaWeight = UnitData.Charisma / total;
-            float luckWeight = UnitData.Luck / total;
             float constitutionWeight = UnitData.Constitution / total;
 
             Strength.Value = UnitData.Strength + Mathf.RoundToInt(levelMultiplier * (0.75f + (strengthWeight * 0.75f)));
             Dexterity.Value = UnitData.Dexterity + Mathf.RoundToInt(levelMultiplier * (0.75f + (dexterityWeight * 0.75f)));
             Intelligence.Value = UnitData.Intelligence + Mathf.RoundToInt(levelMultiplier * (0.75f + (intelligenceWeight * 0.75f)));
-            Faith.Value = UnitData.Faith + Mathf.RoundToInt(levelMultiplier * (0.75f + (faithWeight * 0.75f)));
-            Charisma.Value = UnitData.Charisma + Mathf.RoundToInt(levelMultiplier * (0.75f + (charismaWeight * 0.75f)));
             Constitution.Value = UnitData.Constitution + Mathf.RoundToInt(levelMultiplier * (1.0f + (constitutionWeight * 1.0f)));
-            Luck.Value = UnitData.Luck + Mathf.RoundToInt(levelMultiplier * (0.25f + (luckWeight * 0.25f)));
         }
 
         RecalculateAllStats();
@@ -538,9 +529,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         stats[StatType.DEX] = Dexterity.Value;
         stats[StatType.CON] = Constitution.Value;
         stats[StatType.INT] = Intelligence.Value;
-        stats[StatType.FTH] = Faith.Value;
-        stats[StatType.CHA] = Charisma.Value;
-        stats[StatType.LCK] = Luck.Value;
 
         // APPLY MODIFIERS
         ApplyAttributeModifiers(stats);
@@ -554,36 +542,25 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         // CRIT
         stats[StatType.CritChance] =
-            10f +
-            (0.5f * stats[StatType.LCK]) +
-            (0.2f * stats[StatType.DEX]);
+            10f + (0.2f * stats[StatType.INT]);
 
         stats[StatType.CritDamage] =
-            50f +
-            stats[StatType.LCK] +
-            (0.5f * stats[StatType.DEX]);
+            50f + (0.5f * stats[StatType.INT]);
 
         // BLOCK
         stats[StatType.BlockChance] =
-            5f +
-            (0.5f * stats[StatType.CON]) +
-            (0.2f * stats[StatType.STR]);
+            5f + (0.5f * stats[StatType.CON]);
 
         stats[StatType.BlockDamageReduction] =
-            50f +
-            (0.2f * stats[StatType.CON]);
+            50f + (0.2f * stats[StatType.CON]);
 
         // DODGE
         stats[StatType.DodgeChance] =
-            5f +
-            (0.5f * stats[StatType.LCK]) +
-            (0.2f * stats[StatType.DEX]);
+            5f + (0.2f * stats[StatType.DEX]);
 
         // AGGRO
         stats[StatType.Aggro] =
-            100f +
-            stats[StatType.CON] -
-            stats[StatType.CHA];
+            100f;
 
         // ENERGY
         stats[StatType.EnergyGain] =
@@ -591,14 +568,14 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         // LOOT
         stats[StatType.LuckyDrop] =
-            0.5f * stats[StatType.LCK];
+            0.5f;
 
         // HEALING
         stats[StatType.OutgoingHealing] =
-            100f + (0.5f * stats[StatType.FTH]);
+            100f;
 
         stats[StatType.IncomingHealing] =
-            100f + (0.5f * stats[StatType.FTH]);
+            100f;
 
         // GENERIC DAMAGE MODIFIERS
         stats[StatType.IncomingDamage] =
@@ -714,18 +691,6 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
                 case StatType.INT:
                     controller.Intelligence.Value += change.amount;
                     break;
-
-                case StatType.FTH:
-                    controller.Faith.Value += change.amount;
-                    break;
-
-                case StatType.CHA:
-                    controller.Charisma.Value += change.amount;
-                    break;
-
-                case StatType.LCK:
-                    controller.Luck.Value += change.amount;
-                    break;
             }
         }
 
@@ -737,12 +702,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         StatType.STR,
         StatType.DEX,
+        StatType.INT,
         StatType.CON,
-        StatType.INT,
-        StatType.INT,
-        StatType.FTH,
-        StatType.CHA,
-        StatType.LCK
     };
 }
 

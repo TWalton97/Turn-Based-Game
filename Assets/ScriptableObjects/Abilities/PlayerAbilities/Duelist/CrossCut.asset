@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CrossCut
   m_EditorClassIdentifier: 
   AbilityName: Cross Cut
-  AbilityDescription: Deals a small amount of damage to all enemies 2 times
+  AbilityDescription: Attacks an enemy for 120% of your STR and then 120% of your
+    DEX
   ManaCost: 2
   TeamTargeting: 1
   TargetType: 3
@@ -27,12 +28,24 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 3
-    DamageAmount: 3
-    NumberOfHits: 2
+    DamageScaling:
+    - Attribute: 0
+      ScalingAmount: 120
+    NumberOfHits: 1
+    DurationBetweenHits: 0.5
+    StatusToApply: {fileID: 0}
+    EffectType: 0
+    ConditionType: 0
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0
+  - DamageType: 1
+    TargetType: 3
+    DamageScaling:
+    - Attribute: 1
+      ScalingAmount: 120
+    NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0.15
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0

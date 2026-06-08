@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DoubleStrike
   m_EditorClassIdentifier: 
   AbilityName: Double Strike
-  AbilityDescription: Deals damage to a single enemy 2 times
+  AbilityDescription: Attacks an enemy for 80% of your STR and DEX
   ManaCost: 1
   TeamTargeting: 1
   TargetType: 0
@@ -27,12 +27,13 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 4
+    DamageScaling:
+    - Attribute: 0
+      ScalingAmount: 80
+    - Attribute: 1
+      ScalingAmount: 80
     NumberOfHits: 2
     DurationBetweenHits: 0.2
-    StrengthScaling: 0.1
-    DexterityScaling: 0.1
-    IntelligenceScaling: 0.1
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0

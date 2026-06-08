@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Flurry
   m_EditorClassIdentifier: 
   AbilityName: Flurry
-  AbilityDescription: Deals damage to a single enemy 6 times
+  AbilityDescription: Attacks an enemy for 40% of your STR and DEX 6 times
   ManaCost: 3
   TeamTargeting: 1
   TargetType: 0
@@ -27,12 +27,13 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 2
+    DamageScaling:
+    - Attribute: 0
+      ScalingAmount: 40
+    - Attribute: 1
+      ScalingAmount: 40
     NumberOfHits: 6
     DurationBetweenHits: 0.15
-    StrengthScaling: 0
-    DexterityScaling: 0.15
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0

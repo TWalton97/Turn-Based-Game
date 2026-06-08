@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CrushingBlow
   m_EditorClassIdentifier: 
   AbilityName: Crushing Blow
-  AbilityDescription: Deals damage to a single enemy and applies Stun
+  AbilityDescription: Attacks an enemy for 120% of your STR and applies Stunned
   ManaCost: 2
   TeamTargeting: 1
   TargetType: 0
@@ -27,12 +27,11 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 0
-    DamageAmount: 11
+    DamageScaling:
+    - Attribute: 0
+      ScalingAmount: 120
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0.1
-    DexterityScaling: 0
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 11400000, guid: 2132be6d17a029143be7bc1f567a57ae, type: 2}
     EffectType: 0
     ConditionType: 0

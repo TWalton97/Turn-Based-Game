@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Bleed
   m_EditorClassIdentifier: 
   StatusEffectName: Bleed
-  StatusDescription: Deals {power} damage at the start of each turn
+  StatusDescription: Deals damage equal to 40% of the attacker's DEX each turn
   StatusSprite: {fileID: 21300000, guid: 960e95cf3b1f5294a85c156642dd2421, type: 3}
   BuffType: 1
   ActivationTime: 0
   NumberOfTurns: 3
   DamageType: 1
+  DamageScaling:
+  - Attribute: 1
+    ScalingAmount: 40

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: BladeWaltz
   m_EditorClassIdentifier: 
   AbilityName: Blade Waltz
-  AbilityDescription: Deals damage to all enemies and applies Ruptured for 3 turns
+  AbilityDescription: Attacks all enemies for 90% of your STR and DEX and applies
+    Ruptured
   ManaCost: 2
   TeamTargeting: 1
   TargetType: 3
@@ -27,12 +28,13 @@ MonoBehaviour:
   abilityEffects:
   - DamageType: 1
     TargetType: 3
-    DamageAmount: 4
+    DamageScaling:
+    - Attribute: 0
+      ScalingAmount: 90
+    - Attribute: 1
+      ScalingAmount: 90
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0.15
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0
@@ -41,12 +43,9 @@ MonoBehaviour:
     ScalingMultiplier: 0
   - DamageType: 0
     TargetType: 3
-    DamageAmount: 0
+    DamageScaling: []
     NumberOfHits: 0
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0
-    IntelligenceScaling: 0
     StatusToApply: {fileID: 11400000, guid: 27808563b514ad341b9b87a49baf3eb2, type: 2}
     EffectType: 0
     ConditionType: 0

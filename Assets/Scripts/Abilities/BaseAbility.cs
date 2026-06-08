@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,13 +47,9 @@ public class AbilityEffect
 
     //Damage effect
     public TargetType TargetType;
-    public float DamageAmount;
+    public List<AbilityEffectDamageScaling> DamageScaling;
     public int NumberOfHits;
     public float DurationBetweenHits;
-
-    public float StrengthScaling = 0f;
-    public float DexterityScaling = 0f;
-    public float IntelligenceScaling = 0f;
 
     public StatusEffect StatusToApply;
 
@@ -62,6 +59,13 @@ public class AbilityEffect
     public float ConditionThreshold = 0f;
     public EffectScalingType EffectScalingType = EffectScalingType.None;
     public float ScalingMultiplier = 1f;
+}
+
+[Serializable]
+public class AbilityEffectDamageScaling
+{
+    public StatType Attribute;
+    public float ScalingAmount;
 }
 
 public enum Team

@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Burn
   m_EditorClassIdentifier: 
   StatusEffectName: Burn
-  StatusDescription: Deals {power} damage at the start of each turn
+  StatusDescription: Deals damage equal to 50% of the attacker's INT each turn
   StatusSprite: {fileID: 21300000, guid: bd92c6460bb5438468597608360690c1, type: 3}
   BuffType: 1
   ActivationTime: 0
   NumberOfTurns: 3
   DamageType: 2
+  DamageScaling:
+  - Attribute: 2
+    ScalingAmount: 50

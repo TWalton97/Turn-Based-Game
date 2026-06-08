@@ -13,9 +13,6 @@ public class ClassStatPresetSO : ScriptableObject
 
     public int Strength;
     public int Dexterity;
-    public int Constitution;
     public int Intelligence;
-    public int Faith;
-    public int Charisma;
-    public int Luck;
+    public int Constitution;
 }

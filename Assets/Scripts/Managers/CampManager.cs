@@ -139,9 +139,6 @@ public class CampManager : NetworkBehaviour
         TrackedUnitController.Dexterity.OnValueChanged += OnStatsChanged;
         TrackedUnitController.Constitution.OnValueChanged += OnStatsChanged;
         TrackedUnitController.Intelligence.OnValueChanged += OnStatsChanged;
-        TrackedUnitController.Faith.OnValueChanged += OnStatsChanged;
-        TrackedUnitController.Charisma.OnValueChanged += OnStatsChanged;
-        TrackedUnitController.Luck.OnValueChanged += OnStatsChanged;
 
         playerDataController.AvailableStatPoints.OnValueChanged += OnSkillPointsChanged;
 
@@ -163,9 +160,6 @@ public class CampManager : NetworkBehaviour
         TrackedUnitController.Dexterity.OnValueChanged -= OnStatsChanged;
         TrackedUnitController.Constitution.OnValueChanged -= OnStatsChanged;
         TrackedUnitController.Intelligence.OnValueChanged -= OnStatsChanged;
-        TrackedUnitController.Faith.OnValueChanged -= OnStatsChanged;
-        TrackedUnitController.Charisma.OnValueChanged -= OnStatsChanged;
-        TrackedUnitController.Luck.OnValueChanged -= OnStatsChanged;
 
         playerDataController.AvailableStatPoints.OnValueChanged -= OnSkillPointsChanged;
 
@@ -374,10 +368,8 @@ public class CampManager : NetworkBehaviour
         sb.AppendLine();
         sb.AppendLine($"STR: {controller.GetStatType(StatType.STR)}");
         sb.AppendLine($"DEX: {controller.GetStatType(StatType.DEX)}");
-        sb.AppendLine($"CON: {controller.GetStatType(StatType.CON)}");
         sb.AppendLine($"INT: {controller.GetStatType(StatType.INT)}");
-        sb.AppendLine($"FTH: {controller.GetStatType(StatType.FTH)}");
-        sb.AppendLine($"LCK: {controller.GetStatType(StatType.LCK)}");
+        sb.AppendLine($"CON: {controller.GetStatType(StatType.CON)}");
 
         sb.AppendLine($"Initiative: {controller.GetStatType(StatType.InitiativeMin)} - {controller.GetStatType(StatType.InitiativeMax)}");
         sb.AppendLine($"Crit Chance: {controller.GetStatType(StatType.CritChance)}%");
