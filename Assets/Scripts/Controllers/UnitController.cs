@@ -21,12 +21,14 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public float MaxHealth;
     public NetworkVariable<float> CurrentHealth;
     public float DisplayedHealth;
+    private float missingHealth;
 
     public NetworkVariable<int> Level;
 
     public int MaxMana = 5;
     public NetworkVariable<int> CurrentMana;
     public int DisplayedMana;
+
 
     public NetworkVariable<bool> ServerIsAlive;
     public bool ClientIsAlive;
@@ -172,17 +174,16 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         {
             float levelMultiplier = Mathf.Max(0, Level.Value - 1);
 
-            float total = UnitData.Strength + UnitData.Dexterity + UnitData.Intelligence + UnitData.Constitution;
+            float total = UnitData.Strength + UnitData.Dexterity + UnitData.Intelligence;
 
             float strengthWeight = UnitData.Strength / total;
             float dexterityWeight = UnitData.Dexterity / total;
             float intelligenceWeight = UnitData.Intelligence / total;
-            float constitutionWeight = UnitData.Constitution / total;
 
             Strength.Value = UnitData.Strength + Mathf.RoundToInt(levelMultiplier * (0.75f + (strengthWeight * 0.75f)));
             Dexterity.Value = UnitData.Dexterity + Mathf.RoundToInt(levelMultiplier * (0.75f + (dexterityWeight * 0.75f)));
             Intelligence.Value = UnitData.Intelligence + Mathf.RoundToInt(levelMultiplier * (0.75f + (intelligenceWeight * 0.75f)));
-            Constitution.Value = UnitData.Constitution + Mathf.RoundToInt(levelMultiplier * (1.0f + (constitutionWeight * 1.0f)));
+            Constitution.Value = UnitData.Constitution;
         }
 
         RecalculateAllStats();
@@ -530,7 +531,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     {
         var stats = new Dictionary<StatType, float>();
 
-        MaxHealth = UnitData.MaxHealth + (Constitution.Value * 2);
+        MaxHealth = Constitution.Value * 33;
 
         // BASE ATTRIBUTES
         stats[StatType.STR] = Strength.Value;
@@ -693,6 +694,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
                     break;
 
                 case StatType.CON:
+                    missingHealth = MaxHealth - CurrentHealth.Value;
                     controller.Constitution.Value += change.amount;
                     break;
 
@@ -704,6 +706,15 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         controller.CachedStatsDirty = true;
         controller.RecalculateAllStats();
+        controller.CurrentHealth.Value = MaxHealth - missingHealth;
+        UpdateDisplayedHealthClientRpc();
+    }
+
+    [ClientRpc]
+    private void UpdateDisplayedHealthClientRpc()
+    {
+        DisplayedHealth = CurrentHealth.Value;
+        OnDisplayedHealthChanged?.Invoke();
     }
 
     private readonly HashSet<StatType> AttributeStats = new()

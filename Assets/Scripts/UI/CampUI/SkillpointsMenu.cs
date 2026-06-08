@@ -19,6 +19,7 @@ public class SkillpointsMenu : MonoBehaviour
     private void OnEnable()
     {
         AvailableSkillpoints = CampManager.instance.playerDataController.AvailableStatPoints.Value;
+        InitializeAllSkillpointSwitches();
         UpdateText();
     }
 
@@ -27,11 +28,35 @@ public class SkillpointsMenu : MonoBehaviour
         AvailableSkillpointsMenu.text = $"Skillpoints: {AvailableSkillpoints}";
     }
 
+    private void InitializeAllSkillpointSwitches()
+    {
+        UnitController unitController = CampManager.instance.playerDataController.UnitController;
+
+        foreach (SkillpointSwitch sps in SkillpointSwitches)
+        {
+            switch (sps.Attribute)
+            {
+                case StatType.STR:
+                    sps.InitializeSkillpointSwitch(unitController.GetStatType(StatType.STR));
+                    break;
+                case StatType.DEX:
+                    sps.InitializeSkillpointSwitch(unitController.GetStatType(StatType.DEX));
+                    break;
+                case StatType.INT:
+                    sps.InitializeSkillpointSwitch(unitController.GetStatType(StatType.INT));
+                    break;
+                case StatType.CON:
+                    sps.InitializeSkillpointSwitch(unitController.GetStatType(StatType.CON));
+                    break;
+            }
+        }
+    }
+
     public void ConfirmChanges()
     {
         UnitController controller = CampManager.instance.TrackedUnitController;
         StatAllocation statAllocation = new StatAllocation();
-        statAllocation.statChanges = new StatChange[7];
+        statAllocation.statChanges = new StatChange[4];
         for (int i = 0; i < SkillpointSwitches.Length; i++)
         {
             statAllocation.statChanges[i] = new StatChange();

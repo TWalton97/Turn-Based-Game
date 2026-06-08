@@ -10,9 +10,20 @@ public class SkillpointSwitch : MonoBehaviour
     public TextMeshProUGUI CurrentlyInvestedPointsText;
     private SkillpointsMenu skillpointsMenu;
 
+    public Color DefaultTextColor;
+    public Color InvestedTextColor;
+
+    private int amountOfPoints;
+
     void Awake()
     {
         skillpointsMenu = GetComponentInParent<SkillpointsMenu>();
+    }
+
+    public void InitializeSkillpointSwitch(float amountOfPoints)
+    {
+        this.amountOfPoints = (int)amountOfPoints;
+        Reset();
     }
 
     public void TryAddPoint()
@@ -22,7 +33,7 @@ public class SkillpointSwitch : MonoBehaviour
             skillpointsMenu.AvailableSkillpoints -= 1;
             skillpointsMenu.UpdateText();
             CurrentlyInvestedPoints += 1;
-            CurrentlyInvestedPointsText.text = $"({CurrentlyInvestedPoints})";
+            UpdateText();
         }
     }
 
@@ -33,13 +44,27 @@ public class SkillpointSwitch : MonoBehaviour
             skillpointsMenu.AvailableSkillpoints += 1;
             skillpointsMenu.UpdateText();
             CurrentlyInvestedPoints -= 1;
-            CurrentlyInvestedPointsText.text = $"({CurrentlyInvestedPoints})";
+            UpdateText();
+        }
+    }
+
+    private void UpdateText()
+    {
+        CurrentlyInvestedPointsText.text = $"({amountOfPoints + CurrentlyInvestedPoints})";
+        if (CurrentlyInvestedPoints == 0)
+        {
+            CurrentlyInvestedPointsText.color = DefaultTextColor;
+        }
+        else
+        {
+            CurrentlyInvestedPointsText.color = InvestedTextColor;
         }
     }
 
     public void Reset()
     {
         CurrentlyInvestedPoints = 0;
-        CurrentlyInvestedPointsText.text = $"({CurrentlyInvestedPoints})";
+        CurrentlyInvestedPointsText.text = $"({amountOfPoints + CurrentlyInvestedPoints})";
+        CurrentlyInvestedPointsText.color = DefaultTextColor;
     }
 }

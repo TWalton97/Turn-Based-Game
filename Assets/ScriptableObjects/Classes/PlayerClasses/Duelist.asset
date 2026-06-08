@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Duelist
   m_EditorClassIdentifier: 
   ClassName: Duelist
-  MaxHealth: 40
   MaxMana: 5
   AbilityUnlocks:
   - LevelToUnlock: 0
@@ -44,7 +43,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 05226c3d66c5bd24e8a067538a3805c0, type: 2}
     - {fileID: 11400000, guid: 0b85937a1c537094e9332d64b7b59c2d, type: 2}
     - {fileID: 11400000, guid: 375d493276558704f80a3ff8edb7c176, type: 2}
-  Strength: 2
-  Dexterity: 2
-  Intelligence: 0
-  Constitution: 0
+  Strength: 9
+  Dexterity: 10
+  Intelligence: 2
+  Constitution: 4

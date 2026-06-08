@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Arcanist
   m_EditorClassIdentifier: 
   ClassName: Arcanist
-  MaxHealth: 50
   MaxMana: 5
   AbilityUnlocks:
   - LevelToUnlock: 0
@@ -43,7 +42,7 @@ MonoBehaviour:
     AbilityToUnlock:
     - {fileID: 11400000, guid: e4dde0684ee6e674e9a64be3b8bbd66f, type: 2}
     - {fileID: 11400000, guid: 45e93a1d766a6304f8e2022043541cb6, type: 2}
-  Strength: 0
-  Dexterity: 0
-  Intelligence: 4
-  Constitution: 0
+  Strength: 3
+  Dexterity: 3
+  Intelligence: 16
+  Constitution: 3

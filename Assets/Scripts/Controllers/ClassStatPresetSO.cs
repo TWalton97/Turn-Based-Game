@@ -6,7 +6,6 @@ using UnityEngine;
 public class ClassStatPresetSO : ScriptableObject
 {
     public string ClassName;
-    public int MaxHealth;
     public int MaxMana = 5;
 
     public List<AbilityUnlock> AbilityUnlocks;

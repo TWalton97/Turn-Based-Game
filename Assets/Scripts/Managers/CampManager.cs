@@ -145,6 +145,8 @@ public class CampManager : NetworkBehaviour
         StashController.instance.stashEntries.OnListChanged += UpdateStashEntries;
         playerDataController.InventoryItems.OnListChanged += UpdateInventoryEntries;
         TrackedUnitController.StatModifiers.OnListChanged += UpdateStatsPanel;
+
+        TrackedUnitController.OnDisplayedHealthChanged += PopulatePlayerStatsPanel;
     }
 
     public override void OnDestroy()
@@ -166,6 +168,8 @@ public class CampManager : NetworkBehaviour
         StashController.instance.stashEntries.OnListChanged -= UpdateStashEntries;
         playerDataController.InventoryItems.OnListChanged -= UpdateInventoryEntries;
         TrackedUnitController.StatModifiers.OnListChanged -= UpdateStatsPanel;
+
+        TrackedUnitController.OnDisplayedHealthChanged -= PopulatePlayerStatsPanel;
     }
 
     private void UpdateStashEntries(NetworkListEvent<StashEntry> changeEvent)
