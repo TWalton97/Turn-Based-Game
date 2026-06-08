@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 573f7c6354f351e48b5e8cb78e3bf452, type: 3}
   m_Name: Fireball
   m_EditorClassIdentifier: 
-  AbilityName: 
-  AbilityDescription: 
+  AbilityName: Fireball
+  AbilityDescription: Attacks an enemy for 140% of your INT and inflicts Burn
   ManaCost: 0
-  TeamTargeting: 0
+  TeamTargeting: 1
   TargetType: 0
   Cooldown: 0
   MovesToTarget: 0
@@ -24,4 +24,17 @@ MonoBehaviour:
   Animation: {fileID: 0}
   VFX: {fileID: 0}
   AIIntents: 
-  abilityEffects: []
+  abilityEffects:
+  - DamageType: 2
+    TargetType: 0
+    DamageScaling:
+    - Attribute: 2
+      ScalingAmount: 140
+    NumberOfHits: 1
+    DurationBetweenHits: 0
+    StatusToApply: {fileID: 11400000, guid: d9afe1a7d8ac9a142b7634673b4b97f4, type: 2}
+    EffectType: 0
+    ConditionType: 0
+    ConditionThreshold: 0
+    EffectScalingType: 0
+    ScalingMultiplier: 0

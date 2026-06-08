@@ -18,7 +18,7 @@ MonoBehaviour:
   - LevelToUnlock: 0
     AbilityUnlockType: 0
     AbilityToUnlock:
-    - {fileID: 11400000, guid: 3a1a654f3f449be4b833c13a13453643, type: 2}
+    - {fileID: 11400000, guid: 9d232cf466b723d48a5f409dac11ac2d, type: 2}
   - LevelToUnlock: 0
     AbilityUnlockType: 0
     AbilityToUnlock:

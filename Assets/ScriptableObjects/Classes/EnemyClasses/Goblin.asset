@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Goblin
   m_EditorClassIdentifier: 
   ClassName: Goblin
-  MaxHealth: 6
   MaxMana: 5
   AbilityUnlocks:
   - LevelToUnlock: 0
@@ -28,7 +27,7 @@ MonoBehaviour:
     AbilityUnlockType: 0
     AbilityToUnlock:
     - {fileID: 11400000, guid: c989e744af7c0a54f8b660a48d6dc928, type: 2}
-  Strength: 2
-  Dexterity: 2
-  Intelligence: 1
+  Strength: 5
+  Dexterity: 5
+  Intelligence: 2
   Constitution: 1

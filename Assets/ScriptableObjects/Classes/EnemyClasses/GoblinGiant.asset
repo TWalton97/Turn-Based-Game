@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: GoblinGiant
   m_EditorClassIdentifier: 
   ClassName: Goblin Giant
-  MaxHealth: 60
   MaxMana: 5
   AbilityUnlocks:
   - LevelToUnlock: 0
@@ -41,6 +40,6 @@ MonoBehaviour:
     AbilityToUnlock:
     - {fileID: 11400000, guid: cc2ed14a3320c184e93bd01dd83ad442, type: 2}
   Strength: 10
-  Dexterity: 2
-  Intelligence: 1
+  Dexterity: 4
+  Intelligence: 2
   Constitution: 10
