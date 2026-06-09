@@ -18,7 +18,7 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
     public bool MovesToTarget;
     public float AbilityAnimationDelay = 2f;
     public bool UsesProjectile;
-    public Animation Animation;
+    public AbilityAnimationType AnimationType;
     public GameObject VFX;
 
     public List<AIIntent> AIIntents;
@@ -143,6 +143,15 @@ public enum AIIntent
     SelfHeal,
     AOEDamage,
 
+}
+
+[Serializable]
+public enum AbilityAnimationType
+{
+    LightAttack,
+    HeavyAttack,
+    Spell,
+    Heal,
 }
 
 

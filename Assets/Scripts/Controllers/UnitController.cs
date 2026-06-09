@@ -62,6 +62,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
     public List<StateModifier> StateModifiers;
     public bool CachedStatsDirty = true;
 
+    private Animator animator;
+
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
@@ -78,6 +80,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         TurnManager.OnClientTurnStarted += ClientTurnInitialization;
         TurnManager.OnClientActionPhaseStarted += ClientBeginActionPhase;
         TurnManager.OnClientTurnEnded += ClientEndTurn;
+
+        animator = GetComponentInChildren<Animator>();
 
         StatModifiers = new();
     }
@@ -340,6 +344,8 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         DisplayedHealth = Mathf.Clamp(DisplayedHealth - hitResult.Damage, 0, MaxHealth);
         DamageNumberManager.instance.SpawnDamageNumberAtPosition(hitResult, transform.position);
 
+        animator.SetTrigger("TakeDamage");
+
         if (hitResult.DamageSource != DamageSource.StatusEffect && !hitResult.Dodged)
             statusEffectController.ClientOnHit();
 
@@ -394,9 +400,11 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         if (!ClientIsAlive)
             return;
 
+        animator.SetBool("IsDead", true);
+
         TurnManager.instance.RemoveTurnEntryUI(this);
         OnClientDie?.Invoke();
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
         ClientIsAlive = false;
         if (TurnManager.instance.ClientCurrentTurnUnitController == this)
             TurnManager.instance.RequestClientTurnAdvance();
@@ -420,6 +428,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         yield return new WaitForSeconds(0.4f);
 
+        PlayCorrectAttackAnimation(ability);
         for (int p = 0; p < abilityResult.AbilityEffectResults.Length; p++)
         {
             for (int o = 0; o < abilityResult.AbilityEffectResults[p].TargetResults.Length; o++)
@@ -452,6 +461,25 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
         yield return null;
     }
 
+    private void PlayCorrectAttackAnimation(BaseAbility ability)
+    {
+        switch (ability.AnimationType)
+        {
+            case AbilityAnimationType.LightAttack:
+                animator.SetTrigger("MeleeLight");
+                break;
+            case AbilityAnimationType.HeavyAttack:
+                animator.SetTrigger("MeleeHeavy");
+                break;
+            case AbilityAnimationType.Spell:
+                animator.SetTrigger("Spell");
+                break;
+            case AbilityAnimationType.Heal:
+                animator.SetTrigger("Heal");
+                break;
+        }
+    }
+
     public int GetAbilityIndex(RuntimeAbilityInstance ability)
     {
         return RuntimeAbilityInstances.IndexOf(ability);
@@ -469,7 +497,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         startPos = transform.position;
         Vector3 endPos = selectedTarget.transform.position + selectedTarget.transform.forward * 2f;
-        yield return MoveTo(endPos, 0.4f);
+        yield return MoveTo(endPos, 0.3f);
     }
 
     private IEnumerator MoveToOriginalPositionIfNeeded(bool movesToTarget)
@@ -478,11 +506,12 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             yield break;
 
         Vector3 endPos = startPos;
-        yield return MoveTo(endPos, 0.4f);
+        yield return MoveTo(endPos, 0.3f);
     }
 
     private IEnumerator MoveTo(Vector3 position, float duration)
     {
+        animator.SetBool("Walking", true);
         Vector3 startPos = transform.position;
         float elapsedTime = 0f;
         while (elapsedTime < duration)
@@ -491,6 +520,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
             transform.position = Vector3.Lerp(startPos, position, elapsedTime / duration);
             yield return null;
         }
+        animator.SetBool("Walking", false);
         yield break;
     }
 

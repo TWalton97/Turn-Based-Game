@@ -19,9 +19,9 @@ MonoBehaviour:
   TargetType: 0
   Cooldown: 2
   MovesToTarget: 1
-  AbilityAnimationDelay: 2
+  AbilityAnimationDelay: 2.6
   UsesProjectile: 0
-  Animation: {fileID: 0}
+  AnimationType: 0
   VFX: {fileID: 0}
   AIIntents: 00000000
   abilityEffects:

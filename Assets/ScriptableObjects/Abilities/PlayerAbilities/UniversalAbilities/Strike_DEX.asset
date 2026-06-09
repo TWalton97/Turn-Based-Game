@@ -19,9 +19,9 @@ MonoBehaviour:
   TargetType: 0
   Cooldown: 0
   MovesToTarget: 1
-  AbilityAnimationDelay: 2
+  AbilityAnimationDelay: 2.2
   UsesProjectile: 0
-  Animation: {fileID: 0}
+  AnimationType: 0
   VFX: {fileID: 0}
   AIIntents: 00000000
   abilityEffects:
@@ -31,7 +31,7 @@ MonoBehaviour:
     - Attribute: 1
       ScalingAmount: 170
     NumberOfHits: 1
-    DurationBetweenHits: 0
+    DurationBetweenHits: 0.8
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0

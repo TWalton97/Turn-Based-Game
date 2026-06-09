@@ -106,15 +106,9 @@ MonoBehaviour:
     m_InternalValue: 0
   Dexterity:
     m_InternalValue: 0
-  Constitution:
-    m_InternalValue: 0
   Intelligence:
     m_InternalValue: 0
-  Faith:
-    m_InternalValue: 0
-  Charisma:
-    m_InternalValue: 0
-  Luck:
+  Constitution:
     m_InternalValue: 0
   UnitData: {fileID: 11400000, guid: 32003af42f18a7e4680079553ad4bb7b, type: 2}
   MaxHealth: 32
