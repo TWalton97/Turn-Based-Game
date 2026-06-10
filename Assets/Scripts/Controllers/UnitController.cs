@@ -428,9 +428,18 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         yield return new WaitForSeconds(0.4f);
 
-        PlayCorrectAttackAnimation(ability);
+        float animationDuration = 1f;
+        if (animator.runtimeAnimatorController != null)
+        {
+            PlayCorrectAttackAnimation(ability);
+            yield return null;
+            animationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
+        }
+
         for (int p = 0; p < abilityResult.AbilityEffectResults.Length; p++)
         {
+            float durationBetweenHits = animationDuration / (ability.abilityEffects[p].NumberOfHits + 1);
+            yield return new WaitForSeconds(durationBetweenHits);
             for (int o = 0; o < abilityResult.AbilityEffectResults[p].TargetResults.Length; o++)
             {
                 UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.AbilityEffectResults[p].TargetResults[o].TargetId);
@@ -438,7 +447,7 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
                 {
                     statusEffectController.ClientOnAttack();
                     target.ClientTakeDamage(abilityResult.AbilityEffectResults[p].TargetResults[o].Hits[i]);
-                    yield return new WaitForSeconds(ability.abilityEffects[p].DurationBetweenHits);
+                    yield return new WaitForSeconds(durationBetweenHits);
                 }
 
                 if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
