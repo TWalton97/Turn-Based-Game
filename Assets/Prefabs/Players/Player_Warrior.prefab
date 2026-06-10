@@ -2141,6 +2141,7 @@ GameObject:
   - component: {fileID: 2220474873611023449}
   - component: {fileID: -1230232494730589073}
   - component: {fileID: 4742403311387134192}
+  - component: {fileID: 4083064269477364713}
   m_Layer: 0
   m_Name: Player_Warrior
   m_TagString: Untagged
@@ -2285,6 +2286,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ServerActiveStatusEffects: []
   ClientActiveStatusEffectViews: []
+--- !u!136 &4083064269477364713
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381207045323696021}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.75
+  m_Height: 2.75
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.35, z: 0}
 --- !u!1 &2680050632094116719
 GameObject:
   m_ObjectHideFlags: 0

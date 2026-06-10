@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7367418481594108555}
   - component: {fileID: 3994354404472402544}
   - component: {fileID: -8474875252775541451}
+  - component: {fileID: 454192958469139798}
   m_Layer: 0
   m_Name: Goblin
   m_TagString: Untagged
@@ -129,6 +130,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ServerActiveStatusEffects: []
   ClientActiveStatusEffectViews: []
+--- !u!136 &454192958469139798
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381207045323696021}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1886398091002187155
 PrefabInstance:
   m_ObjectHideFlags: 0
