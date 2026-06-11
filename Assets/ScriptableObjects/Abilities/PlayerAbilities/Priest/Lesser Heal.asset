@@ -21,21 +21,20 @@ MonoBehaviour:
   MovesToTarget: 0
   AbilityAnimationDelay: 2
   UsesProjectile: 0
-  Animation: {fileID: 0}
+  AnimationType: 0
   VFX: {fileID: 0}
   AIIntents: 01000000
   abilityEffects:
   - DamageType: 5
     TargetType: 0
-    DamageAmount: -7
+    DamageScaling: []
     NumberOfHits: 1
     DurationBetweenHits: 0
-    StrengthScaling: 0
-    DexterityScaling: 0
-    IntelligenceScaling: 0.25
     StatusToApply: {fileID: 0}
     EffectType: 0
     ConditionType: 0
     ConditionThreshold: 0
     EffectScalingType: 0
     ScalingMultiplier: 1
+  impactTimings:
+  - 0.5

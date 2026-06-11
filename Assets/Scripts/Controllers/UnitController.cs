@@ -438,22 +438,45 @@ public class UnitController : NetworkBehaviour, IPointerClickHandler, IPointerEn
 
         for (int p = 0; p < abilityResult.AbilityEffectResults.Length; p++)
         {
-            float durationBetweenHits = animationDuration / (ability.abilityEffects[p].NumberOfHits + 1);
-            yield return new WaitForSeconds(durationBetweenHits);
-            for (int o = 0; o < abilityResult.AbilityEffectResults[p].TargetResults.Length; o++)
+            var effect = abilityResult.AbilityEffectResults[p];
+
+            float previousTime = 0f;
+
+            for (int i = 0; i < ability.impactTimings.Length; i++)
             {
-                UnitController target = NetworkUtilities.GetUnitControllerById(abilityResult.AbilityEffectResults[p].TargetResults[o].TargetId);
-                for (int i = 0; i < abilityResult.AbilityEffectResults[p].TargetResults[o].Hits.Length; i++)
+                float impactTime = ability.impactTimings[i] * animationDuration;
+
+                yield return new WaitForSeconds(impactTime - previousTime);
+
+                for (int o = 0; o < effect.TargetResults.Length; o++)
                 {
+                    var target = NetworkUtilities.GetUnitControllerById(
+                        effect.TargetResults[o].TargetId);
+
                     statusEffectController.ClientOnAttack();
-                    target.ClientTakeDamage(abilityResult.AbilityEffectResults[p].TargetResults[o].Hits[i]);
-                    yield return new WaitForSeconds(durationBetweenHits);
+
+                    target.ClientTakeDamage(
+                        effect.TargetResults[o].Hits[i]);
                 }
 
-                if (abilityResult.AbilityEffectResults[p].ApplyStatusEffect)
+                previousTime = impactTime;
+            }
+
+            if (effect.ApplyStatusEffect)
+            {
+                for (int o = 0; o < effect.TargetResults.Length; o++)
                 {
-                    StatusEffect status = StatusDatabase.GetStatusByName(abilityResult.AbilityEffectResults[p].StatusEffectName);
-                    target.statusEffectController.ClientApplyStatusEffect(status, abilityResult.AttackerId, abilityResult.AbilityEffectResults[p].StatusEffectId, abilityResult.AbilityEffectResults[p].StatusEffectResolvedPower);
+                    var target = NetworkUtilities.GetUnitControllerById(
+                        effect.TargetResults[o].TargetId);
+
+                    StatusEffect status =
+                        StatusDatabase.GetStatusByName(effect.StatusEffectName);
+
+                    target.statusEffectController.ClientApplyStatusEffect(
+                        status,
+                        abilityResult.AttackerId,
+                        effect.StatusEffectId,
+                        effect.StatusEffectResolvedPower);
                 }
             }
         }

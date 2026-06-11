@@ -38,3 +38,7 @@ MonoBehaviour:
     ConditionThreshold: 0
     EffectScalingType: 0
     ScalingMultiplier: 1
+  impactTimings:
+  - 0.4
+  - 0.6
+  - 0.8

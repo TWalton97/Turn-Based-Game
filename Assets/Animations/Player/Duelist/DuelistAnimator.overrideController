@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: DuelistAnimator
+  m_Controller: {fileID: 9100000, guid: 102e2b7583b620544aa4ef98dd33219c, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 7dbe8f726f4a3474db71d7d7044e1df1, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 068f6b803e2717441bb7df9422d60c7e, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: acc3515e342903546a7533ef0a069c19, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: a279533ea84031a45b1ee2d6b9703edf, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 8ff305e9b2602d045b34747b9c84429e, type: 2}
+    m_OverrideClip: {fileID: 3094330708855449807, guid: f136ef28d67ab0f4f8e00c33ed181abb, type: 3}

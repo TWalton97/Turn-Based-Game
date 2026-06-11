@@ -21,7 +21,7 @@ MonoBehaviour:
   MovesToTarget: 1
   AbilityAnimationDelay: 2
   UsesProjectile: 0
-  Animation: {fileID: 0}
+  AnimationType: 0
   VFX: {fileID: 0}
   AIIntents: 00000000
   abilityEffects:
@@ -38,3 +38,5 @@ MonoBehaviour:
     ConditionThreshold: 0
     EffectScalingType: 0
     ScalingMultiplier: 0
+  impactTimings:
+  - 0.45

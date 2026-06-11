@@ -23,6 +23,7 @@ public class BaseAbility : ScriptableObject, ICombatActionSource
 
     public List<AIIntent> AIIntents;
     public List<AbilityEffect> abilityEffects = new();
+    public float[] impactTimings;
 
     public bool CanUse(UnitController controller)
     {
